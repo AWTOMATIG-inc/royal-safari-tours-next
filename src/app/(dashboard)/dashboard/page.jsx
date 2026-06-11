@@ -47,6 +47,12 @@ const DashboardLink = [
     icon: "material-symbols:format-quote-outline-rounded",
     href: "/dashboard/testimonials",
   },
+  {
+    id: 8,
+    name: "Gallery",
+    icon: "mdi:image-multiple-outline",
+    href: "/dashboard/gallery",
+  },
 ];
 export default function Dashboard() {
   return (
