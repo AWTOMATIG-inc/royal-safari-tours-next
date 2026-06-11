@@ -42,3 +42,6 @@ next-env.d.ts
 
 # deployment
 deploy.sh
+
+# user-uploaded files (persist on server filesystem, not in git)
+/uploads
