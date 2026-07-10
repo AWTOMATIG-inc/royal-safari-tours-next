@@ -1,5 +1,5 @@
 import { getTourPackagesAndLocations } from "@/actions/tour-package";
-import GallerySlider from "@/components/pages/home/GallerySlider";
+import Gallery from "@/components/pages/home/Gallery";
 import Hero from "@/components/pages/home/Hero";
 import Memories from "@/components/pages/home/Memories";
 import NatureAndBeyond from "@/components/pages/home/NatureAndBeyond";
@@ -32,7 +32,7 @@ export default async function Home() {
 
       <Testimonials />
       <Subscription />
-      <GallerySlider />
+      <Gallery />
     </main>
   );
 }

@@ -92,6 +92,26 @@ const Sidebar = () => {
             <Icon icon="fluent-mdl2:subscribe" width="20" height="24" />
             <span>Subscribers</span>
           </Link>
+          <Link
+            onClick={() => setIsSidebar(false)}
+            href="/dashboard/testimonials"
+            className={`flex items-center gap-2 py-2 px-4 rounded-md hover:bg-black/10 ${
+              path === "/dashboard/testimonials" ? "bg-black/10" : ""
+            }`}
+          >
+            <Icon icon="material-symbols:format-quote-outline-rounded" width="24" height="24" />
+            <span>Testimonials</span>
+          </Link>
+          <Link
+            onClick={() => setIsSidebar(false)}
+            href="/dashboard/gallery"
+            className={`flex items-center gap-2 py-2 px-4 rounded-md hover:bg-black/10 ${
+              path === "/dashboard/gallery" ? "bg-black/10" : ""
+            }`}
+          >
+            <Icon icon="mdi:image-multiple-outline" width="24" height="24" />
+            <span>Gallery</span>
+          </Link>
         </nav>
 
         <Link
