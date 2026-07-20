@@ -1,79 +1,47 @@
 "use client";
-import { Icon } from "@iconify/react";
 
 import logo from "@/assets/logo/royal-safari-2.png";
+import royal_logo from "@/assets/logo/royal-logo.png";
+import { Icon } from "@iconify/react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import ShapeButton from "../components/ShapeButton";
-import { PaymentIcon, SupportIcon } from "./svg-icons";
+import ShapeButton from "@/components/ShapeButton";
+import { PaymentIcon } from "./svg-icons";
+
 const helperLinks = [
-  {
-    id: 0,
-    lavel: "Home",
-    link: "/",
-  },
-  {
-    id: 1,
-    lavel: "Adventure",
-    link: "/adventure",
-  },
-  {
-    id: 2,
-    lavel: "About Us",
-    link: "/about-us",
-  },
-  {
-    id: 3,
-    lavel: "Contact us",
-    link: "/contact",
-  },
+  { id: 0, label: "Home", link: "/" },
+  { id: 1, label: "Adventure", link: "/adventure" },
+  { id: 2, label: "About Us", link: "/about-us" },
+  { id: 3, label: "Contact Us", link: "/contact" },
 ];
+
 const countryLinks = [
-  {
-    id: 1,
-    lavel: "Bangladesh",
-    link: "/bangladesh",
-  },
-  {
-    id: 2,
-    lavel: "Thailand",
-    link: "/thailand",
-  },
-  {
-    id: 3,
-    lavel: "nepal",
-    link: "/Nepal",
-  },
-  {
-    id: 4,
-    lavel: "singapore",
-    link: "/singapore",
-  },
-  {
-    id: 5,
-    lavel: "srilanka",
-    link: "/srilanka",
-  },
+  { id: 1, label: "Bangladesh", link: "/adventure" }, // Links mapped to adventure search
+  { id: 2, label: "Thailand", link: "/adventure" },
+  { id: 3, label: "Nepal", link: "/adventure" },
+  { id: 4, label: "Singapore", link: "/adventure" },
 ];
+
 export default function Footer() {
   const pathname = usePathname();
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!name) {
+    if (!name.trim()) {
       return toast.error("Please add your name");
     }
-    if (!email) {
-      return toast.error("Please add a valid gmail");
+    if (!email.trim()) {
+      return toast.error("Please add a valid email");
     }
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const isValid = regex.test(email);
     if (!isValid) {
-      return toast.error("Please add a valid gmail");
+      return toast.error("Please add a valid email");
     }
     try {
       const res = await fetch("/api/subscriber", {
@@ -86,228 +54,201 @@ export default function Footer() {
       if (res.status === 409) {
         setEmail("");
         setName("");
-        return toast.error("You have already Subscribed!");
+        return toast.error("You have already subscribed!");
       }
-      const data = await res.json();
       setEmail("");
       setName("");
-      return toast.success("Subscribed successfuly!");
+      return toast.success("Subscribed successfully!");
     } catch (error) {
-      console.log(error);
+      console.error(error);
+      return toast.error("Something went wrong. Please try again.");
     }
   };
+
+  // Hide footer inside dashboard views
   if (pathname.includes("/dashboard")) {
     return null;
   }
+
   return (
-    <footer className="bg-footer-banner">
-      <div className="container text-white pt-10 sm:pt-20">
-        <div className="sm:hidden">
-          <div>
-            <Image
-              loading="eager"
-              src={logo}
-              alt="logo"
-              className="max-w-[109px] h-auto"
-            />
-            <p className="mt-6">Address : khilgaon, Dhaka, Bangladesh, 1219</p>
-          </div>
-          <div className="mt-7">
-            <p>01898-334722 / 01898-334722</p>
-            <div className="flex items-center gap-2 mt-3 group w-fit">
-              <SupportIcon className="group-hover:text-orange-400" />
-              <a
-                className="group-hover:underline group-hover:text-orange-400"
-                href="mailto:support@example.com"
-              >
-                support@example.com
-              </a>
-            </div>
-          </div>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-[2fr_1.5fr_1fr] md:grid-cols-[2fr_1fr_1fr] xl:grid-cols-[2fr_1fr_1fr_1fr_1fr] gap-6 md:gap-8 mt-14 sm:mt-0">
-          <div className="border-r border-gray-500 hidden sm:block">
-            <div>
+    <footer className="bg-body text-[#0D231E] border-t border-[#0D231E]/8 font-calibre relative overflow-hidden">
+      <div className="container mx-auto px-4 sm:px-6 md:px-10 lg:px-8 pt-16 sm:pt-24 pb-8">
+
+        {/* ROW 1: BRAND LOGO, MENU LINKS & OFFICE ADDRESS */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-12 pb-12 sm:pb-16 text-left">
+
+          {/* Column 1 - Logo and branding */}
+          <div className="lg:col-span-4 flex flex-col items-start max-w-sm">
+            <Link href="/" className="mb-5 block">
               <Image
                 loading="eager"
-                src={logo}
-                alt="logo"
-                className="max-w-[109px] h-auto"
+                src={royal_logo}
+                alt="Royal Safari Tours"
+                className="w-28 sm:w-32 h-auto object-contain"
               />
-              <p className="mt-6">
-                Address : khilgaon, Dhaka, Bangladesh, 1219
-              </p>
-            </div>
-            <div className="mt-7">
-              <p>01898-334722 / 01898-334722</p>
-              <div className="flex items-center gap-2 mt-3 group w-fit">
-                <SupportIcon className="group-hover:text-orange-400" />
-                <a
-                  className="group-hover:underline group-hover:text-orange-400"
-                  href="mailto:info.royalsafaritours@gmail.com"
-                >
-                  info.royalsafaritours@gmail.com
-                </a>
+            </Link>
+            <p className="text-sm text-[#0D231E]/90 leading-relaxed font-light mb-6">
+              Crafting premium regional expeditions and heartfelt hospitality across South Asia and beyond. Founded by passionate travelers to inspire and rejuvenate.
+            </p>
+
+            {/* Outline Social Icons */}
+            <ul className="flex items-center gap-2.5">
+              {[
+                { icon: "uiw:facebook", url: "https://www.facebook.com/royalsafaritour", label: "Facebook" },
+                { icon: "mdi:instagram", url: "https://www.instagram.com/royal.safari.tours?igsh=ZmU3YXkxbzdxMDlt", label: "Instagram" },
+                { icon: "prime:twitter", url: "#", label: "Twitter" },
+                { icon: "mdi:youtube", url: "#", label: "YouTube" }
+              ].map((social, idx) => (
+                <li key={idx}>
+                  <a
+                    href={social.url}
+                    className="flex items-center justify-center w-9 h-9 rounded-full border border-[#0D231E]/15 text-[#0D231E]/70 hover:text-[#DE8D3D] hover:border-[#DE8D3D] hover:bg-[#DE8D3D]/5 transition-all duration-300"
+                    target={social.url !== "#" ? "_blank" : undefined}
+                    rel="noreferrer"
+                    aria-label={`Follow Royal Safari Tours on ${social.label}`}
+                  >
+                    <Icon icon={social.icon} width="16" height="16" />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Column 2 - Menu Links (Explore) */}
+          <div className="lg:col-span-2">
+            <h5 className="text-xs font-bold tracking-[0.2em] text-[#0D231E] uppercase mb-4 sm:mb-5">
+              Explore
+            </h5>
+            <ul className="flex flex-col gap-3 text-[13px] sm:text-sm font-semibold tracking-wide uppercase">
+              {helperLinks.map((link) => (
+                <li key={link.id}>
+                  <Link href={link.link} className="text-[#0D231E]/80 hover:text-[#DE8D3D] transition-colors duration-300">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Column 3 - Menu Links (Destinations) */}
+          <div className="lg:col-span-2">
+            <h5 className="text-xs font-bold tracking-[0.2em] text-[#0D231E] uppercase mb-4 sm:mb-5">
+              Destinations
+            </h5>
+            <ul className="flex flex-col gap-3 text-[13px] sm:text-sm font-semibold tracking-wide uppercase">
+              {countryLinks.map((link) => (
+                <li key={link.id}>
+                  <Link href={link.link} className="text-[#0D231E]/80 hover:text-[#DE8D3D] transition-colors duration-300">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Column 4 - Office address */}
+          <div className="lg:col-span-4 flex flex-col gap-4 text-sm font-light text-[#0D231E]/90 leading-relaxed">
+            <h5 className="text-xs font-bold tracking-[0.2em] text-[#0D231E] uppercase mb-1 sm:mb-2">
+              Office Support
+            </h5>
+
+            <div className="flex flex-col gap-2.5">
+              <a href="tel:+8801898334722" className="flex items-center gap-2 hover:text-[#DE8D3D] transition-colors">
+                <Icon icon="lucide:phone" width="14" height="14" className="text-[#DE8D3D]" />
+                <span className="font-semibold">+880 1898 334722</span>
+              </a>
+
+              <a href="mailto:info.royalsafaritours@gmail.com" className="flex items-center gap-2 hover:text-[#DE8D3D] transition-colors">
+                <Icon icon="lucide:mail" width="14" height="14" className="text-[#DE8D3D]" />
+                <span>info.royalsafaritours@gmail.com</span>
+              </a>
+
+              <div className="flex items-start gap-2">
+                <Icon icon="lucide:map-pin" width="14" height="14" className="text-[#DE8D3D] mt-0.5" />
+                <span>212, Taltola City Super Market, Khilgaon, Dhaka 1219</span>
+              </div>
+
+              <div className="flex items-center gap-2 text-[#0D231E]/70 text-[12px] mt-1 font-normal">
+                <Icon icon="lucide:clock" width="13" height="13" />
+                <span>Hours: Mon - Sun, 8AM - 10PM</span>
               </div>
             </div>
           </div>
 
-          <ul className="sm:border-r border-gray-500 space-y-3 ">
-            {helperLinks.map((link) => (
-              <li
-                className="hover:text-orange-400 hoverEffect uppercase font-medium"
-                key={link.id}
-              >
-                <Link href={link.link}>{link.lavel}</Link>
-              </li>
-            ))}
-          </ul>
+        </div>
 
-          <ul className="xl:border-r border-gray-500 space-y-3">
-            {countryLinks.map((link) => (
-              <li
-                className="hover:text-orange-400 hoverEffect uppercase font-medium"
-                key={link.id}
+        {/* ROW 2: THE NEWSLETTER SECTION (SUBSCRIBE TO OUR DISPATCH) */}
+        <div className="border-t border-[#0D231E]/10 py-10 sm:py-12">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center text-left">
+
+            <div className="lg:col-span-5 max-w-md">
+              <h4 className="text-xl sm:text-[22px] md:text-2xl font-bold tracking-tight text-[#0D231E] mb-2 font-playfair">
+                Subscribe to our Dispatch
+              </h4>
+              <p className="text-sm text-[#0D231E] leading-relaxed font-light">
+                Receive curated travel narratives, regional updates, and seasonal tour schedules directly in your inbox.
+              </p>
+            </div>
+
+            <div className="lg:col-span-7 w-full">
+              <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-stretch gap-4 w-full">
+                <div className="relative flex-1 bg-white/40 border border-[#0D231E]/10 rounded-[12px] px-4 py-2.5 flex items-center gap-3 focus-within:border-[#DE8D3D] focus-within:bg-white transition-all duration-300">
+                  <Icon icon="lucide:user" width="15" height="15" className="text-[#0D231E]/50" />
+                  <input
+                    type="text"
+                    placeholder="Your Name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full bg-transparent text-[#0D231E] font-calibre text-sm placeholder:text-[#0D231E]/40 focus:outline-none"
+                  />
+                </div>
+                <div className="relative flex-1 bg-white/40 border border-[#0D231E]/10 rounded-[12px] px-4 py-2.5 flex items-center gap-3 focus-within:border-[#DE8D3D] focus-within:bg-white transition-all duration-300">
+                  <Icon icon="lucide:mail" width="15" height="15" className="text-[#0D231E]/50" />
+                  <input
+                    type="email"
+                    placeholder="Email Address"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full bg-transparent text-[#0D231E] font-calibre text-sm placeholder:text-[#0D231E]/40 focus:outline-none"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="bg-[#0D231E] hover:bg-[#DE8D3D] text-white text-xs font-bold tracking-widest py-3.5 px-6 rounded-[12px] transition-all duration-300 uppercase shadow-sm hover:shadow hover:scale-[1.01] cursor-pointer flex-shrink-0"
+                >
+                  Subscribe
+                </button>
+              </form>
+            </div>
+
+          </div>
+        </div>
+
+        {/* ROW 3: COPYRIGHT, CREDITS & PAYMENTS */}
+        <div className="pt-8 border-t border-[#0D231E]/10 flex flex-col md:flex-row items-center gap-4 justify-between text-[13px] text-[#0D231E]/60 font-light">
+
+          <div className="flex text-[#0D231E] font-normal flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left">
+            <span>© 2026 Royal Safari Tours. All Rights Reserved.</span>
+            <span className="hidden sm:inline text-[#0D231E]/20">|</span>
+            <span>
+              Powered by{" "}
+              <a
+                className="text-orange font-bold"
+                href="https://awtomatig.com/"
+                target="_blank"
+                rel="noreferrer"
               >
-                <Link href={link.link}>{link.lavel}</Link>
-              </li>
-            ))}
-          </ul>
-          {/* for desktop social media links */}
-          <div className="hidden lg:block border-r border-gray-500 lg:pt-36 xl:pt-0">
-            <h4 className="uppercase font-medium">Follow US</h4>
-            <ul className="mt-4 grid grid-cols-4 xl:grid-cols-2 w-fit gap-x-4 gap-y-2.5">
-              <li>
-                <a
-                  href="#"
-                  className="bg-green p-4 block transtion-all duration-300 rounded-sm hover:bg-black w-full h-full"
-                >
-                  <Icon icon="prime:twitter" width="19" height="19" />
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://www.facebook.com/royalsafaritour"
-                  className="bg-green p-4 block transtion-all duration-300 rounded-sm hover:bg-black w-full h-full"
-                  target="_blank"
-                >
-                  <Icon icon="uiw:facebook" width="18" height="18" />
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://www.instagram.com/royal.safari.tours?igsh=ZmU3YXkxbzdxMDlt"
-                  className="bg-green p-4 block transtion-all duration-300 rounded-sm hover:bg-black  w-full h-full"
-                  target="_blank"
-                >
-                  <Icon icon="mdi:instagram" width="21" height="21" />
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="bg-green p-4 block transtion-all duration-300 rounded-sm hover:bg-black w-full h-full"
-                >
-                  <Icon icon="mdi:youtube" width="21" height="21" />
-                </a>
-              </li>
-            </ul>
+                AWTOMATIG
+              </a>
+            </span>
           </div>
 
-          <div className="hidden lg:block">
-            <h5 className="uppercase font-medium">
-              Get Update On New Tours & Blog News
-            </h5>
-            <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-              <input
-                type="text"
-                placeholder="Name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="border-b focus:outline-none py-2"
-              />
-              <input
-                type="text"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="border-b focus:outline-none py-2"
-             
-               
-              />
-              <ShapeButton
-                name="SEND MAIL"
-                className="group-hover:text-black hoverEffect"
-              />
-            </form>
+          <div className="flex items-center">
+            <PaymentIcon className="scale-95" />
           </div>
+
         </div>
-        {/* for mobile social media links */}
-        <div className="w-fit mx-auto text-center lg:hidden mt-14">
-          <h4 className="uppercase font-medium">Follow US</h4>
-          <ul className="mt-4 grid grid-cols-4 gap-4">
-            <li>
-              <a
-                href="#"
-                className="bg-green p-4 block h-full w-full transtion-all duration-300 rounded-sm hover:bg-black hover:scale-110"
-              >
-                <Icon icon="prime:twitter" width="19" height="19" />
-              </a>
-            </li>
-            <li>
-              <a
-                href="https://www.facebook.com/royalsafaritour"
-                className="bg-green p-4 block h-full w-full transtion-all duration-300 rounded-sm hover:bg-black hover:scale-110"
-                target="_blank"
-              >
-                <Icon icon="uiw:facebook" width="18" height="18" />
-              </a>
-            </li>
-            <li>
-              <a
-                href="https://www.instagram.com/royal.safari.tours?igsh=ZmU3YXkxbzdxMDlt"
-                className="bg-green p-4 block h-full w-full transtion-all duration-300 rounded-sm hover:bg-black hover:scale-110"
-                target="_blank"
-              >
-                <Icon icon="mdi:instagram" width="21" height="21" />
-              </a>
-            </li>
-            <li>
-              <a
-                href="#"
-                className="bg-green p-4 block h-full w-full transtion-all duration-300 rounded-sm hover:bg-black hover:scale-110"
-              >
-                <Icon icon="mdi:youtube" width="21" height="21" />
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div className="py-10 border-t border-gray-600 mt-10 relative flex flex-col sm:flex-row items-center gap-3 justify-between lg:flex-col">
-          <div className="text-center">
-            Powered By{" "}
-            <a
-              className="hover:text-orange-400 hover:underline"
-              href="https://awtomatig.com/"
-            >
-              AWTOMATIG
-            </a>
-          </div>
-          <div className="lg:absolute top-1/2 lg:-translate-y-1/2 right-0 ">
-            <PaymentIcon className="scale-90 xl:scale-100" />
-          </div>
-          {/* <div className="text-center">
-            Powerby{" "}
-            <a
-              className="hover:text-orange-400 hover:underline"
-              href="https://awtomatig.com/"
-            >
-              Awtomatig
-            </a>
-          </div>
-          <div className="lg:absolute top-1/2 lg:-translate-y-1/2 right-0 w-fit mx-auto mt-3 lg:mt-0">
-            <PaymentIcon className="scale-90 xl:scale-100" />
-          </div> */}
-        </div>
+
       </div>
     </footer>
   );

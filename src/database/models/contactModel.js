@@ -19,6 +19,15 @@ const contactSchema = new mongoose.Schema(
       required: true,
       minlength: 10,
     },
+    destination: {
+      type: String,
+    },
+    date: {
+      type: String,
+    },
+    people: {
+      type: String,
+    },
     status: {
       type: String,
       enum: ["pending", "approved", "rejected"],

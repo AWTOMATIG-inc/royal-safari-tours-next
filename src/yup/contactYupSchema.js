@@ -10,4 +10,11 @@ export const contactYupSchema = Yup.object().shape({
   message: Yup.string()
     .min(10, "Message must be at least 10 characters")
     .required("Message is required"),
+  destination: Yup.string()
+    .min(2, "Travel destination is required")
+    .required("Travel destination is required"),
+  date: Yup.string()
+    .required("Travel date is required"),
+  people: Yup.string()
+    .required("Number of people is required"),
 });

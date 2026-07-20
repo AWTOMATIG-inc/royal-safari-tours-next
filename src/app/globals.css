@@ -1,16 +1,14 @@
-@import url("https://fonts.googleapis.com/css2?family=Mansalva");
+@import url("https://fonts.googleapis.com/css2?family=Mansalva&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Inter:wght@300;400;500;600;700;800&family=Palanquin+Dark:wght@400;500;600;700&family=Young+Serif&display=swap");
 @import "tailwindcss";
 
 @theme inline {
-  /* --font-palanquin: "Palanquin Dark", sans-serif;
-  --font-young: "Young Serif", serif;
-  --font-inter: "Inter", sans-serif;
-  --font-yuji: "Yuji Mai", serif;
-  --font-mansalva: "Mansalva", sans-serif;
-  --font-montserrat: "Montserrat", sans-serif;
-  --font-montagu: "Montagu Slab", serif; */
   --font-mansalva: "Mansalva", sans-serif;
   --font-calibre: "calibre", sans-serif;
+  --font-playfair: "Playfair Display", serif;
+  --font-young: "Young Serif", serif;
+  --font-palanquin: "Palanquin Dark", sans-serif;
+  --font-inter: "Inter", sans-serif;
+  --font-plus-jakarta: "Plus Jakarta Sans", sans-serif;
   --color-light: #fcfaee;
   --color-lightGray: #f2efdf;
   --color-green: #2cb775;
