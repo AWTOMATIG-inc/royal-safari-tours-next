@@ -3,11 +3,24 @@
 import AdventureHero from "./AdventureHero";
 import ToursCatalog from "./ToursCatalog";
 import ContactNewsletter from "../contact/ContactNewsletter";
-import { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useMemo, useState } from "react";
 
-export default function AdventureClientPage({ tourPackages = [], locations = [] }) {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedLocation, setSelectedLocation] = useState("all");
+function AdventureContent({ tourPackages = [], locations = [] }) {
+  const searchParams = useSearchParams();
+  const initialSearch = searchParams.get("search") || "";
+  const initialLocation = searchParams.get("location") || "all";
+
+  const [searchQuery, setSearchQuery] = useState(initialSearch);
+  const [selectedLocation, setSelectedLocation] = useState(initialLocation);
+
+  // Sync state if URL query params change dynamically
+  useEffect(() => {
+    const q = searchParams.get("search");
+    if (q !== null) setSearchQuery(q);
+    const loc = searchParams.get("location");
+    if (loc !== null) setSelectedLocation(loc);
+  }, [searchParams]);
 
   // Dynamically extract all unique location names from locations DB model & tour packages
   const locationList = useMemo(() => {
@@ -63,5 +76,13 @@ export default function AdventureClientPage({ tourPackages = [], locations = [] 
       {/* 3. Bottom Dispatch / Newsletter bar */}
       <ContactNewsletter />
     </main>
+  );
+}
+
+export default function AdventureClientPage(props) {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-white py-40 text-center font-inter text-gray-400">Loading Expeditions...</div>}>
+      <AdventureContent {...props} />
+    </Suspense>
   );
 }

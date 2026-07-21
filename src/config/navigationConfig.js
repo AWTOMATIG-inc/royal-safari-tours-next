@@ -2,7 +2,7 @@ export const navigationConfig = {
   mainNav: [
     { id: 1, name: "Home", path: "/" },
     { id: 2, name: "Tours", path: "/adventure" },
-    { id: 3, name: "About Us", path: "/about-us" },
+    { id: 3, name: "About", path: "/about-us" },
     { id: 4, name: "Contact", path: "/contact" },
   ],
 

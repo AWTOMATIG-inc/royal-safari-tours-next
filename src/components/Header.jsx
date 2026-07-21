@@ -1,12 +1,12 @@
 "use client";
 
 import royal_logo from "@/assets/logo/royal-logo.png";
-import royal_logo2 from "@/assets/logo/royal-safari-2.png";
+import { siteConfig } from "@/config/siteConfig";
 import { useAuth } from "@/hooks/useAuth";
 import { Icon } from "@iconify/react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
 
 import { navigationConfig } from "@/config/navigationConfig";
@@ -19,6 +19,7 @@ export default function Header() {
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const pathname = usePathname();
+  const router = useRouter();
   const { user } = useAuth();
   const isAdmin = user ? user?.role === "admin" : false;
   const searchInputRef = useRef(null);
@@ -33,7 +34,7 @@ export default function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Close drawer on path transitions
+  // Close drawer & search popup on path transitions
   useEffect(() => {
     setIsShowNav(false);
     setShowSearch(false);
@@ -42,7 +43,9 @@ export default function Header() {
   // Focus search input when search overlay triggers & add Escape key listener
   useEffect(() => {
     if (showSearch && searchInputRef.current) {
-      searchInputRef.current.focus();
+      setTimeout(() => {
+        searchInputRef.current?.focus();
+      }, 50);
     }
 
     const handleKeyDown = (e) => {
@@ -61,14 +64,23 @@ export default function Header() {
     return null;
   }
 
-  // Handle Search Submission
+  // Handle Functional Search Submission (Redirects to /adventure?search=query)
   const handleSearchSubmit = (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     if (!searchQuery.trim()) return;
-    // Route to search query page or trigger dynamic search filters
+    const query = searchQuery.trim();
     setShowSearch(false);
     setSearchQuery("");
+    router.push(`/adventure?search=${encodeURIComponent(query)}`);
   };
+
+  const handlePopularSearch = (term) => {
+    setShowSearch(false);
+    setSearchQuery("");
+    router.push(`/adventure?search=${encodeURIComponent(term)}`);
+  };
+
+  const whatsappUrl = siteConfig.contact.phone.whatsappUrl || "https://wa.me/8801731703541";
 
   // Translucent glassmorphic tokens that dynamically contract when scrolled
   const dockWrapperClass = scrolled
@@ -79,10 +91,12 @@ export default function Header() {
     <>
       {/* 1. SUSPENDED FLOATING NAVIGATION DOCK */}
       <header className={`fixed left-1/2 -translate-x-1/2 z-[999] w-[92%] sm:w-[90%] max-w-7xl rounded-[15px] border transition-all duration-500 ease-out font-inter text-[#0D231E] ${dockWrapperClass}`}>
-        <nav className="flex items-center justify-between w-full h-9 sm:h-11 ">
+        
+        {/* DESKTOP: 3 EQUAL SECTIONS GRID TO PLACE NAV EXACTLY IN THE MIDDLE */}
+        <nav className="hidden lg:grid grid-cols-3 items-center w-full h-9 sm:h-11">
           
-          {/* LEFT - Horizontally centered logo */}
-          <div className="flex-shrink-0">
+          {/* SECTION 1 (LEFT): LOGO */}
+          <div className="flex items-center justify-start">
             <Link href="/" className="flex items-center" aria-label="Royal Safari Tours Logo">
               <Image
                 loading="eager"
@@ -94,8 +108,8 @@ export default function Header() {
             </Link>
           </div>
 
-          {/* CENTER - Navigation Links */}
-          <div className="hidden lg:block">
+          {/* SECTION 2 (CENTER): MAIN NAVIGATION ITEMS (EXACTLY IN THE MIDDLE) */}
+          <div className="flex items-center justify-center">
             <ul className="flex items-center gap-6 xl:gap-8 text-[13px] font-semibold tracking-[0.2em] uppercase">
               {navigationItems.map((item) => {
                 const isActive = pathname === item.path;
@@ -133,9 +147,8 @@ export default function Header() {
             </ul>
           </div>
 
-          {/* RIGHT - Support triggers and core CTA */}
-          <div className="hidden lg:flex items-center gap-4 xl:gap-5">
-
+          {/* SECTION 3 (RIGHT): SEARCH & WHATSAPP CHAT NOW BUTTON */}
+          <div className="flex items-center justify-end gap-4 xl:gap-5">
             {/* Minimal outline Search trigger */}
             <button
               onClick={() => setShowSearch(true)}
@@ -145,83 +158,140 @@ export default function Header() {
               <Icon icon="lucide:search" width="16" height="16" />
             </button>
 
-            {/* Primary Journey CTA */}
-            <Link
-              href="/contact"
-              className="bg-[#0D231E] hover:bg-[#DE8D3D] hover:scale-[1.02] text-white text-[10px] tracking-[0.2em] font-bold py-2.5 px-5 rounded-full transition-all duration-300 uppercase hoverEffect cursor-pointer shadow-sm hover:shadow"
+            {/* WhatsApp Chat Now Button */}
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="bg-[#25D366] hover:bg-[#20bd5a] hover:scale-[1.02] text-white text-[11px] tracking-[0.15em] font-bold py-2.5 px-4 sm:px-5 rounded-full transition-all duration-300 uppercase cursor-pointer shadow-sm hover:shadow flex items-center gap-2"
             >
-              Plan Your Journey
-            </Link>
+              <Icon icon="akar-icons:whatsapp-fill" className="w-4 h-4 text-white" />
+              <span>Chat Now</span>
+            </a>
           </div>
 
-          {/* Hamburger Menu Toggle (Mobile/Tablet) */}
-          <button
-            onClick={() => setIsShowNav((prev) => !prev)}
-            className="lg:hidden flex items-center justify-center p-1.5 text-[#0D231E] hover:text-[#DE8D3D] transition-colors cursor-pointer z-50"
-            aria-expanded={isShowNav}
-            aria-label="Toggle drawer menu"
-          >
-            <Icon
-              icon={isShowNav ? "lucide:x" : "lucide:menu"}
-              width="24"
-              height="24"
-            />
-          </button>
-
         </nav>
+
+        {/* MOBILE & TABLET LAYOUT */}
+        <nav className="flex lg:hidden items-center justify-between w-full h-9 sm:h-11">
+          {/* Logo */}
+          <Link href="/" className="flex items-center" aria-label="Royal Safari Tours Logo">
+            <Image
+              loading="eager"
+              src={royal_logo}
+              alt="Royal Safari Tours"
+              priority
+              className="h-8 sm:h-10 w-auto object-contain"
+            />
+          </Link>
+
+          {/* Right Action Buttons: Search + Chat + Hamburger */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Search Button Outside Drawer */}
+            <button
+              onClick={() => setShowSearch(true)}
+              className="p-1.5 hover:text-[#DE8D3D] transition-colors cursor-pointer flex items-center justify-center text-[#0D231E]"
+              aria-label="Open Search"
+            >
+              <Icon icon="lucide:search" width="20" height="20" />
+            </button>
+
+            {/* WhatsApp Button */}
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="bg-[#25D366] text-white text-[10px] tracking-wider font-bold py-1.5 px-3 rounded-full flex items-center gap-1.5 cursor-pointer shadow-xs"
+            >
+              <Icon icon="akar-icons:whatsapp-fill" className="w-3.5 h-3.5" />
+              <span>Chat</span>
+            </a>
+
+            {/* Hamburger Menu Toggle */}
+            <button
+              onClick={() => setIsShowNav((prev) => !prev)}
+              className="flex items-center justify-center p-1.5 text-[#0D231E] hover:text-[#DE8D3D] transition-colors cursor-pointer z-50"
+              aria-expanded={isShowNav}
+              aria-label="Toggle drawer menu"
+            >
+              <Icon
+                icon={isShowNav ? "lucide:x" : "lucide:menu"}
+                width="24"
+                height="24"
+              />
+            </button>
+          </div>
+        </nav>
+
       </header>
 
-      {/* 2. DYNAMIC SPOTLIGHT SEARCH PANEL OVERLAY (Desktop/Tablet) */}
+      {/* 2. DYNAMIC RESPONSIVE SPOTLIGHT SEARCH POPUP OVERLAY (DESKTOP & MOBILE) */}
       <div 
-        className={`fixed inset-0 z-[998] bg-[#0D231E]/40 backdrop-blur-sm transition-opacity duration-500 ease-out ${
+        className={`fixed inset-0 z-[1010] bg-[#0D231E]/60 backdrop-blur-sm transition-opacity duration-300 ease-out ${
           showSearch ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
         onClick={() => setShowSearch(false)}
       />
 
-      <div className={`fixed top-[20%] left-1/2 -translate-x-1/2 z-[999] w-[90%] max-w-2xl bg-[#fcfaee] border border-[#0D231E]/12 rounded-[20px] shadow-[0_32px_64px_rgba(13,35,30,0.15)] transition-all duration-500 ease-out transform p-6 ${
-        showSearch ? "translate-y-0 scale-100 opacity-100" : "-translate-y-8 scale-95 opacity-0 pointer-events-none"
+      <div className={`fixed top-[10%] sm:top-[18%] left-1/2 -translate-x-1/2 z-[1015] w-[92%] sm:w-[90%] max-w-2xl bg-[#fcfbf7] border border-[#0D231E]/15 rounded-3xl shadow-[0_32px_64px_rgba(13,35,30,0.25)] transition-all duration-300 ease-out transform p-5 sm:p-7 ${
+        showSearch ? "translate-y-0 scale-100 opacity-100" : "-translate-y-6 scale-95 opacity-0 pointer-events-none"
       }`}>
-        <form onSubmit={handleSearchSubmit} className="flex items-center gap-3.5 pb-4 border-b border-[#0D231E]/10">
-          <Icon icon="lucide:search" width="20" height="20" className="text-[#0D231E]/60 flex-shrink-0" />
+        
+        {/* Popup Header */}
+        <div className="flex items-center justify-between pb-3 border-b border-gray-200">
+          <span className="text-[10px] sm:text-xs font-bold tracking-[0.2em] text-[#DE8D3D] uppercase font-inter">
+            SEARCH EXPEDITIONS & TOURS
+          </span>
+          <button
+            onClick={() => setShowSearch(false)}
+            className="p-1 rounded-full bg-gray-200/60 text-[#0D231E] hover:bg-[#DE8D3D] hover:text-white transition-colors cursor-pointer"
+            aria-label="Close search"
+          >
+            <Icon icon="lucide:x" className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Search Input Form */}
+        <form onSubmit={handleSearchSubmit} className="flex items-center gap-3 pt-4 pb-2">
+          <Icon icon="lucide:search" width="22" height="22" className="text-[#2cb775] flex-shrink-0" />
           <input
             ref={searchInputRef}
             type="text"
-            placeholder="Where would you like to go?"
+            placeholder="Where do you want to go? (e.g. Sajek, Sundarbans)"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-transparent text-[#0D231E] font-inter text-[16px] placeholder:text-[#0D231E]/40 focus:outline-none py-1"
+            className="w-full bg-transparent text-[#0D231E] font-inter text-sm sm:text-base font-semibold placeholder:text-gray-400 focus:outline-none"
           />
           {searchQuery && (
             <button
               type="button"
               onClick={() => setSearchQuery("")}
-              className="p-1 hover:text-[#DE8D3D] transition-colors text-[#0D231E]/40 flex items-center justify-center cursor-pointer"
-              aria-label="Clear search text"
+              className="p-1 hover:text-rose-500 transition-colors text-gray-400 flex items-center justify-center cursor-pointer"
+              aria-label="Clear text"
             >
-              <Icon icon="lucide:x-circle" width="16" height="16" />
+              <Icon icon="lucide:x-circle" width="18" height="18" />
             </button>
           )}
-          <kbd className="hidden sm:inline-block px-2 py-1 text-[10px] font-semibold text-[#0D231E]/50 bg-[#0D231E]/5 border border-[#0D231E]/10 rounded font-sans uppercase">
-            ESC
-          </kbd>
+          <button
+            type="submit"
+            className="bg-[#0D231E] hover:bg-[#2cb775] text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-colors cursor-pointer font-inter uppercase tracking-wider shadow-sm flex-shrink-0"
+          >
+            Search
+          </button>
         </form>
         
-        {/* Quick Suggestions / Popular destinations list */}
-        <div className="pt-4 text-left">
-          <span className="text-[10px] font-bold tracking-widest text-[#0D231E]/40 uppercase block mb-3 font-inter">
-            Popular Searches
+        {/* Quick Popular Search Tags */}
+        <div className="pt-4 border-t border-gray-200/80 text-left">
+          <span className="text-[10px] font-bold tracking-widest text-gray-400 uppercase block mb-2 font-inter">
+            Popular Destinations
           </span>
           <div className="flex flex-wrap gap-2">
-            {["Nepal Tour", "Maldives Getaway", "Sajek Valley", "Cox's Bazar Beach", "Sundarbans Safari"].map((term) => (
+            {["Sajek Valley", "Sundarbans", "Cox's Bazar", "Sylhet", "Bandarban", "Nepal"].map((term) => (
               <button
                 key={term}
                 type="button"
-                onClick={() => {
-                  setSearchQuery(term);
-                  if (searchInputRef.current) searchInputRef.current.focus();
-                }}
-                className="text-[12px] text-[#0D231E]/80 bg-[#0D231E]/5 hover:bg-[#DE8D3D]/10 hover:text-[#DE8D3D] border border-[#0D231E]/8 hover:border-[#DE8D3D]/20 px-3 py-1.5 rounded-full transition-all duration-300 cursor-pointer font-inter font-medium"
+                onClick={() => handlePopularSearch(term)}
+                className="text-[11px] sm:text-xs text-[#0D231E] bg-gray-100 hover:bg-[#2cb775] hover:text-white border border-gray-200 px-3 py-1.5 rounded-full transition-all duration-300 cursor-pointer font-inter font-medium"
               >
                 {term}
               </button>
@@ -245,36 +315,21 @@ export default function Header() {
       >
         <div className="flex flex-col h-full justify-between gap-6 overflow-y-auto">
           
-          {/* Top Section - Logo & Search */}
-          <div className="flex flex-col gap-5">
-            {/* Drawer Logo Header */}
-            <div className="flex justify-between items-center pb-4 border-b border-white/10">
-              <Image
-                loading="eager"
-                src={royal_logo}
-                alt="Royal Safari Tours"
-                className="h-8 w-auto object-contain "
-              />
-              <button
-                onClick={() => setIsShowNav(false)}
-                className="p-1 text-[#0D231E] hover:text-[#DE8D3D] transition-colors cursor-pointer"
-                aria-label="Close menu drawer"
-              >
-                <Icon icon="lucide:x" width="20" height="20" />
-              </button>
-            </div>
-
-            {/* Drawer Search Form */}
-            <form onSubmit={handleSearchSubmit} className="relative w-full">
-              <input
-                type="text"
-                placeholder="Search..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-[#0D231E] border border-white/10 rounded-[10px] pl-10 pr-4 py-2 text-sm text-white placeholder:text-white/40"
-              />
-              <Icon icon="lucide:search" width="15" height="15" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40" />
-            </form>
+          {/* Top Section - Logo & Close */}
+          <div className="flex justify-between items-center pb-4 border-b border-white/10">
+            <Image
+              loading="eager"
+              src={royal_logo}
+              alt="Royal Safari Tours"
+              className="h-8 w-auto object-contain "
+            />
+            <button
+              onClick={() => setIsShowNav(false)}
+              className="p-1 text-[#0D231E] hover:text-[#DE8D3D] transition-colors cursor-pointer"
+              aria-label="Close menu drawer"
+            >
+              <Icon icon="lucide:x" width="20" height="20" />
+            </button>
           </div>
 
           {/* Middle Section - Link items list */}
@@ -311,18 +366,15 @@ export default function Header() {
 
           {/* Bottom Section - Contact info and CTAs */}
           <div className="flex flex-col gap-5 pt-4 border-t border-white/10">
-
-            <div className="flex flex-col sm:flex-row items-center gap-3 w-full">
-
-
-              <Link
-                href="/contact"
-                onClick={() => setIsShowNav(false)}
-                className="w-full flex items-center justify-center py-3 rounded-[10px] bg-[#DE8D3D] hover:bg-[#c38032] text-white font-bold transition-colors text-xs text-center uppercase tracking-widest"
-              >
-                Plan Journey
-              </Link>
-            </div>
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-[10px] bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold transition-colors text-xs text-center uppercase tracking-widest shadow-sm"
+            >
+              <Icon icon="akar-icons:whatsapp-fill" className="w-4 h-4" />
+              <span>Chat Now</span>
+            </a>
           </div>
 
         </div>
@@ -330,4 +382,3 @@ export default function Header() {
     </>
   );
 }
-
