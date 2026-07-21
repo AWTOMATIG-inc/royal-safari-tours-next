@@ -8,22 +8,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import ShapeButton from "@/components/ShapeButton";
+import Button from "@/components/Button";
 import { PaymentIcon } from "./svg-icons";
 
-const helperLinks = [
-  { id: 0, label: "Home", link: "/" },
-  { id: 1, label: "Adventure", link: "/adventure" },
-  { id: 2, label: "About Us", link: "/about-us" },
-  { id: 3, label: "Contact Us", link: "/contact" },
-];
+import { siteConfig } from "@/config/siteConfig";
+import { navigationConfig } from "@/config/navigationConfig";
 
-const countryLinks = [
-  { id: 1, label: "Bangladesh", link: "/adventure" }, // Links mapped to adventure search
-  { id: 2, label: "Thailand", link: "/adventure" },
-  { id: 3, label: "Nepal", link: "/adventure" },
-  { id: 4, label: "Singapore", link: "/adventure" },
-];
+const helperLinks = navigationConfig.footerExplore;
+const countryLinks = navigationConfig.footerDestinations;
 
 export default function Footer() {
   const pathname = usePathname();
@@ -88,24 +80,19 @@ export default function Footer() {
               />
             </Link>
             <p className="text-sm text-[#0D231E]/90 leading-relaxed font-light mb-6">
-              Crafting premium regional expeditions and heartfelt hospitality across South Asia and beyond. Founded by passionate travelers to inspire and rejuvenate.
+              {siteConfig.fullDescription}
             </p>
 
             {/* Outline Social Icons */}
             <ul className="flex items-center gap-2.5">
-              {[
-                { icon: "uiw:facebook", url: "https://www.facebook.com/royalsafaritour", label: "Facebook" },
-                { icon: "mdi:instagram", url: "https://www.instagram.com/royal.safari.tours?igsh=ZmU3YXkxbzdxMDlt", label: "Instagram" },
-                { icon: "prime:twitter", url: "#", label: "Twitter" },
-                { icon: "mdi:youtube", url: "#", label: "YouTube" }
-              ].map((social, idx) => (
+              {siteConfig.socials.map((social, idx) => (
                 <li key={idx}>
                   <a
                     href={social.url}
                     className="flex items-center justify-center w-9 h-9 rounded-full border border-[#0D231E]/15 text-[#0D231E]/70 hover:text-[#DE8D3D] hover:border-[#DE8D3D] hover:bg-[#DE8D3D]/5 transition-all duration-300"
                     target={social.url !== "#" ? "_blank" : undefined}
                     rel="noreferrer"
-                    aria-label={`Follow Royal Safari Tours on ${social.label}`}
+                    aria-label={`Follow ${siteConfig.name} on ${social.name}`}
                   >
                     <Icon icon={social.icon} width="16" height="16" />
                   </a>
@@ -153,24 +140,24 @@ export default function Footer() {
             </h5>
 
             <div className="flex flex-col gap-2.5">
-              <a href="tel:+8801898334722" className="flex items-center gap-2 hover:text-[#DE8D3D] transition-colors">
+              <a href={`tel:${siteConfig.contact.phone.primaryRaw}`} className="flex items-center gap-2 hover:text-[#DE8D3D] transition-colors">
                 <Icon icon="lucide:phone" width="14" height="14" className="text-[#DE8D3D]" />
-                <span className="font-semibold">+880 1898 334722</span>
+                <span className="font-semibold">{siteConfig.contact.phone.primary}</span>
               </a>
 
-              <a href="mailto:info.royalsafaritours@gmail.com" className="flex items-center gap-2 hover:text-[#DE8D3D] transition-colors">
+              <a href={`mailto:${siteConfig.contact.email.info}`} className="flex items-center gap-2 hover:text-[#DE8D3D] transition-colors">
                 <Icon icon="lucide:mail" width="14" height="14" className="text-[#DE8D3D]" />
-                <span>info.royalsafaritours@gmail.com</span>
+                <span>{siteConfig.contact.email.info}</span>
               </a>
 
               <div className="flex items-start gap-2">
                 <Icon icon="lucide:map-pin" width="14" height="14" className="text-[#DE8D3D] mt-0.5" />
-                <span>212, Taltola City Super Market, Khilgaon, Dhaka 1219</span>
+                <span>{siteConfig.contact.address.full}</span>
               </div>
 
               <div className="flex items-center gap-2 text-[#0D231E]/70 text-[12px] mt-1 font-normal">
                 <Icon icon="lucide:clock" width="13" height="13" />
-                <span>Hours: Mon - Sun, 8AM - 10PM</span>
+                <span>{siteConfig.contact.hours.weekday}</span>
               </div>
             </div>
           </div>
@@ -212,12 +199,13 @@ export default function Footer() {
                     className="w-full bg-transparent text-[#0D231E] font-calibre text-sm placeholder:text-[#0D231E]/40 focus:outline-none"
                   />
                 </div>
-                <button
+                <Button
                   type="submit"
-                  className="bg-[#0D231E] hover:bg-[#DE8D3D] text-white text-xs font-bold tracking-widest py-3.5 px-6 rounded-[12px] transition-all duration-300 uppercase shadow-sm hover:shadow hover:scale-[1.01] cursor-pointer flex-shrink-0"
+                  variant="primary"
+                  className="whitespace-nowrap flex-shrink-0"
                 >
                   Subscribe
-                </button>
+                </Button>
               </form>
             </div>
 

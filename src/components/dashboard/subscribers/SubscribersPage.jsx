@@ -1,16 +1,19 @@
 "use client";
+
+import DashboardPageHeader from "@/components/dashboard/DashboardPageHeader";
+import { Icon } from "@iconify/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { Table, Tbody, Td, Th, Thead, Tr } from "react-super-responsive-table";
-import "react-super-responsive-table/dist/SuperResponsiveTableStyle.css";
-export default function SubscibersPage({ subscribers, pagination }) {
+
+export default function SubscribersPage({ subscribers = [], pagination = { page: 1, totalPages: 1 } }) {
   const router = useRouter();
   const isPrev = Number(pagination.page) === 1;
   const isNext = Number(pagination.page) === pagination.totalPages;
+
   const handleDelete = async (id) => {
-    const userConfirmed = confirm("Are you sure you want to delete this item?");
+    const userConfirmed = confirm("Are you sure you want to delete this subscriber?");
     if (!userConfirmed) return;
     try {
       const response = await fetch(`/api/subscriber/${id}`, {
@@ -23,100 +26,120 @@ export default function SubscibersPage({ subscribers, pagination }) {
       router.refresh();
     } catch (error) {
       toast.error(error.message);
-      console.error("There was a problem with the delete operation:", error);
+      console.error("Delete subscriber error:", error);
     }
   };
 
   return (
-    <div className="max-w-262.5 ">
-      <div className=" bg-green/10 border border-green/30 min-h-[60vh] p-4 lg:p-8 rounded-lg shadow-md mt-8">
-        {subscribers.length === 0 && (
-          <div className="w-fit mx-auto text-center">
+    <div className="max-w-7xl mx-auto space-y-6">
+      <DashboardPageHeader
+        title="Journal Subscribers"
+        description="View and manage subscribed email addresses for luxury travel dispatches."
+      />
+
+      <div className="bg-white rounded-3xl border border-gray-100 shadow-[0_4px_20px_rgba(13,35,30,0.03)] overflow-hidden">
+        {subscribers.length === 0 ? (
+          <div className="p-12 text-center max-w-md mx-auto space-y-4">
             <Image
               src="/images/dashboard/empty.png"
-              width={400}
-              height={400}
-              loading="eager"
-              alt="empty"
+              width={300}
+              height={300}
+              priority
+              alt="Empty state"
+              className="mx-auto opacity-80"
             />
-            <p className="text-gray-500 text-xl mt-8 font-inter">
-              There is no subscribe email yet!
+            <p className="text-gray-500 font-medium font-inter text-base">
+              No newsletter subscribers yet.
             </p>
           </div>
-        )}
-        {subscribers.length > 0 && (
-          <Table className="">
-            <Thead>
-              <Tr className="text-left border-b border-green/50 py-4!">
-                <Th className="py-2">SL</Th>
-                <Th className="py-2">Name</Th>
-                <Th className="py-2">Subscribed Email</Th>
-
-                <Th className="py-2">Action</Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              {subscribers?.map((user, index) => (
-                <Tr key={user._id}>
-                  <Td className="py-2">#{index + 1}</Td>
-                  <Td className="py-2">{user.name}</Td>
-                  <Td className="py-2">{user.email}</Td>
-                  <Td className="py-2">
-                    <button
-                      onClick={() => handleDelete(user._id)}
-                      className="text-red-500 cursor-pointer"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse font-inter text-xs">
+              <thead>
+                <tr className="bg-gray-50/80 border-b border-gray-100 text-gray-500 uppercase tracking-wider text-[11px] font-semibold">
+                  <th className="py-4 px-6">SL</th>
+                  <th className="py-4 px-6">Subscriber Name</th>
+                  <th className="py-4 px-6">Subscribed Email</th>
+                  <th className="py-4 px-6 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 text-gray-700">
+                {subscribers.map((item, index) => (
+                  <tr key={item._id} className="hover:bg-gray-50/50 transition-colors">
+                    <td className="py-4 px-6 text-gray-400 font-mono font-bold">
+                      #{index + 1}
+                    </td>
+                    <td className="py-4 px-6 font-bold text-[#0D231E]">
+                      {item.name || "Subscriber"}
+                    </td>
+                    <td className="py-4 px-6 font-mono text-gray-600">
+                      {item.email}
+                    </td>
+                    <td className="py-4 px-6 text-right">
+                      <button
+                        onClick={() => handleDelete(item._id)}
+                        className="p-2 rounded-lg bg-gray-50 text-gray-500 hover:bg-rose-50 hover:text-rose-600 transition-colors cursor-pointer"
+                        title="Delete subscriber"
                       >
-                        <path
-                          fill="currentColor"
-                          d="M10 5h4a2 2 0 1 0-4 0M8.5 5a3.5 3.5 0 1 1 7 0h5.75a.75.75 0 0 1 0 1.5h-1.32l-1.17 12.111A3.75 3.75 0 0 1 15.026 22H8.974a3.75 3.75 0 0 1-3.733-3.389L4.07 6.5H2.75a.75.75 0 0 1 0-1.5zm2 4.75a.75.75 0 0 0-1.5 0v7.5a.75.75 0 0 0 1.5 0zM14.25 9a.75.75 0 0 0-.75.75v7.5a.75.75 0 0 0 1.5 0v-7.5a.75.75 0 0 0-.75-.75"
-                        />
-                      </svg>
-                    </button>
-                  </Td>
-                </Tr>
-              ))}
-            </Tbody>
-          </Table>
+                        <Icon icon="lucide:trash-2" className="w-4 h-4" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
-      <div className="flex justify-end mt-8 gap-2 items-center">
-        <Link
-          href={
-            isPrev
-              ? "/dashboard/subscribers?page=1"
-              : `/dashboard/subscribers?page=${Number(pagination.page) - 1}`
-          }
-          className={`px-3 py-1 border rounded-md ${isPrev ? "cursor-not-allowed opacity-50 border-gray-200" : "hover:bg-gray-200"}`}
-        >
-          Prev
-        </Link>
-        {Array.from({ length: pagination.totalPages }, (_, i) => (
-          <Link
-            key={i}
-            href={`/dashboard/subscribers?page=${i + 1}`}
-            className={`px-3 py-1 border rounded-md ${pagination.page.toString() === (i + 1).toString() ? "bg-orange  border-orange text-white" : "hover:bg-gray-200"}`}
-          >
-            {i + 1}
-          </Link>
-        ))}
 
-        <Link
-          href={
-            isNext
-              ? `/dashboard/subscribers?page=${pagination.totalPages}`
-              : `/dashboard/subscribers?page=${Number(pagination.page) + 1}`
-          }
-          className={`px-3 py-1 border rounded-md ${isNext ? "cursor-not-allowed opacity-50 border-gray-200" : "hover:bg-gray-200"}`}
-        >
-          Next
-        </Link>
-      </div>
+      {/* Pagination Controls */}
+      {pagination.totalPages > 1 && (
+        <div className="flex justify-center items-center gap-2 pt-4">
+          <Link
+            href={
+              isPrev
+                ? "/dashboard/subscribers?page=1"
+                : `/dashboard/subscribers?page=${Number(pagination.page) - 1}`
+            }
+            className={`px-4 py-2 border rounded-xl text-xs font-semibold font-inter transition-all ${
+              isPrev
+                ? "cursor-not-allowed opacity-40 border-gray-200 text-gray-400 bg-white"
+                : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50 shadow-xs"
+            }`}
+          >
+            Previous
+          </Link>
+
+          {Array.from({ length: pagination.totalPages }, (_, i) => (
+            <Link
+              key={i}
+              href={`/dashboard/subscribers?page=${i + 1}`}
+              className={`px-3.5 py-2 border rounded-xl text-xs font-bold font-inter transition-all ${
+                pagination.page.toString() === (i + 1).toString()
+                  ? "bg-[#0D231E] border-[#0D231E] text-white shadow-sm"
+                  : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"
+              }`}
+            >
+              {i + 1}
+            </Link>
+          ))}
+
+          <Link
+            href={
+              isNext
+                ? `/dashboard/subscribers?page=${pagination.totalPages}`
+                : `/dashboard/subscribers?page=${Number(pagination.page) + 1}`
+            }
+            className={`px-4 py-2 border rounded-xl text-xs font-semibold font-inter transition-all ${
+              isNext
+                ? "cursor-not-allowed opacity-40 border-gray-200 text-gray-400 bg-white"
+                : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50 shadow-xs"
+            }`}
+          >
+            Next
+          </Link>
+        </div>
+      )}
     </div>
   );
 }

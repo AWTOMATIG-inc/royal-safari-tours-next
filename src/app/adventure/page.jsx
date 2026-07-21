@@ -1,19 +1,31 @@
-"use client";
+import AdventureHero from "@/components/pages/adventure/AdventureHero";
+import AdventureDiscovery from "@/components/pages/adventure/AdventureDiscovery";
+import FeaturedAdventures from "@/components/pages/adventure/FeaturedAdventures";
+import ExploreWays from "@/components/pages/adventure/ExploreWays";
+import AllAdventureCollection from "@/components/pages/adventure/AllAdventureCollection";
+import WildStories from "@/components/pages/adventure/WildStories";
+import WhyAdventureWithUs from "@/components/pages/adventure/WhyAdventureWithUs";
+import AdventureTestimonials from "@/components/pages/adventure/AdventureTestimonials";
+import AdventureFinalCTA from "@/components/pages/adventure/AdventureFinalCTA";
 
-import HeroSection from "@/components/HeroSection";
-import AdvanturePackages from "@/components/pages/adventure/AdvanturePackages";
+export const metadata = {
+  title: "Adventure Expeditions | Royal Safari Tours",
+  description:
+    "Discover hand-crafted wilderness adventures, high mountain treks, mangrove boat safaris, and coastal expeditions in Bangladesh.",
+};
 
-export default function Adventure() {
+export default function AdventurePage() {
   return (
-    <div>
-      <HeroSection banner="/images/adventure/hp4.webp">
-        <div>
-          <h5 className="text-white text-3xl sm:text-4xl md:text-5xl xl:text-6xl font-bold font-palanquin uppercase">
-            Collections
-          </h5>
-        </div>
-      </HeroSection>
-      <AdvanturePackages />
-    </div>
+    <main className="bg-white min-h-screen">
+      <AdventureHero />
+      <AdventureDiscovery />
+      <FeaturedAdventures />
+      <ExploreWays />
+      <AllAdventureCollection />
+      <WildStories />
+      <WhyAdventureWithUs />
+      <AdventureTestimonials />
+      <AdventureFinalCTA />
+    </main>
   );
 }

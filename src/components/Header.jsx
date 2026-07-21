@@ -2,20 +2,16 @@
 
 import royal_logo from "@/assets/logo/royal-logo.png";
 import royal_logo2 from "@/assets/logo/royal-safari-2.png";
-import { useAuth } from "@/hook/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 import { Icon } from "@iconify/react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
 
-// Navigation items config array - easily scalable
-const navigationItems = [
-  { id: 1, name: "Home", path: "/" },
-  { id: 2, name: "Tours", path: "/adventure" },
-  { id: 3, name: "About Us", path: "/about-us" },
-  { id: 4, name: "Contact", path: "/contact" },
-];
+import { navigationConfig } from "@/config/navigationConfig";
+
+const navigationItems = navigationConfig.mainNav;
 
 export default function Header() {
   const [isShowNav, setIsShowNav] = useState(false);
