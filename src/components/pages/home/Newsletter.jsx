@@ -1,5 +1,6 @@
 "use client";
 
+import SectionHeading from "@/components/SectionHeading";
 import Button from "@/components/Button";
 import { Icon } from "@iconify/react";
 import { useState } from "react";
@@ -55,17 +56,12 @@ export default function Newsletter() {
       <div className="container max-w-4xl">
         <div className="relative rounded-3xl p-8 sm:p-12 md:p-14 bg-lightGray border border-primary/10 text-center space-y-6 shadow-sm">
           
-          <div className="space-y-3 font-subheading">
-            <span className="text-xs font-semibold tracking-[0.25em] uppercase text-accent block">
-              Private Dispatch
-            </span>
-            <h2 className="font-heading text-3xl sm:text-4xl font-bold tracking-tight text-primary">
-              Join The Royal Circle
-            </h2>
-            <p className="text-sm sm:text-base text-primary/75 font-light font-body max-w-lg mx-auto leading-relaxed">
-              Receive private expedition releases, seasonal travel stories, and rare wilderness insights directly in your inbox.
-            </p>
-          </div>
+          <SectionHeading
+            subtitle="Private Dispatch"
+            title="Join The Royal Circle"
+            description="Receive private expedition releases, seasonal travel stories, and rare wilderness insights directly in your inbox."
+            align="center"
+          />
 
           <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto pt-2">
             <input

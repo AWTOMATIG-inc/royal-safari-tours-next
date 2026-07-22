@@ -1,5 +1,6 @@
 "use client";
 
+import SectionHeading from "@/components/SectionHeading";
 import { Icon } from "@iconify/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -20,16 +21,16 @@ export default function AboutPreview() {
             {/* Left Column: Narrative & Values */}
             <div className="lg:col-span-7 space-y-6 sm:space-y-8 font-subheading">
               
-              <div className="space-y-3 sm:space-y-4">
-                <span className="inline-flex items-center gap-2 text-xs font-semibold tracking-[0.25em] uppercase text-accent">
-                  <Icon icon="lucide:compass" className="w-4 h-4" />
-                  OUR PHILOSOPHY
-                </span>
-                <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight tracking-tight text-white">
-                  Crafting Profound <br />
-                  <span className="italic font-normal text-white/90">Connections with Nature</span>
-                </h2>
-              </div>
+              <SectionHeading
+                subtitle="OUR PHILOSOPHY"
+                title={
+                  <>
+                    Crafting Profound <br />
+                    <span className="italic font-normal text-white/90">Connections with Nature</span>
+                  </>
+                }
+                dark
+              />
 
               <div className="space-y-4 sm:space-y-5 text-sm sm:text-base leading-relaxed text-white/80 font-light font-body">
                 <p>

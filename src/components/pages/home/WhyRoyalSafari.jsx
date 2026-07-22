@@ -6,7 +6,7 @@ const pillars = [
   {
     icon: "lucide:compass",
     title: "Local Experts",
-    description: "Generational regional knowledge and native expedition masters.",
+    description: "Generational regional knowledge and native expedition.",
   },
   {
     icon: "lucide:sparkles",

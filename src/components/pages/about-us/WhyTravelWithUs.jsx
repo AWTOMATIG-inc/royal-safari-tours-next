@@ -1,5 +1,6 @@
 "use client";
 
+import SectionHeading from "@/components/SectionHeading";
 import { Icon } from "@iconify/react";
 
 const features = [
@@ -32,17 +33,17 @@ export default function WhyTravelWithUs() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
           
           {/* Left Column: Editorial Info */}
-          <div className="lg:col-span-4 space-y-3 md:space-y-4 font-subheading">
-            <span className="text-xs font-semibold tracking-[0.25em] uppercase text-accent block">
-              The Royal Standard
-            </span>
-            <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight leading-tight text-primary">
-              Crafting Trust <br />
-              <span className="italic font-normal">in Every Journey</span>
-            </h2>
-            <p className="text-sm text-primary/60 font-light leading-relaxed max-w-sm pt-1 font-body">
-              We believe that luxury travel is defined by the details. By focusing on intimacy, safety, and authentic hospitality, we turn travel into transformation.
-            </p>
+          <div className="lg:col-span-4">
+            <SectionHeading
+              subtitle="The Royal Standard"
+              title={
+                <>
+                  Crafting Trust <br />
+                  <span className="italic font-normal">in Every Journey</span>
+                </>
+              }
+              description="We believe that luxury travel is defined by the details. By focusing on intimacy, safety, and authentic hospitality, we turn travel into transformation."
+            />
           </div>
 
           {/* Right Column: Clean Grid Features */}

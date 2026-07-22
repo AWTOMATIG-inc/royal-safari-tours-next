@@ -1,8 +1,8 @@
 "use client";
 
+import SectionHeading from "@/components/SectionHeading";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
-import Image from "next/image";
 
 export default function Hero() {
   const handleScrollDown = () => {
@@ -13,39 +13,29 @@ export default function Hero() {
   };
 
   return (
-    <section className="relative w-full pt-32 pb-44 sm:pt-36 sm:pb-52 md:pt-40 md:pb-60 lg:pt-48 lg:pb-44 overflow-hidden bg-light">
-      {/* 1. Full-width Background Image (Local asset - fixes hostname unconfigured error) */}
-      <div className="absolute inset-0 z-0">
-        <Image
-          src="/images/banners/contact_hero.jpg"
-          alt="Misty Mountain River Landscape"
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover"
-        />
-        {/* Gradient overlay - stronger on mobile for readability, identical to Contact Hero */}
-        <div className="absolute inset-0 bg-gradient-to-r from-light/95 via-light/70 to-light/30 sm:via-light/60 sm:to-transparent" />
-      </div>
+    <section className="relative w-full pt-32 pb-44 sm:pt-36 sm:pb-52 md:pt-40 md:pb-60 lg:pt-48 lg:pb-44 overflow-hidden bg-[url('/images/banners/contact_hero.jpg')] bg-fixed bg-cover bg-center">
+      {/* Gradient overlay - stronger on mobile for readability, identical to Contact Hero */}
+      <div className="absolute inset-0 bg-gradient-to-r from-light/95 via-light/70 to-light/30 sm:via-light/60 sm:to-transparent z-0" />
 
       {/* 2. Content Container */}
       <div className="relative z-10 container mx-auto px-4 sm:px-6 md:px-10 lg:px-8">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-12 lg:gap-8">
           {/* Left Column: Headline and Paragraph (Exact match to Contact page sizes/spacing) */}
           <div className="flex flex-col items-start text-left max-w-xl font-subheading">
-            <span className="text-[12px] sm:text-xs md:text-sm font-semibold tracking-[0.25em] text-accent uppercase mb-4 sm:mb-5">
-              ABOUT US
-            </span>
-            <h1 className="text-[38px] sm:text-5xl md:text-6xl lg:text-7xl font-heading font-normal leading-[1.08] text-primary mb-5 sm:mb-7">
-              Creating Journeys
-              <br />
-              That Stay Forever
-            </h1>
-            <p className="text-[15px] text-justify sm:text-[17px] md:text-[18px] text-primary/70 font-body leading-relaxed max-w-xl mb-8 sm:mb-10">
-              We are passionate about Bangladesh and the world. Royal Safari
-              Tours brings you closer to extraordinary places and unforgettable
-              experiences, crafted with care and local expertise.
-            </p>
+            <SectionHeading
+              subtitle="ABOUT US"
+              title={
+                <>
+                  Creating Journeys
+                  <br />
+                  That Stay Forever
+                </>
+              }
+              description="We are passionate about Bangladesh and the world. Royal Safari Tours brings you closer to extraordinary places and unforgettable experiences, crafted with care and local expertise."
+              level="h1"
+              className="mb-8 sm:mb-10"
+              descriptionClassName="text-[15px] text-justify sm:text-[17px] md:text-[18px] text-primary/70 max-w-xl font-normal leading-relaxed font-body"
+            />
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto font-subheading">
               <Link
                 href="/adventure"

@@ -1,8 +1,8 @@
 "use client";
 
+import SectionHeading from "@/components/SectionHeading";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
-import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -24,20 +24,9 @@ export default function Hero() {
   };
 
   return (
-    <section className="relative w-full min-h-screen flex items-center justify-center pt-32 pb-24 md:pt-36 md:pb-28 lg:pt-40 lg:pb-32 overflow-hidden bg-white">
-      {/* Immersive Background Image */}
-      <div className="absolute inset-0 z-0">
-        <Image
-          src="/images/banners/banner1.webp"
-          alt="Wilderness Sanctuary of Bangladesh"
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover transition-transform duration-[10000ms] ease-out scale-105 hover:scale-100"
-        />
-        {/* White gradient overlay for clean text legibility */}
-        <div className="absolute inset-0 bg-gradient-to-r from-light/95 via-light/70 to-light/30 sm:via-light/60 sm:to-transparent" />
-      </div>
+    <section className="relative w-full min-h-screen flex items-center justify-center pt-32 pb-24 md:pt-36 md:pb-28 lg:pt-40 lg:pb-32 overflow-hidden bg-[url('/images/banners/banner1.webp')] bg-fixed bg-cover bg-center">
+      {/* White gradient overlay for clean text legibility */}
+      <div className="absolute inset-0 bg-gradient-to-r from-light/95 via-light/70 to-light/30 sm:via-light/60 sm:to-transparent z-0" />
 
       {/* Main Grid Content */}
       <div className="relative z-10 container mx-auto px-4 sm:px-6 md:px-10 lg:px-8 w-full">
@@ -45,17 +34,19 @@ export default function Hero() {
           
           {/* Left Column: Editorial Copy */}
           <div className="lg:col-span-7 flex flex-col items-start text-left max-w-xl font-subheading">
-            <span className="inline-flex items-center gap-2 text-[12px] sm:text-xs md:text-sm font-semibold tracking-[0.25em] text-accent uppercase mb-4 sm:mb-5">
-              <Icon icon="lucide:compass" className="w-4 h-4 animate-spin-slow" />
-              ROYAL SAFARI TOURS
-            </span>
-            <h1 className="text-[38px] sm:text-5xl md:text-6xl lg:text-7xl font-heading font-normal leading-[1.08] text-primary mb-5 sm:mb-7">
-              Where Wilderness Meets <br />
-              <span className="italic font-normal text-accent">Unmatched Luxury</span>
-            </h1>
-            <p className="text-[15px] sm:text-[17px] md:text-[18px] text-primary/75 font-body leading-relaxed max-w-xl mb-8 sm:mb-10">
-              Experience hand-crafted, low-impact luxury expeditions through Bangladesh&rsquo;s pristine mangroves, tea valleys, and coastal sanctuaries.
-            </p>
+            <SectionHeading
+              subtitle="ROYAL SAFARI TOURS"
+              title={
+                <>
+                  Where Wilderness Meets <br />
+                  <span className="italic font-normal text-accent font-heading">Unmatched Luxury</span>
+                </>
+              }
+              description="Experience hand-crafted, low-impact luxury expeditions through Bangladesh's pristine mangroves, tea valleys, and coastal sanctuaries."
+              level="h1"
+              className="mb-8 sm:mb-10"
+              descriptionClassName="text-[15px] sm:text-[17px] md:text-[18px] text-primary/75 max-w-xl font-normal leading-relaxed font-body"
+            />
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto font-subheading">
               <Link
                 href="/adventure"

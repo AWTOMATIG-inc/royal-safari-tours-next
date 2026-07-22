@@ -1,5 +1,6 @@
 "use client";
 
+import SectionHeading from "@/components/SectionHeading";
 import { Icon } from "@iconify/react";
 import Image from "next/image";
 import { useState } from "react";
@@ -61,15 +62,17 @@ export default function CustomerStories() {
       <div className="container px-4 sm:px-6">
         
         {/* Centered Magazine Header */}
-        <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-14 md:mb-16 space-y-3 font-subheading">
-          <span className="text-[11px] sm:text-xs font-semibold tracking-[0.25em] uppercase text-accent block">
-            Customer Stories
-          </span>
-          <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-primary">
-            Voices of the <br />
-            <span className="italic font-normal">Discerning Traveler</span>
-          </h2>
-        </div>
+        <SectionHeading
+          subtitle="Customer Stories"
+          title={
+            <>
+              Voices of the <br />
+              <span className="italic font-normal">Discerning Traveler</span>
+            </>
+          }
+          align="center"
+          className="mb-10 sm:mb-14 md:mb-16"
+        />
 
         {/* Centered Spotlight Quote Card with Warm Ivory Fill */}
         <div className="relative max-w-3xl mx-auto">

@@ -1,5 +1,6 @@
 "use client";
 
+import SectionHeading from "@/components/SectionHeading";
 import { Icon } from "@iconify/react";
 import Image from "next/image";
 import { useState, useEffect } from "react";
@@ -84,22 +85,23 @@ export default function CustomerSays() {
   );
 
   return (
-    <section className="relative py-20 sm:py-28 md:py-36 bg-about-banner bg-center bg-cover text-white overflow-hidden">
+    <section className="relative py-20 sm:py-28 md:py-36 bg-about-banner bg-fixed bg-center bg-cover text-white overflow-hidden">
       {/* Background overlay for styling */}
       <div className="absolute inset-0 bg-primary/75 backdrop-blur-[2px]" />
 
       <div className="container relative z-10">
         {/* Header section with layout flex */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 md:mb-20 gap-8">
-          <div className="space-y-4 font-subheading">
-            <span className="text-xs font-semibold tracking-[0.25em] uppercase text-accent block">
-              Testimonials
-            </span>
-            <h2 className="font-heading text-4xl md:text-5xl font-bold tracking-tight">
-              Voices of the <br />
-              <span className="italic font-normal">Discerning Traveler</span>
-            </h2>
-          </div>
+          <SectionHeading
+            subtitle="Testimonials"
+            title={
+              <>
+                Voices of the <br />
+                <span className="italic font-normal">Discerning Traveler</span>
+              </>
+            }
+            dark
+          />
 
           {/* Navigation Controls */}
           <div className="flex items-center gap-4">

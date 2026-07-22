@@ -1,5 +1,6 @@
 "use client";
 
+import SectionHeading from "@/components/SectionHeading";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
 
@@ -18,15 +19,17 @@ export default function FinalCTA() {
           <div className="relative z-10 w-full max-w-2xl p-[1px] bg-gradient-to-tr from-white/10 to-white/30 backdrop-blur-xl rounded-3xl shadow-2xl">
             <div className="rounded-[23px] bg-black/35 p-6 sm:p-10 md:p-12 text-center space-y-6 sm:space-y-8 font-subheading">
               
-              <div className="space-y-3 sm:space-y-4">
-                <span className="text-xs font-semibold tracking-[0.25em] uppercase text-accent">
-                  Uncharted Territories Await
-                </span>
-                <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold leading-tight text-white">
-                  Begin Your Next <br />
-                  <span className="italic font-normal text-white/90">Chapter of Adventure</span>
-                </h2>
-              </div>
+              <SectionHeading
+                subtitle="Uncharted Territories Await"
+                title={
+                  <>
+                    Begin Your Next <br />
+                    <span className="italic font-normal text-white/90">Chapter of Adventure</span>
+                  </>
+                }
+                align="center"
+                dark
+              />
 
               <p className="text-white/80 font-light text-base md:text-lg max-w-lg mx-auto font-body leading-relaxed">
                 Connect with our travel designers today to shape a bespoke itinerary tailored exclusively to your pace and curiosity.

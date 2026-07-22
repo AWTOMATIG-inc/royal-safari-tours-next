@@ -1,5 +1,6 @@
 "use client";
 
+import SectionHeading from "@/components/SectionHeading";
 import { Icon } from "@iconify/react";
 import Image from "next/image";
 
@@ -21,14 +22,10 @@ export default function TourGallerySection({ tourPackage, onOpenGalleryAt }) {
         <div className="max-w-4xl space-y-8">
           
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 font-subheading">
-            <div className="space-y-2 font-subheading">
-              <span className="text-xs font-bold tracking-[0.25em] text-accent uppercase block">
-                VISUAL STORY
-              </span>
-              <h2 className="text-3xl sm:text-4xl font-heading font-bold text-primary">
-                Expedition Gallery
-              </h2>
-            </div>
+            <SectionHeading
+              subtitle="VISUAL STORY"
+              title="Expedition Gallery"
+            />
 
             <button
               onClick={() => onOpenGalleryAt(0)}

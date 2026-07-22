@@ -1,5 +1,6 @@
 "use client";
 
+import SectionHeading from "@/components/SectionHeading";
 import { Icon } from "@iconify/react";
 
 const services = [
@@ -31,15 +32,16 @@ export default function WhatWeOffer() {
       <div className="container">
         
         {/* Section Header */}
-        <div className="max-w-2xl mb-12 md:mb-20 space-y-3 md:space-y-4 font-subheading">
-          <span className="text-xs font-semibold tracking-[0.25em] uppercase text-accent block">
-            Our Offerings
-          </span>
-          <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight">
-            Curated Expeditions, <br />
-            <span className="italic font-normal text-primary/95">Tailored to Your Soul</span>
-          </h2>
-        </div>
+        <SectionHeading
+          subtitle="Our Offerings"
+          title={
+            <>
+              Curated Expeditions, <br />
+              <span className="italic font-normal text-primary/95">Tailored to Your Soul</span>
+            </>
+          }
+          className="mb-12 md:mb-20"
+        />
 
         {/* Services Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">

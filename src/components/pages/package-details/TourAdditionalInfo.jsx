@@ -1,5 +1,6 @@
 "use client";
 
+import SectionHeading from "@/components/SectionHeading";
 import { Icon } from "@iconify/react";
 import { useState } from "react";
 
@@ -34,14 +35,10 @@ export default function TourAdditionalInfo({ tourPackage }) {
       <div className="container mx-auto px-4 sm:px-6 md:px-10 lg:px-8">
         <div className="max-w-4xl space-y-8">
           
-          <div className="space-y-2">
-            <span className="text-xs font-bold tracking-[0.25em] text-accent uppercase block">
-              GOOD TO KNOW
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-heading font-bold text-primary">
-              Additional Information
-            </h2>
-          </div>
+          <SectionHeading
+            subtitle="GOOD TO KNOW"
+            title="Additional Information"
+          />
 
           <div className="space-y-3 font-subheading">
             {items.map((item, idx) => {

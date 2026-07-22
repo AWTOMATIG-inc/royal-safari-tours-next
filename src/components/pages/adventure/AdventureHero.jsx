@@ -1,7 +1,7 @@
 "use client";
 
+import SectionHeading from "@/components/SectionHeading";
 import { Icon } from "@iconify/react";
-import Image from "next/image";
 
 export default function AdventureHero({
   locations = [],
@@ -20,37 +20,27 @@ export default function AdventureHero({
   };
 
   return (
-    <section className="relative w-full min-h-[75vh] sm:min-h-[80vh] flex flex-col justify-between pt-28 pb-32 md:pt-36 md:pb-36 bg-black text-white overflow-visible">
-      {/* Background Photography */}
-      <div className="absolute inset-0 z-0">
-        <Image
-          src="/images/banners/camping.webp"
-          alt="Wilderness Adventure Sanctuary"
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover"
-        />
-        {/* Gradients overlay */}
-        <div className="absolute inset-0 bg-black/60" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-transparent to-black/40" />
-      </div>
+    <section className="relative w-full min-h-[75vh] sm:min-h-[80vh] flex flex-col justify-between pt-28 pb-32 md:pt-36 md:pb-36 bg-[url('/images/banners/camping.webp')] bg-fixed bg-cover bg-center text-white overflow-visible">
+      {/* Gradients overlay */}
+      <div className="absolute inset-0 bg-black/60 z-0" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-transparent to-black/40 z-0" />
 
       {/* Main Hero Centered Content */}
-      <div className="relative z-10 container mx-auto px-4 sm:px-6 md:px-10 lg:px-8 text-center max-w-4xl space-y-4 sm:space-y-6 my-auto font-subheading">
-        <span className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold tracking-[0.25em] text-accent uppercase">
-          <Icon icon="lucide:compass" className="w-4 h-4 text-accent" />
-          ROYAL EXPEDITIONS & SAFARIS
-        </span>
-
-        <h1 className="text-4xl sm:text-6xl md:text-7xl font-heading font-bold leading-[1.05] tracking-tight text-white">
-          Explore Extraordinary <br />
-          <span className="italic font-normal text-accent font-heading">Wilderness Journeys</span>
-        </h1>
-
-        <p className="text-sm sm:text-base md:text-lg text-white/80 font-light font-body leading-relaxed max-w-2xl mx-auto">
-          Hand-crafted luxury safaris, mangrove boat expeditions, and mountain treks across Bangladesh and beyond.
-        </p>
+      <div className="relative z-10 container mx-auto px-4 sm:px-6 md:px-10 lg:px-8 my-auto">
+        <SectionHeading
+          subtitle="Explore Our Packages"
+          title={
+            <>
+              Explore Extraordinary <br />
+              <span className="italic font-normal text-accent font-heading">Wilderness Journeys</span>
+            </>
+          }
+          description="Hand-crafted luxury safaris, mangrove boat expeditions, and mountain treks across Bangladesh and beyond."
+          level="h1"
+          align="center"
+          dark
+          descriptionClassName="text-sm sm:text-base md:text-lg text-white/80 font-light font-body leading-relaxed max-w-2xl mx-auto"
+        />
       </div>
 
       {/* FLOATING SEARCH BAR AT THE MIDDLE BOTTOM OF HERO */}

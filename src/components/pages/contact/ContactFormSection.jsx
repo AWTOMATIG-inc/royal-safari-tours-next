@@ -1,5 +1,6 @@
 "use client";
 
+import SectionHeading from "@/components/SectionHeading";
 import Button from "@/components/Button";
 import InputBox from "@/components/InputBox";
 import { siteConfig } from "@/config/siteConfig";
@@ -68,15 +69,14 @@ export default function ContactFormSection() {
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-[1.05fr_0.95fr] gap-8 sm:gap-10 lg:gap-10 xl:gap-14 items-start">
           {/* Left Column: Form */}
           <div className="flex flex-col font-subheading">
-            <span className="text-[11px] sm:text-xs md:text-[13px] font-semibold tracking-[0.25em] text-accent uppercase mb-2 sm:mb-3">
-              SEND US A MESSAGE
-            </span>
-            <h2 className="text-[26px] sm:text-[34px] md:text-[38px] font-heading font-normal text-primary mb-2 sm:mb-3 leading-tight">
-              Tell us about your trip
-            </h2>
-            <p className="text-[14px] sm:text-[15px] text-primary/60 font-body leading-relaxed mb-6 sm:mb-8 max-w-md font-light">
-              Fill out the form below and our travel experts will get back to you shortly.
-            </p>
+            <SectionHeading
+              subtitle="SEND US A MESSAGE"
+              title="Tell us about your trip"
+              description="Fill out the form below and our travel experts will get back to you shortly."
+              className="mb-6 sm:mb-8"
+              titleClassName="text-[26px] sm:text-[34px] md:text-[38px] font-normal leading-tight"
+              descriptionClassName="text-[14px] sm:text-[15px] max-w-md font-light"
+            />
 
             <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 font-subheading">
               {/* Full Name */}

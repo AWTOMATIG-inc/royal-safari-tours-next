@@ -1,5 +1,6 @@
 "use client";
 
+import SectionHeading from "@/components/SectionHeading";
 import { Icon } from "@iconify/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -45,15 +46,15 @@ export default function FeaturedDestinations({ locations = [] }) {
         
         {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 sm:mb-14 md:mb-16 gap-4 sm:gap-6 font-subheading">
-          <div className="space-y-2 sm:space-y-3">
-            <span className="text-[11px] sm:text-xs font-semibold tracking-[0.25em] uppercase text-accent block">
-              Sacred Sanctuaries
-            </span>
-            <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-primary">
-              Featured Destinations, <br />
-              <span className="italic font-normal">Unspoiled &amp; Raw</span>
-            </h2>
-          </div>
+          <SectionHeading
+            subtitle="Sacred Sanctuaries"
+            title={
+              <>
+                Featured Destinations, <br />
+                <span className="italic font-normal">Unspoiled &amp; Raw</span>
+              </>
+            }
+          />
 
           <Link
             href="/adventure"
@@ -91,7 +92,7 @@ export default function FeaturedDestinations({ locations = [] }) {
                 {/* Glass Tag & Info */}
                 <div className="relative z-10 space-y-2 text-white">
                   <div className="flex items-center justify-between font-subheading">
-                    <span className="px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-white text-[10px] font-semibold tracking-[0.2em] uppercase">
+                    <span className="px-3 py-1 font-mansalva rounded-full bg-white/20 backdrop-blur-md text-white text-[10px] font-semibold tracking-[0.2em] uppercase">
                       Expedition Region
                     </span>
                     <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:translate-x-0 -translate-x-2">

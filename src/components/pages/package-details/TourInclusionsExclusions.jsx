@@ -1,5 +1,6 @@
 "use client";
 
+import SectionHeading from "@/components/SectionHeading";
 import { Icon } from "@iconify/react";
 
 export default function TourInclusionsExclusions({ tourPackage }) {
@@ -24,14 +25,10 @@ export default function TourInclusionsExclusions({ tourPackage }) {
       <div className="container mx-auto px-4 sm:px-6 md:px-10 lg:px-8">
         <div className="max-w-4xl space-y-8">
           
-          <div className="space-y-2">
-            <span className="text-xs font-bold tracking-[0.25em] text-accent uppercase block">
-              PACKAGE BREAKDOWN
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-heading font-bold text-primary">
-              What&apos;s Included & Excluded
-            </h2>
-          </div>
+          <SectionHeading
+            subtitle="PACKAGE BREAKDOWN"
+            title="What's Included & Excluded"
+          />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             

@@ -1,5 +1,6 @@
 "use client";
 
+import SectionHeading from "@/components/SectionHeading";
 import { Icon } from "@iconify/react";
 import Image from "next/image";
 
@@ -11,15 +12,15 @@ export default function WhoWeAre() {
           
           {/* Left Column: Heading, Story, Mission */}
           <div className="lg:col-span-6 space-y-6 md:space-y-8 font-subheading">
-            <div className="space-y-3 md:space-y-4">
-              <span className="text-xs font-semibold tracking-[0.25em] uppercase text-accent block">
-                Our Narrative
-              </span>
-              <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold leading-tight tracking-tight">
-                Redefining the Art <br />
-                <span className="italic font-normal">of Wilderness Travel</span>
-              </h2>
-            </div>
+            <SectionHeading
+              subtitle="Our Narrative"
+              title={
+                <>
+                  Redefining the Art <br />
+                  <span className="italic font-normal">of Wilderness Travel</span>
+                </>
+              }
+            />
 
             <div className="space-y-5 md:space-y-6 text-base md:text-lg leading-relaxed text-primary/80 font-light text-justify font-body">
               <p>

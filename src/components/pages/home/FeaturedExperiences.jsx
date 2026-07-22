@@ -1,5 +1,6 @@
 "use client";
 
+import SectionHeading from "@/components/SectionHeading";
 import { Icon } from "@iconify/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -61,15 +62,16 @@ export default function FeaturedExperiences({ tourPackages = [] }) {
       <div className="container">
         
         {/* Section Header */}
-        <div className="max-w-2xl mb-10 sm:mb-14 md:mb-16 space-y-2 sm:space-y-3 font-subheading">
-          <span className="text-[11px] sm:text-xs font-semibold tracking-[0.25em] uppercase text-accent block">
-            Curated Packages
-          </span>
-          <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-primary">
-            Featured Experiences, <br />
-            <span className="italic font-normal">Crafted for Discerning Minds</span>
-          </h2>
-        </div>
+        <SectionHeading
+          subtitle="Curated Packages"
+          title={
+            <>
+              Featured Experiences, <br />
+              <span className="italic font-normal">Crafted for Discerning Minds</span>
+            </>
+          }
+          className="mb-10 sm:mb-14 md:mb-16"
+        />
 
         {/* Clean 3-Card Experience Grid with Warm Luxury Card Fills */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">

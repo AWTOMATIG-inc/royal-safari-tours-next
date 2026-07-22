@@ -87,7 +87,7 @@ export default function TourHero({ tourPackage, onOpenBooking, onOpenGallery }) 
             {/* Category Tag & Rating */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold tracking-[0.25em] text-accent uppercase">
+                <span className="text-xs font-mansalva font-bold tracking-[0.25em] text-accent uppercase">
                   CURATED EXPEDITION
                 </span>
                 <div className="flex items-center gap-1.5 bg-gray-50 border border-gray-200/80 px-3 py-1 rounded-full text-xs font-semibold text-primary">

@@ -1,5 +1,6 @@
 "use client";
 
+import SectionHeading from "@/components/SectionHeading";
 import { Icon } from "@iconify/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -106,17 +107,13 @@ export default function TravelInspiration() {
         <div className="container">
           
           {/* Header */}
-          <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-12 space-y-3">
-            <span className="text-[11px] sm:text-xs font-semibold tracking-[0.25em] uppercase text-accent block font-subheading">
-              Explore By Experience
-            </span>
-            <h3 className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-primary">
-              Discover Regions by Category
-            </h3>
-            <p className="text-sm text-primary/70 font-light font-body max-w-md mx-auto">
-              Select your sanctuary type to filter hand-crafted expeditions.
-            </p>
-          </div>
+          <SectionHeading
+            subtitle="Explore By Experience"
+            title="Discover Regions by Category"
+            description="Select your sanctuary type to filter hand-crafted expeditions."
+            align="center"
+            className="mb-10 sm:mb-12"
+          />
 
           {/* Responsive Filter Buttons */}
           <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-12 sm:mb-14 font-subheading">

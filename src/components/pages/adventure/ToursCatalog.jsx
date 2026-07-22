@@ -1,5 +1,6 @@
 "use client";
 
+import SectionHeading from "@/components/SectionHeading";
 import TourCard from "@/components/TourCard";
 import { Icon } from "@iconify/react";
 import { useMemo, useState } from "react";
@@ -286,17 +287,17 @@ export default function ToursCatalog({
       
       {/* Catalog Header Bar */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-8 border-b border-gray-200/80">
-        <div className="font-subheading">
-          <span className="text-xs font-bold tracking-[0.25em] text-accent uppercase block mb-1">
-            CURATED CATALOG
-          </span>
-          <h2 className="text-3xl sm:text-4xl font-heading font-bold text-primary flex items-center gap-3">
-            Available Expeditions
-            <span className="text-xs font-subheading font-bold px-3 py-1 rounded-full bg-secondary/10 text-secondary border border-secondary/20 shadow-xs">
-              {filteredTours.length} {filteredTours.length === 1 ? "Tour" : "Tours"}
+        <SectionHeading
+          subtitle="CURATED CATALOG"
+          title={
+            <span className="flex items-center gap-3">
+              Available Expeditions
+              <span className="text-xs font-subheading font-bold px-3 py-1 rounded-full bg-secondary/10 text-secondary border border-secondary/20 shadow-xs">
+                {filteredTours.length} {filteredTours.length === 1 ? "Tour" : "Tours"}
+              </span>
             </span>
-          </h2>
-        </div>
+          }
+        />
 
         {/* Controls: Mobile Filter Toggle & Sort Selector */}
         <div className="flex items-center gap-3">

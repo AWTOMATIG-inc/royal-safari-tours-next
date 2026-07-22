@@ -1,6 +1,6 @@
 "use client";
 
-import { Icon } from "@iconify/react";
+import SectionHeading from "@/components/SectionHeading";
 
 export default function TourOverview({ tourPackage }) {
   if (!tourPackage?.description) return null;
@@ -14,14 +14,10 @@ export default function TourOverview({ tourPackage }) {
       <div className="container mx-auto px-4 sm:px-6 md:px-10 lg:px-8">
         <div className="max-w-4xl space-y-6">
           
-          <div className="space-y-2">
-            <span className="text-xs font-bold tracking-[0.25em] text-accent uppercase block">
-              EXPEDITION HIGHLIGHTS & OVERVIEW
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-heading font-bold text-primary">
-              About This Experience
-            </h2>
-          </div>
+          <SectionHeading
+            subtitle="EXPEDITION HIGHLIGHTS & OVERVIEW"
+            title="About This Experience"
+          />
 
           {/* Clean Editorial HTML Description Box */}
           <div className="bg-sand border border-gray-200/80 rounded-3xl p-6 sm:p-10 shadow-xs">

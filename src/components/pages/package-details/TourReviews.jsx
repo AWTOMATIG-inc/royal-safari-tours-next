@@ -1,5 +1,6 @@
 "use client";
 
+import SectionHeading from "@/components/SectionHeading";
 import Rating from "@/components/Rating";
 import { Icon } from "@iconify/react";
 
@@ -36,14 +37,10 @@ export default function TourReviews({ tourPackage }) {
         <div className="max-w-4xl space-y-8">
           
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 pb-6">
-            <div className="space-y-1">
-              <span className="text-xs font-bold tracking-[0.25em] text-accent uppercase block">
-                GUEST EXPERIENCES
-              </span>
-              <h2 className="text-3xl sm:text-4xl font-heading font-bold text-primary">
-                Verified Traveler Reviews
-              </h2>
-            </div>
+            <SectionHeading
+              subtitle="GUEST EXPERIENCES"
+              title="Verified Traveler Reviews"
+            />
 
             <div className="flex items-center gap-3 bg-sand border border-gray-200/80 px-4 py-2.5 rounded-2xl">
               <div className="text-2xl font-bold font-heading text-primary">
