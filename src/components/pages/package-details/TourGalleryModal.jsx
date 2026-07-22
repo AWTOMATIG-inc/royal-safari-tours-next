@@ -75,7 +75,7 @@ export default function TourGalleryModal({ tourPackage, isOpen, onClose, activeI
           className="object-contain"
         />
 
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 bg-black/60 backdrop-blur-md text-white text-xs font-semibold px-4 py-1.5 rounded-full border border-white/20">
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 bg-black/60 backdrop-blur-md text-white text-xs font-semibold px-4 py-1.5 rounded-full border border-white/20 font-subheading">
           {currentIndex + 1} / {galleryImages.length}
         </div>
       </div>

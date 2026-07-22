@@ -57,15 +57,15 @@ export default function FeaturedExperiences({ tourPackages = [] }) {
   ];
 
   return (
-    <section className="py-16 sm:py-24 md:py-32 text-[#0D231E] border-t border-gray-100 bg-white">
+    <section className="py-16 sm:py-24 md:py-32 text-primary border-t border-gray-100 bg-white">
       <div className="container">
         
         {/* Section Header */}
-        <div className="max-w-2xl mb-10 sm:mb-14 md:mb-16 space-y-2 sm:space-y-3">
-          <span className="text-[11px] sm:text-xs font-semibold tracking-[0.25em] uppercase text-[#DE8D3D] block font-inter">
+        <div className="max-w-2xl mb-10 sm:mb-14 md:mb-16 space-y-2 sm:space-y-3 font-subheading">
+          <span className="text-[11px] sm:text-xs font-semibold tracking-[0.25em] uppercase text-accent block">
             Curated Packages
           </span>
-          <h2 className="font-playfair text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-[#0D231E]">
+          <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-primary">
             Featured Experiences, <br />
             <span className="italic font-normal">Crafted for Discerning Minds</span>
           </h2>
@@ -83,11 +83,11 @@ export default function FeaturedExperiences({ tourPackages = [] }) {
             return (
               <div
                 key={item._id}
-                className="group relative rounded-3xl bg-[#f8f6f0] border border-[#e8e4d8] shadow-[0_8px_30px_rgba(13,35,30,0.04)] hover:shadow-[0_20px_50px_rgba(13,35,30,0.12)] hover:border-[#2cb775]/40 overflow-hidden transition-all duration-500 flex flex-col justify-between"
+                className="group relative rounded-3xl bg-sand border border-primary/10 shadow-[0_8px_30px_rgba(13,35,30,0.04)] hover:shadow-[0_20px_50px_rgba(13,35,30,0.12)] hover:border-secondary/40 overflow-hidden transition-all duration-500 flex flex-col justify-between"
               >
                 <div>
                   {/* Package Banner Image */}
-                  <div className="relative aspect-[16/10] sm:aspect-[16/9] lg:aspect-[16/10] w-full overflow-hidden">
+                  <div className="relative aspect-[16/10] sm:aspect-[16/9] lg:aspect-[16/10] w-full overflow-hidden font-subheading">
                     <Image
                       src={imageSrc}
                       alt={title}
@@ -97,41 +97,41 @@ export default function FeaturedExperiences({ tourPackages = [] }) {
                     />
                     
                     {/* Floating Location Tag */}
-                    <div className="absolute top-4 left-4 px-3.5 py-1.5 rounded-full bg-[#0D231E]/75 backdrop-blur-md text-white text-[11px] font-semibold tracking-wider uppercase flex items-center gap-1.5 border border-white/20">
-                      <Icon icon="lucide:map-pin" className="w-3.5 h-3.5 text-[#DE8D3D]" />
+                    <div className="absolute top-4 left-4 px-3.5 py-1.5 rounded-full bg-primary/75 backdrop-blur-md text-white text-[11px] font-semibold tracking-wider uppercase flex items-center gap-1.5 border border-white/20">
+                      <Icon icon="lucide:map-pin" className="w-3.5 h-3.5 text-accent" />
                       <span>{location}</span>
                     </div>
                   </div>
 
                   {/* Body Content */}
                   <div className="p-6 sm:p-7 md:p-8 space-y-4">
-                    <div className="flex items-center justify-between text-xs font-semibold tracking-wider text-[#DE8D3D] uppercase">
+                    <div className="flex items-center justify-between text-xs font-semibold tracking-wider text-accent uppercase font-subheading">
                       <span className="flex items-center gap-1">
                         <Icon icon="lucide:clock" className="w-3.5 h-3.5" />
                         {duration}
                       </span>
                       {item.price && (
-                        <span className="text-[#0D231E] bg-white px-3 py-1 rounded-full shadow-sm border border-[#e8e4d8] font-mono font-bold">
+                        <span className="text-primary bg-white px-3 py-1 rounded-full shadow-sm border border-primary/10 font-mono font-bold">
                           From ৳{item.price.toLocaleString()}
                         </span>
                       )}
                     </div>
 
-                    <h3 className="font-playfair text-2xl font-bold leading-tight text-[#0D231E] group-hover:text-[#2cb775] transition-colors duration-300">
+                    <h3 className="font-heading text-2xl font-bold leading-tight text-primary group-hover:text-secondary transition-colors duration-300">
                       {title}
                     </h3>
 
-                    <p className="text-sm leading-relaxed text-[#0D231E]/75 font-light font-inter line-clamp-3">
+                    <p className="text-sm leading-relaxed text-primary/75 font-light font-body line-clamp-3">
                       {item.shortDescription || item.description || "An exclusive private journey designed with heartfelt hospitality and expert local guidance."}
                     </p>
                   </div>
                 </div>
 
                 {/* Footer Action */}
-                <div className="px-6 pb-6 sm:px-7 sm:pb-7 md:px-8 md:pb-8 pt-0">
+                <div className="px-6 pb-6 sm:px-7 sm:pb-7 md:px-8 md:pb-8 pt-0 font-subheading">
                   <Link
                     href={`/packages/${slug}`}
-                    className="inline-flex items-center justify-between w-full py-3.5 px-5 rounded-xl bg-white border border-[#dcd6c5] group-hover:bg-[#0D231E] group-hover:text-white group-hover:border-[#0D231E] transition-all duration-300 text-xs font-semibold tracking-wider uppercase text-[#0D231E] shadow-sm"
+                    className="inline-flex items-center justify-between w-full py-3.5 px-5 rounded-xl bg-white border border-primary/15 group-hover:bg-primary group-hover:text-white group-hover:border-primary transition-all duration-300 text-xs font-semibold tracking-wider uppercase text-primary shadow-sm"
                   >
                     <span>View Expedition Details</span>
                     <Icon icon="lucide:arrow-right" className="w-4 h-4 transition-transform group-hover:translate-x-1" />

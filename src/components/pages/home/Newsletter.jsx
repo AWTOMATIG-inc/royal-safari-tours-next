@@ -51,18 +51,18 @@ export default function Newsletter() {
   };
 
   return (
-    <section className="py-16 sm:py-24 md:py-28 text-[#0D231E] border-t border-gray-100 bg-white">
+    <section className="py-16 sm:py-24 md:py-28 text-primary border-t border-gray-100 bg-white">
       <div className="container max-w-4xl">
-        <div className="relative rounded-3xl p-8 sm:p-12 md:p-14 bg-[#f4f1e8] border border-[#e2ddd0] text-center space-y-6 shadow-sm">
+        <div className="relative rounded-3xl p-8 sm:p-12 md:p-14 bg-lightGray border border-primary/10 text-center space-y-6 shadow-sm">
           
-          <div className="space-y-3">
-            <span className="text-xs font-semibold tracking-[0.25em] uppercase text-[#DE8D3D] block">
+          <div className="space-y-3 font-subheading">
+            <span className="text-xs font-semibold tracking-[0.25em] uppercase text-accent block">
               Private Dispatch
             </span>
-            <h2 className="font-playfair text-3xl sm:text-4xl font-bold tracking-tight text-[#0D231E]">
+            <h2 className="font-heading text-3xl sm:text-4xl font-bold tracking-tight text-primary">
               Join The Royal Circle
             </h2>
-            <p className="text-sm sm:text-base text-[#0D231E]/75 font-light font-inter max-w-lg mx-auto leading-relaxed">
+            <p className="text-sm sm:text-base text-primary/75 font-light font-body max-w-lg mx-auto leading-relaxed">
               Receive private expedition releases, seasonal travel stories, and rare wilderness insights directly in your inbox.
             </p>
           </div>
@@ -73,7 +73,7 @@ export default function Newsletter() {
               placeholder="Enter your email address..."
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="flex-1 bg-white border border-[#dcd6c5] rounded-xl px-4 py-3.5 text-sm text-[#0D231E] placeholder:text-[#0D231E]/50 font-inter focus:outline-none focus:border-[#2cb775] transition-colors shadow-sm"
+              className="flex-1 bg-white border border-primary/15 rounded-xl px-4 py-3.5 text-sm text-primary placeholder:text-primary/50 font-body focus:outline-none focus:border-secondary transition-colors shadow-sm"
             />
             <Button
               type="submit"
@@ -86,7 +86,7 @@ export default function Newsletter() {
             </Button>
           </form>
 
-          <p className="text-[10px] text-[#0D231E]/50 font-inter tracking-wide uppercase">
+          <p className="text-[10px] text-primary/50 font-subheading tracking-wide uppercase">
             We respect your privacy. Unsubscribe at any time.
           </p>
 

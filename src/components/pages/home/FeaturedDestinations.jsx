@@ -40,16 +40,16 @@ export default function FeaturedDestinations({ locations = [] }) {
   ];
 
   return (
-    <section id="featured-destinations" className="py-16 sm:py-24 md:py-32 text-[#0D231E]">
+    <section id="featured-destinations" className="py-16 sm:py-24 md:py-32 text-primary">
       <div className="container">
         
         {/* Section Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 sm:mb-14 md:mb-16 gap-4 sm:gap-6">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 sm:mb-14 md:mb-16 gap-4 sm:gap-6 font-subheading">
           <div className="space-y-2 sm:space-y-3">
-            <span className="text-[11px] sm:text-xs font-semibold tracking-[0.25em] uppercase text-[#DE8D3D] block font-inter">
+            <span className="text-[11px] sm:text-xs font-semibold tracking-[0.25em] uppercase text-accent block">
               Sacred Sanctuaries
             </span>
-            <h2 className="font-playfair text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-[#0D231E]">
+            <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-primary">
               Featured Destinations, <br />
               <span className="italic font-normal">Unspoiled &amp; Raw</span>
             </h2>
@@ -57,7 +57,7 @@ export default function FeaturedDestinations({ locations = [] }) {
 
           <Link
             href="/adventure"
-            className="inline-flex items-center gap-2 text-xs font-semibold tracking-[0.2em] uppercase text-[#0D231E] hover:text-[#DE8D3D] transition-colors duration-300 group shrink-0"
+            className="inline-flex items-center gap-2 text-xs font-semibold tracking-[0.2em] uppercase text-primary hover:text-accent transition-colors duration-300 group shrink-0"
           >
             <span>View All Destinations</span>
             <Icon icon="lucide:arrow-right" className="w-4 h-4 transition-transform group-hover:translate-x-1" />
@@ -90,7 +90,7 @@ export default function FeaturedDestinations({ locations = [] }) {
 
                 {/* Glass Tag & Info */}
                 <div className="relative z-10 space-y-2 text-white">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between font-subheading">
                     <span className="px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-white text-[10px] font-semibold tracking-[0.2em] uppercase">
                       Expedition Region
                     </span>
@@ -99,12 +99,12 @@ export default function FeaturedDestinations({ locations = [] }) {
                     </div>
                   </div>
 
-                  <h3 className="font-playfair text-2xl font-bold tracking-wide text-white">
+                  <h3 className="font-heading text-2xl font-bold tracking-wide text-white">
                     {title}
                   </h3>
 
                   {item.description && (
-                    <p className="text-xs font-light text-white/80 font-inter line-clamp-2 leading-relaxed">
+                    <p className="text-xs font-light text-white/80 font-body line-clamp-2 leading-relaxed">
                       {item.description}
                     </p>
                   )}

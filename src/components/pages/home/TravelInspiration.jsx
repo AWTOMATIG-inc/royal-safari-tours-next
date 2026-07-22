@@ -83,51 +83,51 @@ export default function TravelInspiration() {
       {/* 1. Fixed Parallax Hero Inspiration Banner */}
       <div className="relative py-28 sm:py-36 md:py-44 overflow-hidden bg-[url('/images/banners/memories.webp')] bg-fixed bg-cover bg-center text-center">
         {/* Dark Overlay */}
-        <div className="absolute inset-0 bg-[#0D231E]/70 backdrop-blur-[1px]" />
+        <div className="absolute inset-0 bg-primary/70 backdrop-blur-[1px]" />
 
-        <div className="relative z-10 container mx-auto px-4 sm:px-6 max-w-3xl space-y-6 sm:space-y-8">
-          <span className="text-xs font-semibold tracking-[0.3em] uppercase text-[#DE8D3D] inline-block font-inter">
+        <div className="relative z-10 container mx-auto px-4 sm:px-6 max-w-3xl space-y-6 sm:space-y-8 font-subheading">
+          <span className="text-xs font-semibold tracking-[0.25em] uppercase text-accent inline-block">
             Travel Inspiration
           </span>
 
-          <h2 className="font-playfair text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-normal italic leading-tight text-white/95">
+          <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-normal italic leading-tight text-white/95">
             &ldquo;In every walk with nature, <br className="hidden sm:block" />
             one receives far more than he seeks.&rdquo;
           </h2>
 
-          <p className="text-xs sm:text-sm font-semibold tracking-widest uppercase text-white/60 font-inter">
+          <p className="text-xs sm:text-sm font-semibold tracking-widest uppercase text-white/60">
             — John Muir
           </p>
         </div>
       </div>
 
       {/* 2. Interactive Destination Filter Section */}
-      <div className="py-16 sm:py-24 md:py-28 bg-white text-[#0D231E]">
+      <div className="py-16 sm:py-24 md:py-28 bg-white text-primary">
         <div className="container">
           
           {/* Header */}
           <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-12 space-y-3">
-            <span className="text-[11px] sm:text-xs font-semibold tracking-[0.25em] uppercase text-[#DE8D3D] block font-inter">
+            <span className="text-[11px] sm:text-xs font-semibold tracking-[0.25em] uppercase text-accent block font-subheading">
               Explore By Experience
             </span>
-            <h3 className="font-playfair text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-[#0D231E]">
+            <h3 className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-primary">
               Discover Regions by Category
             </h3>
-            <p className="text-sm text-[#0D231E]/70 font-light font-inter max-w-md mx-auto">
-              Select your preferred sanctuary type to filter hand-crafted expeditions across Bengal.
+            <p className="text-sm text-primary/70 font-light font-body max-w-md mx-auto">
+              Select your sanctuary type to filter hand-crafted expeditions.
             </p>
           </div>
 
           {/* Responsive Filter Buttons */}
-          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-12 sm:mb-14">
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-12 sm:mb-14 font-subheading">
             {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
                 className={`px-4 sm:px-6 py-2.5 sm:py-3 rounded-full text-xs font-semibold tracking-wider uppercase transition-all duration-300 cursor-pointer ${
                   activeCategory === cat
-                    ? "bg-[#0D231E] text-white shadow-md"
-                    : "bg-[#f0ece1] text-[#0D231E]/80 border border-[#e2ddd0] hover:bg-[#e6e1d3] hover:text-[#0D231E]"
+                    ? "bg-primary text-white shadow-md"
+                    : "bg-lightGray text-primary/80 border border-primary/10 hover:bg-lightGray/80 hover:text-primary"
                 }`}
               >
                 {cat}
@@ -140,10 +140,10 @@ export default function TravelInspiration() {
             {filteredItems.map((item) => (
               <div
                 key={item.id}
-                className="group relative rounded-3xl bg-[#f8f6f0] border border-[#e8e4d8] shadow-[0_6px_25px_rgba(13,35,30,0.04)] hover:shadow-[0_20px_45px_rgba(13,35,30,0.12)] hover:border-[#2cb775]/40 overflow-hidden transition-all duration-500 hover:-translate-y-1 flex flex-col justify-between"
+                className="group relative rounded-3xl bg-sand border border-primary/10 shadow-[0_6px_25px_rgba(13,35,30,0.04)] hover:shadow-[0_20px_45px_rgba(13,35,30,0.12)] hover:border-secondary/40 overflow-hidden transition-all duration-500 hover:-translate-y-1 flex flex-col justify-between"
               >
                 <div>
-                  <div className="relative aspect-[16/10] w-full overflow-hidden">
+                  <div className="relative aspect-[16/10] w-full overflow-hidden font-subheading">
                     <Image
                       src={item.image}
                       alt={item.title}
@@ -152,25 +152,25 @@ export default function TravelInspiration() {
                       className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                     />
                     
-                    <div className="absolute top-4 left-4 px-3 py-1.5 rounded-full bg-[#0D231E]/75 backdrop-blur-md text-white text-[10px] font-semibold tracking-wider uppercase border border-white/20">
+                    <div className="absolute top-4 left-4 px-3 py-1.5 rounded-full bg-primary/75 backdrop-blur-md text-white text-[10px] font-semibold tracking-wider uppercase border border-white/20">
                       {item.tag}
                     </div>
                   </div>
 
                   <div className="p-6 space-y-3">
-                    <div className="flex items-center justify-between text-[11px] font-semibold tracking-wider text-[#DE8D3D] uppercase">
+                    <div className="flex items-center justify-between text-[11px] font-semibold tracking-wider text-accent uppercase font-subheading">
                       <span>{item.location}</span>
-                      <span className="flex items-center gap-1 text-[#0D231E]/60 font-normal">
+                      <span className="flex items-center gap-1 text-primary/60 font-normal">
                         <Icon icon="lucide:clock" className="w-3.5 h-3.5" />
                         {item.duration}
                       </span>
                     </div>
 
-                    <h4 className="font-playfair text-xl font-bold text-[#0D231E] group-hover:text-[#2cb775] transition-colors">
+                    <h4 className="font-heading text-xl font-bold text-primary group-hover:text-secondary transition-colors">
                       {item.title}
                     </h4>
 
-                    <p className="text-xs text-[#0D231E]/70 font-light font-inter line-clamp-2 leading-relaxed">
+                    <p className="text-xs text-primary/70 font-light font-body line-clamp-2 leading-relaxed">
                       {item.description}
                     </p>
                   </div>
@@ -179,7 +179,7 @@ export default function TravelInspiration() {
                 <div className="px-6 pb-6 pt-0">
                   <Link
                     href={`/adventure?destination=${encodeURIComponent(item.title)}`}
-                    className="inline-flex items-center justify-between w-full py-3 px-4 rounded-xl bg-white border border-[#dcd6c5] group-hover:bg-[#0D231E] group-hover:text-white group-hover:border-[#0D231E] transition-all duration-300 text-[11px] font-semibold tracking-wider uppercase text-[#0D231E] shadow-sm"
+                    className="inline-flex items-center justify-between w-full py-3 px-4 rounded-xl bg-white border border-primary/15 group-hover:bg-primary group-hover:text-white group-hover:border-primary transition-all duration-300 text-[11px] font-semibold tracking-wider uppercase text-primary shadow-sm font-subheading"
                   >
                     <span>View Region</span>
                     <Icon icon="lucide:arrow-right" className="w-3.5 h-3.5" />

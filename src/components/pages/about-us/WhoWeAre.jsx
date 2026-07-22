@@ -5,23 +5,23 @@ import Image from "next/image";
 
 export default function WhoWeAre() {
   return (
-    <section id="who-we-are" className="py-16 sm:py-24 md:py-32 text-[#0D231E] overflow-hidden">
+    <section id="who-we-are" className="py-16 sm:py-24 md:py-32 text-primary overflow-hidden">
       <div className="container">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24 items-center">
           
           {/* Left Column: Heading, Story, Mission */}
-          <div className="lg:col-span-6 space-y-6 md:space-y-8">
+          <div className="lg:col-span-6 space-y-6 md:space-y-8 font-subheading">
             <div className="space-y-3 md:space-y-4">
-              <span className="text-xs font-semibold tracking-[0.25em] uppercase text-[#DE8D3D] block">
+              <span className="text-xs font-semibold tracking-[0.25em] uppercase text-accent block">
                 Our Narrative
               </span>
-              <h2 className="font-playfair text-3xl sm:text-4xl md:text-5xl font-bold leading-tight tracking-tight">
+              <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold leading-tight tracking-tight">
                 Redefining the Art <br />
                 <span className="italic font-normal">of Wilderness Travel</span>
               </h2>
             </div>
 
-            <div className="space-y-5 md:space-y-6 text-base md:text-lg leading-relaxed text-[#0D231E]/80 font-light text-justify">
+            <div className="space-y-5 md:space-y-6 text-base md:text-lg leading-relaxed text-primary/80 font-light text-justify font-body">
               <p>
                 Founded by a collective of passionate explorers, Royal Safari Tours emerged from a simple realization: travel should be profound, respectful, and intimately personal. We saw an opportunity to bridge the gap between rugged adventure and luxury hospitality.
               </p>
@@ -31,11 +31,11 @@ export default function WhoWeAre() {
             </div>
 
             {/* Mission Statement Block */}
-            <div className="relative pl-6 border-l-2 border-[#2cb775] py-2 space-y-1.5">
-              <span className="text-xs font-semibold tracking-wider text-[#2cb775] uppercase block">
+            <div className="relative pl-6 border-l-2 border-secondary py-2 space-y-1.5 font-subheading">
+              <span className="text-xs font-semibold tracking-wider text-secondary uppercase block">
                 Our Mission
               </span>
-              <p className="font-playfair text-lg md:text-xl italic font-medium text-[#0D231E]/90">
+              <p className="font-heading text-lg md:text-xl italic font-medium text-primary/90">
                 "To deliver highly customized, sustainable, and unforgettable journeys that preserve the environment, empower local communities, and inspire human connection."
               </p>
             </div>
@@ -65,15 +65,15 @@ export default function WhoWeAre() {
 
               {/* Floating Glass Quote Card */}
               <div className="absolute bottom-4 left-4 right-10 sm:left-6 sm:bottom-6 md:left-8 md:bottom-8 md:-right-4 p-[1px] bg-gradient-to-tr from-white/20 to-white/40 backdrop-blur-md rounded-2xl shadow-xl transition-transform duration-500 hover:translate-y-[-4px]">
-                <div className="bg-[#fcfaee]/80 p-4 sm:p-6 rounded-[15px] flex gap-3 sm:gap-4 items-start">
-                  <div className="p-2 rounded-lg bg-[#DE8D3D]/10 text-[#DE8D3D] shrink-0">
+                <div className="bg-light/80 p-4 sm:p-6 rounded-[15px] flex gap-3 sm:gap-4 items-start">
+                  <div className="p-2 rounded-lg bg-accent/10 text-accent shrink-0">
                     <Icon icon="lucide:quote" className="w-5 h-5" />
                   </div>
-                  <div className="space-y-1">
-                    <p className="text-[#0D231E]/90 text-xs sm:text-sm italic font-medium leading-relaxed">
+                  <div className="space-y-1 font-subheading">
+                    <p className="text-primary/90 text-xs sm:text-sm italic font-medium leading-relaxed">
                       "We do not inherit the earth from our ancestors, we borrow it from our children."
                     </p>
-                    <span className="text-[9px] sm:text-[10px] tracking-widest text-[#0D231E]/60 uppercase font-semibold block pt-1">
+                    <span className="text-[9px] sm:text-[10px] tracking-widest text-primary/60 uppercase font-semibold block pt-1">
                       — Native Proverb
                     </span>
                   </div>

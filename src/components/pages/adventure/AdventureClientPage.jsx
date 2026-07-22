@@ -81,7 +81,7 @@ function AdventureContent({ tourPackages = [], locations = [] }) {
 
 export default function AdventureClientPage(props) {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-white py-40 text-center font-inter text-gray-400">Loading Expeditions...</div>}>
+    <Suspense fallback={<div className="min-h-screen bg-white py-40 text-center font-subheading text-gray-400">Loading Expeditions...</div>}>
       <AdventureContent {...props} />
     </Suspense>
   );

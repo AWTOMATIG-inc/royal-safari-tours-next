@@ -10,30 +10,30 @@ export default function QuickPackageInfo({ tourPackage }) {
       icon: "lucide:clock",
       label: "Duration",
       value: tourPackage.duration || "Multi-Day Tour",
-      color: "text-[#2cb775]",
+      color: "text-secondary",
     },
     {
       icon: "lucide:map-pin",
       label: "Location",
       value: tourPackage.location || "Bangladesh",
-      color: "text-[#DE8D3D]",
+      color: "text-accent",
     },
     {
       icon: "lucide:compass",
       label: "Tour Style",
       value: "Luxury Wilderness",
-      color: "text-[#0D231E]",
+      color: "text-primary",
     },
     {
       icon: "lucide:shield-check",
       label: "Guaranteed",
       value: "Best Price & Verified",
-      color: "text-[#2cb775]",
+      color: "text-secondary",
     },
   ];
 
   return (
-    <section className="bg-[#fcfbf7] border-b border-gray-200/80 py-6 sm:py-8 font-inter">
+    <section className="bg-sand border-b border-gray-200/80 py-6 sm:py-8 font-subheading">
       <div className="container mx-auto px-4 sm:px-6 md:px-10 lg:px-8">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
           {items.map((item, idx) => (
@@ -48,7 +48,7 @@ export default function QuickPackageInfo({ tourPackage }) {
                 <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">
                   {item.label}
                 </span>
-                <span className="text-xs sm:text-sm font-semibold text-[#0D231E] truncate">
+                <span className="text-xs sm:text-sm font-semibold text-primary truncate">
                   {item.value}
                 </span>
               </div>

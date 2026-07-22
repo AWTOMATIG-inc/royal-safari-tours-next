@@ -9,7 +9,7 @@ import ContactNewsletter from "@/components/pages/contact/ContactNewsletter";
 
 export default function Contact() {
   return (
-    <div className="bg-white min-h-screen text-[#132E27] font-palanquin overflow-x-hidden">
+    <div className="bg-white min-h-screen text-primary font-body overflow-x-hidden">
       {/* 1. Hero section & floating quick contact cards */}
       <div className="relative">
         <ContactHero />

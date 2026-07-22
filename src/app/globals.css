@@ -2,6 +2,7 @@
 @import "tailwindcss";
 
 @theme inline {
+  /* Core Font Families */
   --font-mansalva: "Mansalva", sans-serif;
   --font-calibre: "calibre", sans-serif;
   --font-playfair: "Playfair Display", serif;
@@ -9,10 +10,23 @@
   --font-palanquin: "Palanquin Dark", sans-serif;
   --font-inter: "Inter", sans-serif;
   --font-plus-jakarta: "Plus Jakarta Sans", sans-serif;
-  --color-light: #fcfaee;
-  --color-lightGray: #f2efdf;
-  --color-green: #2cb775;
-  --color-orange: #ff9933;
+
+  /* Semantic Typography Mappings */
+  --font-heading: "Playfair Display", serif;
+  --font-subheading: "Plus Jakarta Sans", sans-serif;
+  --font-body: "calibre", sans-serif;
+
+  /* Centralized Color Tokens */
+  --color-primary: #0D231E;      /* Deep Forest Green */
+  --color-secondary: #2cb775;    /* Vibrant Green */
+  --color-accent: #DE8D3D;       /* Warm Amber / Orange */
+  --color-light: #fcfaee;        /* Soft Cream Background */
+  --color-lightGray: #f2efdf;    /* Neutral Cream Gray */
+  --color-sand: #fcfbf7;         /* Luxury Sand Background */
+  --color-gold: #C49A5C;         /* Luxury Accent Gold */
+  --color-green: #2cb775;        /* Keep legacy mapping */
+  --color-orange: #DE8D3D;       /* Keep legacy mapping */
+
   --breakpoint-xxs: 345px;
 }
 @utility container {

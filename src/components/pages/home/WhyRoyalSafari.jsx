@@ -27,25 +27,25 @@ const pillars = [
 
 export default function WhyRoyalSafari() {
   return (
-    <section className="py-12 md:py-16 text-[#0D231E] border-t border-gray-100 bg-white">
+    <section className="py-12 md:py-16 text-primary border-t border-gray-100 bg-white">
       <div className="container">
         
         {/* Full-width Horizontal Ticker Strip Card */}
-        <div className="rounded-3xl bg-[#f4f1e8] border border-[#e2ddd0] p-6 sm:p-8 md:p-10 shadow-sm">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-[#0D231E]/15 gap-6 sm:gap-0">
+        <div className="rounded-3xl bg-lightGray border border-primary/10 p-6 sm:p-8 md:p-10 shadow-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-primary/15 gap-6 sm:gap-0">
             {pillars.map((item, index) => (
               <div
                 key={index}
                 className="flex items-start gap-4 pt-4 sm:pt-0 sm:px-6 first:pl-0 last:pr-0 group"
               >
-                <div className="p-2.5 rounded-2xl bg-white border border-[#d8d2c2] text-[#DE8D3D] shrink-0 transition-transform group-hover:scale-110 shadow-sm">
+                <div className="p-2.5 rounded-2xl bg-white border border-primary/15 text-accent shrink-0 transition-transform group-hover:scale-110 shadow-sm">
                   <Icon icon={item.icon} className="w-5 h-5" />
                 </div>
                 <div className="space-y-1">
-                  <h4 className="font-playfair text-base font-bold text-[#0D231E]">
+                  <h4 className="font-heading text-base font-bold text-primary">
                     {item.title}
                   </h4>
-                  <p className="text-xs text-[#0D231E]/75 font-light font-inter leading-relaxed">
+                  <p className="text-xs text-primary/75 font-light font-inter leading-relaxed">
                     {item.description}
                   </p>
                 </div>

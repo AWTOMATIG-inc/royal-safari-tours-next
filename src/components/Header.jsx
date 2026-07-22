@@ -84,13 +84,13 @@ export default function Header() {
 
   // Translucent glassmorphic tokens that dynamically contract when scrolled
   const dockWrapperClass = scrolled
-    ? "top-3 sm:top-4 py-2 sm:py-2.5 px-5 sm:px-6 bg-white/90 backdrop-blur-lg border-[#0D231E]/12 shadow-[0_12px_40px_rgba(13,35,30,0.08)]"
-    : "top-4 sm:top-6 py-3 sm:py-3.5 px-6 sm:px-8 bg-[#fcfaee]/75 backdrop-blur-lg border-[#0D231E]/8 shadow-[0_8px_30px_rgba(13,35,30,0.04)]";
+    ? "top-3 sm:top-4 py-2 sm:py-2.5 px-5 sm:px-6 bg-white/90 backdrop-blur-lg border-primary/12 shadow-[0_12px_40px_rgba(13,35,30,0.08)]"
+    : "top-4 sm:top-6 py-3 sm:py-3.5 px-6 sm:px-8 bg-light/75 backdrop-blur-lg border-primary/8 shadow-[0_8px_30px_rgba(13,35,30,0.04)]";
 
   return (
     <>
       {/* 1. SUSPENDED FLOATING NAVIGATION DOCK */}
-      <header className={`fixed left-1/2 -translate-x-1/2 z-[999] w-[92%] sm:w-[90%] max-w-7xl rounded-[15px] border transition-all duration-500 ease-out font-inter text-[#0D231E] ${dockWrapperClass}`}>
+      <header className={`fixed left-1/2 -translate-x-1/2 z-[999] w-[92%] sm:w-[90%] max-w-7xl rounded-[15px] border transition-all duration-500 ease-out font-inter text-primary ${dockWrapperClass}`}>
         
         {/* DESKTOP: 3 EQUAL SECTIONS GRID TO PLACE NAV EXACTLY IN THE MIDDLE */}
         <nav className="hidden lg:grid grid-cols-3 items-center w-full h-9 sm:h-11">
@@ -110,20 +110,20 @@ export default function Header() {
 
           {/* SECTION 2 (CENTER): MAIN NAVIGATION ITEMS (EXACTLY IN THE MIDDLE) */}
           <div className="flex items-center justify-center">
-            <ul className="flex items-center gap-6 xl:gap-8 text-[13px] font-semibold tracking-[0.2em] uppercase">
+            <ul className="flex items-center gap-6 xl:gap-8 text-[13px] font-semibold tracking-[0.25em] uppercase">
               {navigationItems.map((item) => {
                 const isActive = pathname === item.path;
                 return (
                   <li key={item.id} className="relative group py-2">
                     <Link
                       href={item.path}
-                      className={`transition-colors duration-300 hover:text-[#DE8D3D] ${
-                        isActive ? "text-[#DE8D3D]" : "text-[#0D231E]/80"
+                      className={`transition-colors duration-300 hover:text-accent ${
+                        isActive ? "text-accent" : "text-primary/80"
                       }`}
                     >
                       {item.name}
                     </Link>
-                    <span className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-[1.5px] bg-[#DE8D3D] transition-all duration-300 origin-center ${
+                    <span className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-[1.5px] bg-accent transition-all duration-300 origin-center ${
                       isActive ? "w-4 scale-x-100" : "w-0 scale-x-0 group-hover:w-4 group-hover:scale-x-100"
                     }`} />
                   </li>
@@ -133,13 +133,13 @@ export default function Header() {
                 <li className="relative group py-2">
                   <Link
                     href="/dashboard"
-                    className={`transition-colors duration-300 hover:text-[#DE8D3D] ${
-                      pathname === "/dashboard" ? "text-[#DE8D3D]" : "text-[#0D231E]/80"
+                    className={`transition-colors duration-300 hover:text-accent ${
+                      pathname === "/dashboard" ? "text-accent" : "text-primary/80"
                     }`}
                   >
                     Dashboard
                   </Link>
-                  <span className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-[1.5px] bg-[#DE8D3D] transition-all duration-300 origin-center ${
+                  <span className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-[1.5px] bg-accent transition-all duration-300 origin-center ${
                     pathname === "/dashboard" ? "w-4 scale-x-100" : "w-0 scale-x-0 group-hover:w-4 group-hover:scale-x-100"
                   }`} />
                 </li>
@@ -152,7 +152,7 @@ export default function Header() {
             {/* Minimal outline Search trigger */}
             <button
               onClick={() => setShowSearch(true)}
-              className="p-1 hover:text-[#DE8D3D] transition-colors cursor-pointer flex items-center justify-center text-[#0D231E]/80"
+              className="p-1 hover:text-accent transition-colors cursor-pointer flex items-center justify-center text-primary/80"
               aria-label="Toggle site search"
             >
               <Icon icon="lucide:search" width="16" height="16" />
@@ -163,7 +163,7 @@ export default function Header() {
               href={whatsappUrl}
               target="_blank"
               rel="noreferrer"
-              className="bg-[#25D366] hover:bg-[#20bd5a] hover:scale-[1.02] text-white text-[11px] tracking-[0.15em] font-bold py-2.5 px-4 sm:px-5 rounded-full transition-all duration-300 uppercase cursor-pointer shadow-sm hover:shadow flex items-center gap-2"
+              className="bg-primary hover:bg-secondary hover:scale-[1.02] text-white text-[11px] tracking-[0.15em] font-bold py-2.5 px-4 sm:px-5 rounded-full transition-all duration-300 uppercase cursor-pointer shadow-sm hover:shadow flex items-center gap-2"
             >
               <Icon icon="akar-icons:whatsapp-fill" className="w-4 h-4 text-white" />
               <span>Chat Now</span>
@@ -190,7 +190,7 @@ export default function Header() {
             {/* Search Button Outside Drawer */}
             <button
               onClick={() => setShowSearch(true)}
-              className="p-1.5 hover:text-[#DE8D3D] transition-colors cursor-pointer flex items-center justify-center text-[#0D231E]"
+              className="p-1.5 hover:text-accent transition-colors cursor-pointer flex items-center justify-center text-primary"
               aria-label="Open Search"
             >
               <Icon icon="lucide:search" width="20" height="20" />
@@ -210,7 +210,7 @@ export default function Header() {
             {/* Hamburger Menu Toggle */}
             <button
               onClick={() => setIsShowNav((prev) => !prev)}
-              className="flex items-center justify-center p-1.5 text-[#0D231E] hover:text-[#DE8D3D] transition-colors cursor-pointer z-50"
+              className="flex items-center justify-center p-1.5 text-primary hover:text-accent transition-colors cursor-pointer z-50"
               aria-expanded={isShowNav}
               aria-label="Toggle drawer menu"
             >
@@ -227,24 +227,24 @@ export default function Header() {
 
       {/* 2. DYNAMIC RESPONSIVE SPOTLIGHT SEARCH POPUP OVERLAY (DESKTOP & MOBILE) */}
       <div 
-        className={`fixed inset-0 z-[1010] bg-[#0D231E]/60 backdrop-blur-sm transition-opacity duration-300 ease-out ${
+        className={`fixed inset-0 z-[1010] bg-primary/60 backdrop-blur-sm transition-opacity duration-300 ease-out ${
           showSearch ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
         onClick={() => setShowSearch(false)}
       />
 
-      <div className={`fixed top-[10%] sm:top-[18%] left-1/2 -translate-x-1/2 z-[1015] w-[92%] sm:w-[90%] max-w-2xl bg-[#fcfbf7] border border-[#0D231E]/15 rounded-3xl shadow-[0_32px_64px_rgba(13,35,30,0.25)] transition-all duration-300 ease-out transform p-5 sm:p-7 ${
+      <div className={`fixed top-[10%] sm:top-[18%] left-1/2 -translate-x-1/2 z-[1015] w-[92%] sm:w-[90%] max-w-2xl bg-sand border border-primary/15 rounded-3xl shadow-[0_32px_64px_rgba(13,35,30,0.25)] transition-all duration-300 ease-out transform p-5 sm:p-7 ${
         showSearch ? "translate-y-0 scale-100 opacity-100" : "-translate-y-6 scale-95 opacity-0 pointer-events-none"
       }`}>
         
         {/* Popup Header */}
         <div className="flex items-center justify-between pb-3 border-b border-gray-200">
-          <span className="text-[10px] sm:text-xs font-bold tracking-[0.2em] text-[#DE8D3D] uppercase font-inter">
+          <span className="text-[10px] sm:text-xs font-bold tracking-[0.2em] text-accent uppercase font-inter">
             SEARCH EXPEDITIONS & TOURS
           </span>
           <button
             onClick={() => setShowSearch(false)}
-            className="p-1 rounded-full bg-gray-200/60 text-[#0D231E] hover:bg-[#DE8D3D] hover:text-white transition-colors cursor-pointer"
+            className="p-1 rounded-full bg-gray-200/60 text-primary hover:bg-accent hover:text-white transition-colors cursor-pointer"
             aria-label="Close search"
           >
             <Icon icon="lucide:x" className="w-4 h-4" />
@@ -253,14 +253,14 @@ export default function Header() {
 
         {/* Search Input Form */}
         <form onSubmit={handleSearchSubmit} className="flex items-center gap-3 pt-4 pb-2">
-          <Icon icon="lucide:search" width="22" height="22" className="text-[#2cb775] flex-shrink-0" />
+          <Icon icon="lucide:search" width="22" height="22" className="text-secondary flex-shrink-0" />
           <input
             ref={searchInputRef}
             type="text"
             placeholder="Where do you want to go? (e.g. Sajek, Sundarbans)"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-transparent text-[#0D231E] font-inter text-sm sm:text-base font-semibold placeholder:text-gray-400 focus:outline-none"
+            className="w-full bg-transparent text-primary font-inter text-sm sm:text-base font-semibold placeholder:text-gray-400 focus:outline-none"
           />
           {searchQuery && (
             <button
@@ -274,7 +274,7 @@ export default function Header() {
           )}
           <button
             type="submit"
-            className="bg-[#0D231E] hover:bg-[#2cb775] text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-colors cursor-pointer font-inter uppercase tracking-wider shadow-sm flex-shrink-0"
+            className="bg-primary hover:bg-secondary text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-colors cursor-pointer font-inter uppercase tracking-wider shadow-sm flex-shrink-0"
           >
             Search
           </button>
@@ -291,7 +291,7 @@ export default function Header() {
                 key={term}
                 type="button"
                 onClick={() => handlePopularSearch(term)}
-                className="text-[11px] sm:text-xs text-[#0D231E] bg-gray-100 hover:bg-[#2cb775] hover:text-white border border-gray-200 px-3 py-1.5 rounded-full transition-all duration-300 cursor-pointer font-inter font-medium"
+                className="text-[11px] sm:text-xs text-primary bg-gray-100 hover:bg-secondary hover:text-white border border-gray-200 px-3 py-1.5 rounded-full transition-all duration-300 cursor-pointer font-inter font-medium"
               >
                 {term}
               </button>
@@ -309,7 +309,7 @@ export default function Header() {
       />
 
       <div
-        className={`lg:hidden fixed top-0 right-0 z-[1001] h-screen w-[280px] sm:w-[320px] bg-[#f2efdf] text-green shadow-2xl p-6 border-l border-white/10 transition-transform duration-500 ease-out transform ${
+        className={`lg:hidden fixed top-0 right-0 z-[1001] h-screen w-[280px] sm:w-[320px] bg-lightGray text-green shadow-2xl p-6 border-l border-white/10 transition-transform duration-500 ease-out transform ${
           isShowNav ? "translate-x-0" : "translate-x-full"
         }`}
       >
@@ -325,7 +325,7 @@ export default function Header() {
             />
             <button
               onClick={() => setIsShowNav(false)}
-              className="p-1 text-[#0D231E] hover:text-[#DE8D3D] transition-colors cursor-pointer"
+              className="p-1 text-primary hover:text-accent transition-colors cursor-pointer"
               aria-label="Close menu drawer"
             >
               <Icon icon="lucide:x" width="20" height="20" />
@@ -340,8 +340,8 @@ export default function Header() {
                   <Link
                     href={item.path}
                     onClick={() => setIsShowNav(false)}
-                    className={`hover:text-[#DE8D3D] transition-colors ${
-                      pathname === item.path ? "text-[#DE8D3D]" : "text-[#0D231E]"
+                    className={`hover:text-accent transition-colors ${
+                      pathname === item.path ? "text-accent" : "text-primary"
                     }`}
                   >
                     {item.name}
@@ -353,8 +353,8 @@ export default function Header() {
                   <Link
                     href="/dashboard"
                     onClick={() => setIsShowNav(false)}
-                    className={`hover:text-[#DE8D3D] transition-colors ${
-                      pathname === "/dashboard" ? "text-[#DE8D3D]" : "text-white"
+                    className={`hover:text-accent transition-colors ${
+                      pathname === "/dashboard" ? "text-accent" : "text-primary/80"
                     }`}
                   >
                     Dashboard

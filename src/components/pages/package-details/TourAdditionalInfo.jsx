@@ -30,42 +30,42 @@ export default function TourAdditionalInfo({ tourPackage }) {
   ];
 
   return (
-    <section className="py-12 sm:py-16 bg-white border-b border-gray-100 font-inter">
+    <section className="py-12 sm:py-16 bg-white border-b border-gray-100 font-subheading">
       <div className="container mx-auto px-4 sm:px-6 md:px-10 lg:px-8">
         <div className="max-w-4xl space-y-8">
           
           <div className="space-y-2">
-            <span className="text-xs font-bold tracking-[0.25em] text-[#DE8D3D] uppercase block">
+            <span className="text-xs font-bold tracking-[0.25em] text-accent uppercase block">
               GOOD TO KNOW
             </span>
-            <h2 className="text-3xl sm:text-4xl font-playfair font-bold text-[#0D231E]">
+            <h2 className="text-3xl sm:text-4xl font-heading font-bold text-primary">
               Additional Information
             </h2>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-3 font-subheading">
             {items.map((item, idx) => {
               const isOpen = openIndex === idx;
               return (
                 <div
                   key={idx}
-                  className="bg-[#fcfbf7] border border-gray-200/80 rounded-2xl overflow-hidden transition-all duration-300"
+                  className="bg-sand border border-gray-200/80 rounded-2xl overflow-hidden transition-all duration-300"
                 >
                   <button
                     onClick={() => setOpenIndex(isOpen ? -1 : idx)}
-                    className="w-full p-5 sm:p-6 text-left flex items-center justify-between gap-4 font-semibold text-[#0D231E] cursor-pointer hover:bg-gray-100/50"
+                    className="w-full p-5 sm:p-6 text-left flex items-center justify-between gap-4 font-semibold text-primary cursor-pointer hover:bg-gray-100/50"
                   >
-                    <span className="text-sm sm:text-base font-playfair font-bold">
+                    <span className="text-sm sm:text-base font-heading font-bold">
                       {item.title}
                     </span>
                     <Icon
                       icon={isOpen ? "lucide:chevron-up" : "lucide:chevron-down"}
-                      className="w-5 h-5 text-[#DE8D3D] flex-shrink-0"
+                      className="w-5 h-5 text-accent flex-shrink-0"
                     />
                   </button>
 
                   {isOpen && (
-                    <div className="px-5 pb-6 sm:px-6 text-xs sm:text-sm text-gray-600 font-light leading-relaxed border-t border-gray-200/60 pt-4">
+                    <div className="px-5 pb-6 sm:px-6 text-xs sm:text-sm text-gray-600 font-body font-light leading-relaxed border-t border-gray-200/60 pt-4">
                       <div
                         className="prose prose-emerald max-w-none text-gray-600 [&>p]:mb-2"
                         dangerouslySetInnerHTML={{ __html: item.content }}

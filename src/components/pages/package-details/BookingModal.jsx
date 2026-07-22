@@ -69,7 +69,7 @@ export default function BookingModal({ tourPackage, isOpen, onClose }) {
       />
 
       {/* Modal Container */}
-      <div className="relative w-full max-w-lg bg-[#fcfbf7] rounded-3xl p-6 sm:p-8 shadow-2xl z-10 border border-gray-200 font-inter max-h-[90vh] overflow-y-auto">
+      <div className="relative w-full max-w-lg bg-sand rounded-3xl p-6 sm:p-8 shadow-2xl z-10 border border-gray-200 font-subheading max-h-[90vh] overflow-y-auto">
         <button
           onClick={onClose}
           className="absolute top-5 right-5 p-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 transition-colors cursor-pointer"
@@ -78,14 +78,14 @@ export default function BookingModal({ tourPackage, isOpen, onClose }) {
         </button>
 
         <div className="space-y-2 mb-6">
-          <span className="text-[11px] font-bold text-[#DE8D3D] uppercase tracking-widest block">
+          <span className="text-[11px] font-bold text-accent uppercase tracking-widest block">
             RESERVE YOUR EXPEDITION
           </span>
-          <h3 className="font-playfair text-2xl sm:text-3xl font-bold text-[#0D231E]">
+          <h3 className="font-heading text-2xl sm:text-3xl font-bold text-primary">
             {tourPackage.title}
           </h3>
           <p className="text-xs text-gray-500 font-light">
-            Starting from <strong className="text-[#0D231E]">৳{Number(tourPackage.price).toLocaleString()}</strong> per person.
+            Starting from <strong className="text-primary">৳{Number(tourPackage.price).toLocaleString()}</strong> per person.
           </p>
         </div>
 
@@ -98,7 +98,7 @@ export default function BookingModal({ tourPackage, isOpen, onClose }) {
             required
           />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 font-subheading">
             <InputBox
               label="Phone Number *"
               placeholder="+8801700-000000"
@@ -115,7 +115,7 @@ export default function BookingModal({ tourPackage, isOpen, onClose }) {
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 font-subheading">
             <InputBox
               label="Preferred Travel Date"
               type="date"
@@ -133,7 +133,7 @@ export default function BookingModal({ tourPackage, isOpen, onClose }) {
           </div>
 
           <div className="flex flex-col">
-            <label className="font-semibold text-xs text-[#0D231E]/70 uppercase tracking-wider mb-1.5 font-inter">
+            <label className="font-semibold text-xs text-primary/70 uppercase tracking-wider mb-1.5 font-subheading">
               Special Requests / Notes
             </label>
             <textarea
@@ -141,7 +141,7 @@ export default function BookingModal({ tourPackage, isOpen, onClose }) {
               placeholder="Dietary preferences, pickup requests..."
               value={formData.notes}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-              className="w-full bg-white border border-gray-200 rounded-xl p-3 text-sm text-[#0D231E] focus:outline-none focus:border-[#2cb775]"
+              className="w-full bg-white border border-gray-200 rounded-xl p-3 text-sm text-primary focus:outline-none focus:border-secondary font-body"
             />
           </div>
 
@@ -160,7 +160,7 @@ export default function BookingModal({ tourPackage, isOpen, onClose }) {
               href={`https://api.whatsapp.com/send?phone=${siteConfig.contact.phone.whatsappRaw}&text=${whatsappMessage}`}
               target="_blank"
               rel="noreferrer"
-              className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white font-semibold py-3.5 px-6 rounded-[10px] transition-colors duration-300 flex items-center justify-center gap-2 text-sm cursor-pointer shadow-xs"
+              className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-3.5 px-6 rounded-[10px] transition-colors duration-300 flex items-center justify-center gap-2 text-sm cursor-pointer shadow-xs"
             >
               <Icon icon="akar-icons:whatsapp-fill" className="w-5 h-5" />
               <span>Instant Booking on WhatsApp</span>

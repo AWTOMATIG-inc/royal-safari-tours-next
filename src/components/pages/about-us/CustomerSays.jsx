@@ -86,16 +86,16 @@ export default function CustomerSays() {
   return (
     <section className="relative py-20 sm:py-28 md:py-36 bg-about-banner bg-center bg-cover text-white overflow-hidden">
       {/* Background overlay for styling */}
-      <div className="absolute inset-0 bg-[#0D231E]/75 backdrop-blur-[2px]" />
+      <div className="absolute inset-0 bg-primary/75 backdrop-blur-[2px]" />
 
       <div className="container relative z-10">
         {/* Header section with layout flex */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 md:mb-20 gap-8">
-          <div className="space-y-4">
-            <span className="text-xs font-semibold tracking-[0.25em] uppercase text-[#DE8D3D] block">
+          <div className="space-y-4 font-subheading">
+            <span className="text-xs font-semibold tracking-[0.25em] uppercase text-accent block">
               Testimonials
             </span>
-            <h2 className="font-playfair text-4xl md:text-5xl font-bold tracking-tight">
+            <h2 className="font-heading text-4xl md:text-5xl font-bold tracking-tight">
               Voices of the <br />
               <span className="italic font-normal">Discerning Traveler</span>
             </h2>
@@ -131,14 +131,14 @@ export default function CustomerSays() {
               <div className="rounded-[23px] bg-black/20 p-6 sm:p-8 md:p-10 space-y-6">
                 
                 {/* Rating */}
-                <div className="flex gap-1 text-[#DE8D3D]">
+                <div className="flex gap-1 text-accent">
                   {Array.from({ length: testimonial.rating }).map((_, i) => (
-                    <Icon key={i} icon="lucide:star" className="w-4 h-4 fill-[#DE8D3D]" />
+                    <Icon key={i} icon="lucide:star" className="w-4 h-4 fill-accent" />
                   ))}
                 </div>
 
                 {/* Review Text */}
-                <p className="font-playfair text-lg md:text-xl italic font-light leading-relaxed text-white/95 min-h-[120px] sm:min-h-[100px]">
+                <p className="font-heading text-lg md:text-xl italic font-light leading-relaxed text-white/95 min-h-[120px] sm:min-h-[100px]">
                   "{testimonial.reviewText}"
                 </p>
 
@@ -153,7 +153,7 @@ export default function CustomerSays() {
                       className="object-cover"
                     />
                   </div>
-                  <div>
+                  <div className="font-subheading">
                     <h4 className="font-bold text-sm text-white tracking-wide">
                       {testimonial.name}
                     </h4>
@@ -175,7 +175,7 @@ export default function CustomerSays() {
               key={i}
               onClick={() => setActiveIndex(i)}
               className={`h-1 rounded-full transition-all duration-300 cursor-pointer ${
-                activeIndex === i ? "w-8 bg-[#DE8D3D]" : "w-2 bg-white/20 hover:bg-white/40"
+                activeIndex === i ? "w-8 bg-accent" : "w-2 bg-white/20 hover:bg-white/40"
               }`}
               aria-label={`Go to slide ${i + 1}`}
             />

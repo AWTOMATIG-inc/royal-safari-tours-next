@@ -7,9 +7,9 @@ const InputBox = React.forwardRef(function InputBox(
   const inputId = id || (label ? label.toLowerCase().replace(/\s+/g, "-") : undefined);
 
   return (
-    <div className="flex flex-col relative w-full">
+    <div className="flex flex-col relative w-full font-inter">
       {label && (
-        <label htmlFor={inputId} className="font-semibold text-xs text-[#0D231E]/70 uppercase tracking-wider mb-1.5 font-inter">
+        <label htmlFor={inputId} className="font-semibold text-xs text-primary/70 uppercase tracking-wider mb-1.5 font-subheading">
           {label}
         </label>
       )}
@@ -25,8 +25,8 @@ const InputBox = React.forwardRef(function InputBox(
           type={type}
           {...rest}
           className={`w-full bg-white border ${
-            error ? "border-red-400 focus:border-red-500" : "border-gray-200 focus:border-[#0D231E]/40"
-          } rounded-[10px] text-sm text-[#0D231E] placeholder:text-gray-400 focus:outline-none transition-all duration-300 font-inter ${
+            error ? "border-red-400 focus:border-red-500" : "border-gray-200 focus:border-primary/45"
+          } rounded-[10px] text-sm text-primary placeholder:text-gray-400 focus:outline-none transition-all duration-300 ${
             IconComponent ? "pl-11 pr-4" : "px-4"
           } py-3 ${className}`}
         />

@@ -16,11 +16,11 @@ export default function TrustedPartners() {
   const infinitePartners = [...partners, ...partners, ...partners];
 
   return (
-    <section className="py-16 sm:py-20 text-[#0D231E] border-t border-gray-100 overflow-hidden bg-white">
+    <section className="py-16 sm:py-20 text-primary border-t border-gray-100 overflow-hidden bg-white">
       <div className="container">
         
-        <div className="text-center mb-10">
-          <p className="text-[10px] tracking-[0.3em] uppercase font-bold text-[#DE8D3D]">
+        <div className="text-center mb-10 font-subheading">
+          <p className="text-[10px] tracking-[0.25em] uppercase font-bold text-accent">
             Credibility &amp; Global Alliances
           </p>
         </div>
@@ -39,7 +39,7 @@ export default function TrustedPartners() {
             {infinitePartners.map((item, index) => (
               <div
                 key={`${item.name}-${index}`}
-                className="mx-6 flex items-center justify-center h-24 sm:h-28 w-44 sm:w-48 rounded-2xl bg-[#f4f1e8] hover:bg-white border border-[#e2ddd0] hover:border-[#2cb775]/30 shadow-sm hover:shadow-xl hover:-translate-y-0.5 transition-all duration-500 ease-out group px-6 cursor-pointer"
+                className="mx-6 flex items-center justify-center h-24 sm:h-28 w-44 sm:w-48 rounded-2xl bg-lightGray hover:bg-white border border-primary/10 hover:border-secondary/30 shadow-sm hover:shadow-xl hover:-translate-y-0.5 transition-all duration-500 ease-out group px-6 cursor-pointer"
               >
                 <div className="relative w-full h-16 flex items-center justify-center">
                   <Image

@@ -27,17 +27,17 @@ const services = [
 
 export default function WhatWeOffer() {
   return (
-    <section className="py-16 sm:py-24 md:py-3 text-[#0D231E] border-t border-[#f2efdf]">
+    <section className="py-16 sm:py-24 md:py-3 text-primary border-t border-lightGray">
       <div className="container">
         
         {/* Section Header */}
-        <div className="max-w-2xl mb-12 md:mb-20 space-y-3 md:space-y-4">
-          <span className="text-xs font-semibold tracking-[0.25em] uppercase text-[#DE8D3D] block">
+        <div className="max-w-2xl mb-12 md:mb-20 space-y-3 md:space-y-4 font-subheading">
+          <span className="text-xs font-semibold tracking-[0.25em] uppercase text-accent block">
             Our Offerings
           </span>
-          <h2 className="font-playfair text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight">
+          <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight">
             Curated Expeditions, <br />
-            <span className="italic font-normal">Tailored to Your Soul</span>
+            <span className="italic font-normal text-primary/95">Tailored to Your Soul</span>
           </h2>
         </div>
 
@@ -46,25 +46,25 @@ export default function WhatWeOffer() {
           {services.map((service, index) => (
             <div
               key={index}
-              className="relative group bg-[#fcfaee] border border-[#f2efdf]/80 hover:border-white rounded-3xl p-6 sm:p-8 space-y-6 shadow-[0_4px_30px_rgba(13,35,30,0.02)] hover:shadow-[0_20px_50px_rgba(13,35,30,0.06)] hover:-translate-y-2 transition-all duration-500 ease-out"
+              className="relative group bg-light border border-lightGray/80 hover:border-white rounded-3xl p-6 sm:p-8 space-y-6 shadow-[0_4px_30px_rgba(13,35,30,0.02)] hover:shadow-[0_20px_50px_rgba(13,35,30,0.06)] hover:-translate-y-2 transition-all duration-500 ease-out"
             >
               {/* Floating Top Arrow (Micro-interaction) */}
-              <div className="absolute top-6 right-6 sm:top-8 sm:right-8 text-[#DE8D3D] opacity-0 group-hover:opacity-100 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all duration-300">
+              <div className="absolute top-6 right-6 sm:top-8 sm:right-8 text-accent opacity-0 group-hover:opacity-100 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all duration-300">
                 <Icon icon="lucide:arrow-up-right" className="w-5 h-5" />
               </div>
 
               {/* Icon Container */}
-              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-white flex items-center justify-center text-[#2cb775] border border-[#f2efdf] transition-all duration-500 group-hover:bg-[#2cb775] group-hover:text-white group-hover:scale-110">
+              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-white flex items-center justify-center text-secondary border border-lightGray transition-all duration-500 group-hover:bg-secondary group-hover:text-white group-hover:scale-110">
                 <Icon icon={service.icon} className="w-5 h-5 sm:w-6 sm:h-6" />
               </div>
 
               {/* Title */}
-              <h3 className="font-playfair text-xl font-bold transition-colors duration-300 group-hover:text-[#0D231E]">
+              <h3 className="font-heading text-xl font-bold transition-colors duration-300 group-hover:text-primary">
                 {service.title}
               </h3>
 
               {/* Description */}
-              <p className="text-sm leading-relaxed text-[#0D231E]/70 font-light font-inter">
+              <p className="text-sm leading-relaxed text-primary/70 font-light font-body">
                 {service.description}
               </p>
             </div>

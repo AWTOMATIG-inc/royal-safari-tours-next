@@ -17,12 +17,12 @@ export default function OurPartners() {
   const infinitePartners = [...partners, ...partners, ...partners];
 
   return (
-    <section className="py-16 md:py-20 text-[#0D231E] border-t border-[#f2efdf] overflow-hidden">
+    <section className="py-16 md:py-20 text-primary border-t border-lightGray overflow-hidden">
       <div className="container">
         
         {/* Short centered subtitle for credibility */}
-        <div className="text-center mb-10">
-          <p className="text-[10px] tracking-[0.3em] uppercase font-bold text-[#DE8D3D]">
+        <div className="text-center mb-10 font-subheading">
+          <p className="text-[10px] tracking-[0.25em] uppercase font-bold text-accent">
             Credibility & Alliances
           </p>
         </div>
@@ -30,8 +30,8 @@ export default function OurPartners() {
         {/* Logo Marquee */}
         <div className="relative w-full overflow-hidden">
           {/* Subtle fade overlay on edges */}
-          <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-[#fcfaee] to-transparent z-10 pointer-events-none" />
-          <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-[#fcfaee] to-transparent z-10 pointer-events-none" />
+          <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-light to-transparent z-10 pointer-events-none" />
+          <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-light to-transparent z-10 pointer-events-none" />
 
           <Marquee
             speed={35}
@@ -42,7 +42,7 @@ export default function OurPartners() {
             {infinitePartners.map((partner, index) => (
               <div
                 key={`${partner.name}-${index}`}
-                className="mx-6 flex items-center justify-center h-28 w-48 rounded-2xl bg-[#f2efdf] hover:bg-white border border-[#f2efdf]/50 hover:border-[#2cb775]/20 hover:shadow-[0_12px_30px_rgba(13,35,30,0.03)] hover:-translate-y-0.5 transition-all duration-500 ease-out group px-6 cursor-pointer"
+                className="mx-6 flex items-center justify-center h-28 w-48 rounded-2xl bg-lightGray hover:bg-white border border-lightGray/50 hover:border-secondary/20 hover:shadow-[0_12px_30px_rgba(13,35,30,0.03)] hover:-translate-y-0.5 transition-all duration-500 ease-out group px-6 cursor-pointer"
               >
                 <div className="relative w-full h-20 flex items-center justify-center">
                   <Image

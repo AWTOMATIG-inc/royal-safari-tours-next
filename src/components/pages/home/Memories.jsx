@@ -14,7 +14,7 @@ export default function Memories() {
       >
         <div className="flex flex-col lg:flex-row lg:justify-between items-end lg:items-center container max-w-[1520px]">
           <div className="flex-1">
-            <h1 className="text-white font-palanquin text-2xl xxs:text-3xl sm:text-4xl  lg:text-6xl  xl:text-7xl mb-10 text-center lg:text-left">
+            <h1 className="text-white font-heading text-2xl xxs:text-3xl sm:text-4xl  lg:text-6xl  xl:text-7xl mb-10 text-center lg:text-left">
               Travel with the people you love, make memories that last.
             </h1>
             <div className="hidden lg:block">

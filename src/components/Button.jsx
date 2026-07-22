@@ -18,9 +18,9 @@ const Button = React.forwardRef(function Button(
     "font-semibold rounded-[10px] transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer font-inter text-sm disabled:opacity-60 disabled:cursor-not-allowed";
 
   const variants = {
-    primary: "bg-[#0D231E] hover:bg-[#2cb775] text-white shadow-sm hover:shadow",
-    secondary: "bg-[#DE8D3D] hover:bg-[#c38032] text-white shadow-sm",
-    outline: "border border-[#0D231E]/20 hover:bg-[#0D231E]/5 text-[#0D231E]",
+    primary: "bg-primary hover:bg-secondary text-white shadow-sm hover:shadow",
+    secondary: "bg-accent hover:bg-accent/90 text-white shadow-sm",
+    outline: "border border-primary/20 hover:bg-primary/5 text-primary",
     danger: "bg-rose-600 hover:bg-rose-700 text-white shadow-sm",
   };
 

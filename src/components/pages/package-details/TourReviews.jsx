@@ -31,52 +31,52 @@ export default function TourReviews({ tourPackage }) {
   const numRating = Number(tourPackage?.rating) || 5;
 
   return (
-    <section className="py-12 sm:py-16 bg-white border-b border-gray-100 font-inter">
+    <section className="py-12 sm:py-16 bg-white border-b border-gray-100 font-subheading">
       <div className="container mx-auto px-4 sm:px-6 md:px-10 lg:px-8">
         <div className="max-w-4xl space-y-8">
           
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 pb-6">
             <div className="space-y-1">
-              <span className="text-xs font-bold tracking-[0.25em] text-[#DE8D3D] uppercase block">
+              <span className="text-xs font-bold tracking-[0.25em] text-accent uppercase block">
                 GUEST EXPERIENCES
               </span>
-              <h2 className="text-3xl sm:text-4xl font-playfair font-bold text-[#0D231E]">
+              <h2 className="text-3xl sm:text-4xl font-heading font-bold text-primary">
                 Verified Traveler Reviews
               </h2>
             </div>
 
-            <div className="flex items-center gap-3 bg-[#fcfbf7] border border-gray-200/80 px-4 py-2.5 rounded-2xl">
-              <div className="text-2xl font-bold font-playfair text-[#0D231E]">
+            <div className="flex items-center gap-3 bg-sand border border-gray-200/80 px-4 py-2.5 rounded-2xl">
+              <div className="text-2xl font-bold font-heading text-primary">
                 {numRating.toFixed(1)}
               </div>
               <div className="flex flex-col">
-                <Rating rating={numRating} className="text-[#DE8D3D] w-3.5 h-3.5" />
+                <Rating rating={numRating} className="text-accent w-3.5 h-3.5" />
                 <span className="text-[10px] text-gray-400 font-medium">Based on traveler reviews</span>
               </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 font-subheading">
             {reviews.map((rev, idx) => (
               <div
                 key={idx}
-                className="bg-[#fcfbf7] border border-gray-200/80 rounded-2xl p-5 space-y-3 shadow-xs flex flex-col justify-between"
+                className="bg-sand border border-gray-200/80 rounded-2xl p-5 space-y-3 shadow-xs flex flex-col justify-between"
               >
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Rating rating={rev.rating} className="text-[#DE8D3D] w-3.5 h-3.5" />
+                    <Rating rating={rev.rating} className="text-accent w-3.5 h-3.5" />
                     <span className="text-[10px] text-gray-400">{rev.date}</span>
                   </div>
-                  <p className="text-xs text-gray-600 font-light leading-relaxed">
+                  <p className="text-xs text-gray-600 font-body font-light leading-relaxed">
                     &quot;{rev.comment}&quot;
                   </p>
                 </div>
 
                 <div className="pt-3 border-t border-gray-200/60 flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-full bg-[#0D231E] text-white flex items-center justify-center text-xs font-bold font-playfair">
+                  <div className="w-7 h-7 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold font-heading">
                     {rev.name.charAt(0)}
                   </div>
-                  <span className="text-xs font-semibold text-[#0D231E]">
+                  <span className="text-xs font-semibold text-primary">
                     {rev.name}
                   </span>
                 </div>
