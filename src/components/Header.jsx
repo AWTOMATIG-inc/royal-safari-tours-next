@@ -185,29 +185,8 @@ export default function Header() {
             />
           </Link>
 
-          {/* Right Action Buttons: Search + Chat + Hamburger */}
-          <div className="flex items-center gap-2 sm:gap-3 font-body">
-            {/* Search Button Outside Drawer */}
-            <button
-              onClick={() => setShowSearch(true)}
-              className="p-1.5 text-primary/80 hover:text-accent transition-colors cursor-pointer flex items-center justify-center"
-              aria-label="Open Search"
-            >
-              <Icon icon="lucide:search" width="20" height="20" />
-            </button>
-
-            {/* WhatsApp Chat Now Button - Aligned with Desktop Primary Brand Styling */}
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="bg-primary hover:bg-secondary text-white text-[10px] tracking-wider font-bold py-1.5 px-3.5 rounded-full flex items-center gap-1.5 cursor-pointer shadow-xs transition-all duration-300 uppercase font-body"
-            >
-              <Icon icon="akar-icons:whatsapp-fill" className="w-3.5 h-3.5 text-white" />
-              <span>Chat Now</span>
-            </a>
-
-            {/* Hamburger Menu Toggle */}
+          {/* Right Action Button: ONLY Hamburger Menu Toggle */}
+          <div className="flex items-center justify-end font-body">
             <button
               onClick={() => setIsShowNav((prev) => !prev)}
               className="flex items-center justify-center p-1.5 text-primary hover:text-accent transition-colors cursor-pointer z-50"
@@ -308,20 +287,21 @@ export default function Header() {
         onClick={() => setIsShowNav(false)}
       />
 
+      {/* Screen-Fit Navdrawer Panel */}
       <div
-        className={`lg:hidden fixed top-0 right-0 z-[1001] h-screen w-[280px] sm:w-[320px] bg-sand text-primary shadow-2xl p-6 border-l border-gray-200 transition-transform duration-500 ease-out transform font-body ${
+        className={`lg:hidden fixed top-0 right-0 z-[1001] h-[100dvh] max-h-[100dvh] w-[280px] sm:w-[320px] bg-sand text-primary shadow-2xl p-5 sm:p-6 border-l border-gray-200 transition-transform duration-500 ease-out transform font-body flex flex-col justify-between overflow-hidden ${
           isShowNav ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        <div className="flex flex-col h-full justify-between gap-6 overflow-y-auto font-body">
+        <div className="flex flex-col h-full justify-between font-body overflow-hidden">
           
-          {/* Top Section - Logo & Close */}
-          <div className="flex justify-between items-center pb-4 border-b border-gray-200/80 font-body">
+          {/* Top Header - Logo & Close */}
+          <div className="flex justify-between items-center pb-3 border-b border-gray-200/80 font-body shrink-0">
             <Image
               loading="eager"
               src={royal_logo}
               alt="Royal Safari Tours"
-              className="h-8 w-auto object-contain"
+              className="h-7 sm:h-8 w-auto object-contain"
             />
             <button
               onClick={() => setIsShowNav(false)}
@@ -332,9 +312,25 @@ export default function Header() {
             </button>
           </div>
 
-          {/* Middle Section - Link items list */}
-          <div className="flex-grow py-4 flex flex-col justify-center font-body">
-            <ul className="flex flex-col items-center gap-5 text-sm sm:text-base font-semibold tracking-widest uppercase font-body">
+          {/* Search Trigger Inside Drawer */}
+          <button
+            type="button"
+            onClick={() => {
+              setIsShowNav(false);
+              setShowSearch(true);
+            }}
+            className="w-full flex items-center justify-between py-2.5 px-4 rounded-xl bg-white border border-gray-200 text-primary/70 text-xs font-medium cursor-pointer shadow-xs my-3 hover:border-secondary transition-colors font-body shrink-0"
+          >
+            <span className="flex items-center gap-2">
+              <Icon icon="lucide:search" className="w-4 h-4 text-secondary" />
+              <span>Search Expeditions...</span>
+            </span>
+            <span className="text-[10px] font-bold text-accent uppercase tracking-wider">Search</span>
+          </button>
+
+          {/* Middle Navigation Links - Fits Viewport Height */}
+          <div className="flex-1 flex flex-col justify-center overflow-y-auto py-2 font-body my-auto">
+            <ul className="flex flex-col gap-2 font-body">
               {navigationItems.map((item) => {
                 const isActive = pathname === item.path;
                 return (
@@ -342,11 +338,14 @@ export default function Header() {
                     <Link
                       href={item.path}
                       onClick={() => setIsShowNav(false)}
-                      className={`transition-colors py-1 block ${
-                        isActive ? "text-accent font-bold border-b-2 border-accent" : "text-primary hover:text-secondary"
+                      className={`flex items-center justify-between px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold tracking-wider uppercase transition-all duration-200 font-body ${
+                        isActive
+                          ? "bg-primary text-white font-bold shadow-xs"
+                          : "text-primary hover:text-secondary hover:bg-primary/5"
                       }`}
                     >
-                      {item.name}
+                      <span>{item.name}</span>
+                      {isActive && <Icon icon="lucide:chevron-right" className="w-4 h-4 text-accent" />}
                     </Link>
                   </li>
                 );
@@ -356,24 +355,27 @@ export default function Header() {
                   <Link
                     href="/dashboard"
                     onClick={() => setIsShowNav(false)}
-                    className={`transition-colors py-1 block ${
-                      pathname === "/dashboard" ? "text-accent font-bold border-b-2 border-accent" : "text-primary/80 hover:text-secondary"
+                    className={`flex items-center justify-between px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold tracking-wider uppercase transition-all duration-200 font-body ${
+                      pathname === "/dashboard"
+                        ? "bg-primary text-white font-bold shadow-xs"
+                        : "text-primary hover:text-secondary hover:bg-primary/5"
                     }`}
                   >
-                    Dashboard
+                    <span>Dashboard</span>
+                    <Icon icon="lucide:layout-dashboard" className="w-4 h-4 text-accent" />
                   </Link>
                 </li>
               )}
             </ul>
           </div>
 
-          {/* Bottom Section - Contact info and CTAs */}
-          <div className="flex flex-col gap-4 pt-4 border-t border-gray-200/80 font-body">
+          {/* Bottom Chat Now Button - Always Visible Without Scrolling */}
+          <div className="pt-3 border-t border-gray-200/80 font-body shrink-0 mt-auto">
             <a
               href={whatsappUrl}
               target="_blank"
               rel="noreferrer"
-              className="w-full flex items-center justify-center gap-2.5 py-3.5 rounded-xl bg-primary hover:bg-secondary text-white font-bold transition-all duration-300 text-xs text-center uppercase tracking-widest shadow-xs cursor-pointer font-body"
+              className="w-full flex items-center justify-center gap-2.5 py-3 rounded-xl bg-primary hover:bg-secondary text-white font-bold transition-all duration-300 text-xs text-center uppercase tracking-widest shadow-xs cursor-pointer font-body"
             >
               <Icon icon="akar-icons:whatsapp-fill" className="w-4 h-4 text-white" />
               <span>Chat Now</span>
