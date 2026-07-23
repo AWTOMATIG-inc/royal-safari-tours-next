@@ -28,7 +28,6 @@ export default async function Home() {
       <TravelInspiration />
       <CustomerStories />
       <TrustedPartners />
-      <Newsletter />
     </main>
   );
 }

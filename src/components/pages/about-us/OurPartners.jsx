@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import Marquee from "react-fast-marquee";
+import { Icon } from "@iconify/react";
+import { useState, useRef, useEffect } from "react";
 
 const partners = [
   { name: "Grand Sultan Sylhet", logo: "/images/sponsors/Grand-Sultan-Sylhet.png" },
@@ -13,52 +14,137 @@ const partners = [
 ];
 
 export default function OurPartners() {
-  // Triple the partners list to create a seamless, gapless loop for any screen size
-  const infinitePartners = [...partners, ...partners, ...partners];
+  const sliderRef = useRef(null);
+  const [isPaused, setIsPaused] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+
+  // Duplicated list for continuous infinite loop
+  const partnerList = [...partners, ...partners, ...partners, ...partners];
+
+  useEffect(() => {
+    if (isPaused || isDragging) return;
+
+    let animationFrameId;
+    const container = sliderRef.current;
+
+    const autoScroll = () => {
+      if (container) {
+        container.scrollLeft += 0.8;
+        if (container.scrollLeft >= container.scrollWidth / 2) {
+          container.scrollLeft -= container.scrollWidth / 2;
+        }
+      }
+      animationFrameId = requestAnimationFrame(autoScroll);
+    };
+
+    animationFrameId = requestAnimationFrame(autoScroll);
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [isPaused, isDragging]);
+
+  // Mouse Drag Handlers
+  const handleMouseDown = (e) => {
+    setIsDragging(true);
+    setIsPaused(true);
+    setStartX(e.pageX - sliderRef.current.offsetLeft);
+    setScrollLeft(sliderRef.current.scrollLeft);
+  };
+
+  const handleMouseLeave = () => {
+    setIsDragging(false);
+    setIsPaused(false);
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDragging) return;
+    e.preventDefault();
+    const x = e.pageX - sliderRef.current.offsetLeft;
+    const walk = (x - startX) * 1.5;
+    sliderRef.current.scrollLeft = scrollLeft - walk;
+  };
+
+  const handleScrollManual = (direction) => {
+    setIsPaused(true);
+    if (sliderRef.current) {
+      const scrollAmount = direction === "left" ? -240 : 240;
+      sliderRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
+    }
+  };
 
   return (
-    <section className="py-16 md:py-20 text-primary border-t border-lightGray overflow-hidden">
+    <section className="section-sm text-primary border-t border-gray-100 bg-sand font-body overflow-hidden">
       <div className="container">
         
-        {/* Short centered subtitle for credibility */}
-        <div className="text-center mb-10 font-subheading">
-          <p className="text-[10px] tracking-[0.25em] uppercase font-bold text-accent">
-            Credibility & Alliances
+        <div className="flex items-center justify-between mb-6 font-body">
+          <p className="text-xs font-accent tracking-[0.25em] uppercase font-bold text-accent">
+            Credibility &amp; Alliances
           </p>
+
+          {/* Manual Scroll Buttons */}
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => handleScrollManual("left")}
+              className="w-8 h-8 rounded-full bg-white hover:bg-primary text-primary hover:text-white border border-gray-200 flex items-center justify-center transition-colors cursor-pointer shadow-xs"
+              aria-label="Scroll Left"
+            >
+              <Icon icon="lucide:chevron-left" className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => handleScrollManual("right")}
+              className="w-8 h-8 rounded-full bg-white hover:bg-primary text-primary hover:text-white border border-gray-200 flex items-center justify-center transition-colors cursor-pointer shadow-xs"
+              aria-label="Scroll Right"
+            >
+              <Icon icon="lucide:chevron-right" className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
-        {/* Logo Marquee */}
-        <div className="relative w-full overflow-hidden">
-          {/* Subtle fade overlay on edges */}
-          <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-light to-transparent z-10 pointer-events-none" />
-          <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-light to-transparent z-10 pointer-events-none" />
+        {/* Interactive Draggable Slider Track */}
+        <div className="relative w-full overflow-hidden group">
+          <div className="absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-sand to-transparent z-10 pointer-events-none" />
+          <div className="absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-sand to-transparent z-10 pointer-events-none" />
 
-          <Marquee
-            speed={35}
-            gradient={false}
-            pauseOnHover={true}
-            className="flex items-center py-2"
+          <div
+            ref={sliderRef}
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={handleMouseLeave}
+            onMouseDown={handleMouseDown}
+            onMouseUp={handleMouseUp}
+            onMouseMove={handleMouseMove}
+            onTouchStart={() => setIsPaused(true)}
+            onTouchEnd={() => setIsPaused(false)}
+            className="flex items-center gap-4 sm:gap-6 py-2 overflow-x-auto scrollbar-none select-none cursor-grab active:cursor-grabbing"
           >
-            {infinitePartners.map((partner, index) => (
+            {partnerList.map((partner, index) => (
               <div
                 key={`${partner.name}-${index}`}
-                className="mx-6 flex items-center justify-center h-28 w-48 rounded-2xl bg-lightGray hover:bg-white border border-lightGray/50 hover:border-secondary/20 hover:shadow-[0_12px_30px_rgba(13,35,30,0.03)] hover:-translate-y-0.5 transition-all duration-500 ease-out group px-6 cursor-pointer"
+                className="flex-shrink-0 flex items-center justify-center h-20 sm:h-24 w-40 sm:w-48 rounded-2xl bg-white hover:bg-white border border-gray-200/80 hover:border-secondary/40 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-500 ease-out group/item px-6 cursor-pointer"
               >
-                <div className="relative w-full h-20 flex items-center justify-center">
+                <div className="relative w-full h-14 flex items-center justify-center">
                   <Image
                     src={partner.logo}
                     alt={partner.name}
                     width={200}
                     height={80}
-                    className="max-h-16 w-auto object-contain filter grayscale group-hover:opacity-100 group-hover:grayscale-0 transition-all duration-500 ease-in-out"
+                    draggable={false}
+                    className="max-h-12 w-auto object-contain filter grayscale opacity-75 group-hover/item:opacity-100 group-hover/item:grayscale-0 transition-all duration-500 ease-in-out pointer-events-none"
                   />
                 </div>
               </div>
             ))}
-          </Marquee>
+          </div>
         </div>
 
       </div>
     </section>
   );
 }
+
+

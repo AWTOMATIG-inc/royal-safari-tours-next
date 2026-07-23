@@ -5,14 +5,14 @@ import { Icon } from "@iconify/react";
 export default function StatCard({ title, value, icon, trend, trendType = "up", color = "green" }) {
   const colorMap = {
     green: {
-      bg: "bg-[#2cb775]/10",
-      text: "text-[#2cb775]",
-      border: "border-[#2cb775]/20",
+      bg: "bg-secondary/10",
+      text: "text-secondary",
+      border: "border-secondary/20",
     },
     gold: {
-      bg: "bg-[#DE8D3D]/10",
-      text: "text-[#DE8D3D]",
-      border: "border-[#DE8D3D]/20",
+      bg: "bg-accent/10",
+      text: "text-accent",
+      border: "border-accent/20",
     },
     blue: {
       bg: "bg-blue-500/10",
@@ -29,9 +29,9 @@ export default function StatCard({ title, value, icon, trend, trendType = "up", 
   const selectedColor = colorMap[color] || colorMap.green;
 
   return (
-    <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-[0_4px_20px_rgba(13,35,30,0.03)] hover:shadow-[0_10px_30px_rgba(13,35,30,0.08)] transition-all duration-300 flex flex-col justify-between space-y-4">
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold tracking-wider text-gray-500 uppercase font-inter">
+    <div className="bg-white rounded-2xl p-6 border border-gray-200/80 shadow-xs hover:shadow-md transition-all duration-300 flex flex-col justify-between space-y-4 font-body">
+      <div className="flex items-center justify-between font-body">
+        <span className="text-xs font-semibold tracking-wider text-gray-500 uppercase font-body">
           {title}
         </span>
         <div className={`p-2.5 rounded-xl ${selectedColor.bg} ${selectedColor.text} ${selectedColor.border} border`}>
@@ -39,8 +39,8 @@ export default function StatCard({ title, value, icon, trend, trendType = "up", 
         </div>
       </div>
 
-      <div className="flex items-baseline justify-between">
-        <h3 className="text-3xl font-bold text-[#0D231E] font-inter">
+      <div className="flex items-baseline justify-between font-body">
+        <h3 className="text-3xl font-bold text-primary font-heading">
           {value}
         </h3>
         {trend && (
@@ -55,3 +55,4 @@ export default function StatCard({ title, value, icon, trend, trendType = "up", 
     </div>
   );
 }
+

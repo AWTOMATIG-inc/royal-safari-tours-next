@@ -32,7 +32,7 @@ export default function TourAdditionalInfo({ tourPackage }) {
 
   return (
     <section className="py-12 sm:py-16 bg-white border-b border-gray-100 font-subheading">
-      <div className="container mx-auto px-4 sm:px-6 md:px-10 lg:px-8">
+      <div className="container">
         <div className="max-w-4xl space-y-8">
           
           <SectionHeading

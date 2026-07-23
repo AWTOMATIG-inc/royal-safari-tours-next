@@ -52,9 +52,9 @@ export default function Newsletter() {
   };
 
   return (
-    <section className="py-16 sm:py-24 md:py-28 text-primary border-t border-gray-100 bg-white">
-      <div className="container max-w-4xl">
-        <div className="relative rounded-3xl p-8 sm:p-12 md:p-14 bg-lightGray border border-primary/10 text-center space-y-6 shadow-sm">
+    <section className="section-md text-primary border-t border-gray-100 bg-white font-body">
+      <div className="container-narrow">
+        <div className="relative rounded-3xl p-8 sm:p-12 md:p-14 bg-sand border border-primary/10 text-center space-y-6 shadow-xs">
           
           <SectionHeading
             subtitle="Private Dispatch"
@@ -63,16 +63,17 @@ export default function Newsletter() {
             align="center"
           />
 
-          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto pt-2">
+          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto pt-2 font-body">
             <input
               type="email"
               placeholder="Enter your email address..."
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="flex-1 bg-white border border-primary/15 rounded-xl px-4 py-3.5 text-sm text-primary placeholder:text-primary/50 font-body focus:outline-none focus:border-secondary transition-colors shadow-sm"
+              className="flex-1 bg-white border border-primary/15 rounded-xl px-4 py-3.5 text-sm text-primary placeholder:text-primary/50 font-body focus:outline-none focus:border-secondary transition-colors shadow-xs"
             />
             <Button
               type="submit"
+              variant="accent"
               loading={submitting}
               loadingText="Joining..."
               className="whitespace-nowrap"
@@ -82,7 +83,7 @@ export default function Newsletter() {
             </Button>
           </form>
 
-          <p className="text-[10px] text-primary/50 font-subheading tracking-wide uppercase">
+          <p className="text-caption text-primary/50 tracking-wider uppercase font-body">
             We respect your privacy. Unsubscribe at any time.
           </p>
 
@@ -91,3 +92,4 @@ export default function Newsletter() {
     </section>
   );
 }
+

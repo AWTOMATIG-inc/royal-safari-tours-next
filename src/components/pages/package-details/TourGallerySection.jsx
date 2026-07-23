@@ -17,11 +17,11 @@ export default function TourGallerySection({ tourPackage, onOpenGalleryAt }) {
   ].filter(Boolean);
 
   return (
-    <section className="py-12 sm:py-16 bg-sand border-b border-gray-200/80 font-subheading">
-      <div className="container mx-auto px-4 sm:px-6 md:px-10 lg:px-8">
+    <section className="section-sm bg-sand border-b border-gray-200/80 font-body">
+      <div className="container">
         <div className="max-w-4xl space-y-8">
           
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 font-subheading">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 font-body">
             <SectionHeading
               subtitle="VISUAL STORY"
               title="Expedition Gallery"
@@ -29,19 +29,19 @@ export default function TourGallerySection({ tourPackage, onOpenGalleryAt }) {
 
             <button
               onClick={() => onOpenGalleryAt(0)}
-              className="inline-flex items-center gap-2 bg-white hover:bg-gray-50 text-primary border border-gray-200 text-xs font-semibold px-4 py-2.5 rounded-xl transition-all cursor-pointer shadow-xs"
+              className="inline-flex items-center gap-2 bg-white hover:bg-gray-50 text-primary border border-gray-200 text-xs font-semibold px-4 py-2.5 rounded-xl transition-all cursor-pointer shadow-xs font-body"
             >
               <Icon icon="lucide:camera" className="w-4 h-4 text-accent" />
               <span>View All ({images.length} Photos)</span>
             </button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 font-body">
             {images.map((imgSrc, idx) => (
               <div
                 key={idx}
                 onClick={() => onOpenGalleryAt(idx)}
-                className="group relative aspect-[4/3] rounded-2xl overflow-hidden cursor-pointer shadow-xs border border-gray-200/60 bg-gray-100"
+                className="group relative aspect-[4/3] rounded-2xl overflow-hidden cursor-pointer shadow-xs border border-gray-200/60 bg-white"
               >
                 <Image
                   src={imgSrc}
@@ -62,3 +62,4 @@ export default function TourGallerySection({ tourPackage, onOpenGalleryAt }) {
     </section>
   );
 }
+

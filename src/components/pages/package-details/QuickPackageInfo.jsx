@@ -34,7 +34,7 @@ export default function QuickPackageInfo({ tourPackage }) {
 
   return (
     <section className="bg-sand border-b border-gray-200/80 py-6 sm:py-8 font-subheading">
-      <div className="container mx-auto px-4 sm:px-6 md:px-10 lg:px-8">
+      <div className="container">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
           {items.map((item, idx) => (
             <div

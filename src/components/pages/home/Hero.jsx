@@ -1,6 +1,7 @@
 "use client";
 
 import SectionHeading from "@/components/SectionHeading";
+import Button from "@/components/Button";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { useState } from "react";
@@ -24,16 +25,16 @@ export default function Hero() {
   };
 
   return (
-    <section className="relative w-full min-h-screen flex items-center justify-center pt-32 pb-24 md:pt-36 md:pb-28 lg:pt-40 lg:pb-32 overflow-hidden bg-[url('/images/banners/banner1.webp')] bg-fixed bg-cover bg-center">
-      {/* White gradient overlay for clean text legibility */}
-      <div className="absolute inset-0 bg-gradient-to-r from-light/95 via-light/70 to-light/30 sm:via-light/60 sm:to-transparent z-0" />
+    <section className="relative w-full min-h-screen flex items-center justify-center section-hero overflow-hidden bg-[url('/images/banners/banner1.webp')] bg-fixed bg-cover bg-center font-body">
+      {/* Light gradient overlay for luxury contrast */}
+      <div className="absolute inset-0 bg-gradient-to-r from-light/95 via-light/75 to-light/30 sm:via-light/65 sm:to-transparent z-0" />
 
-      {/* Main Grid Content */}
-      <div className="relative z-10 container mx-auto px-4 sm:px-6 md:px-10 lg:px-8 w-full">
+      {/* Main Container */}
+      <div className="relative z-10 container mx-auto w-full">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
           
-          {/* Left Column: Editorial Copy */}
-          <div className="lg:col-span-7 flex flex-col items-start text-left max-w-xl font-subheading">
+          {/* Left Column: Headline Copy */}
+          <div className="lg:col-span-7 flex flex-col items-start text-left max-w-xl">
             <SectionHeading
               subtitle="ROYAL SAFARI TOURS"
               title={
@@ -45,34 +46,34 @@ export default function Hero() {
               description="Experience hand-crafted, low-impact luxury expeditions through Bangladesh's pristine mangroves, tea valleys, and coastal sanctuaries."
               level="h1"
               className="mb-8 sm:mb-10"
-              descriptionClassName="text-[15px] sm:text-[17px] md:text-[18px] text-primary/75 max-w-xl font-normal leading-relaxed font-body"
+              descriptionClassName="text-body-lg text-primary/75 max-w-xl leading-relaxed"
             />
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto font-subheading">
-              <Link
+            <div className="flex flex-col sm:flex-row gap-3.5 sm:gap-4 w-full sm:w-auto font-body">
+              <Button
                 href="/adventure"
-                className="flex items-center justify-center gap-2.5 bg-primary hover:bg-accent text-white font-semibold px-6 sm:px-7 py-3.5 sm:py-4 rounded-[12px] shadow-sm hoverEffect transition-all duration-300 text-[14px] sm:text-[15px] tracking-wide"
+                variant="primary"
+                icon={<Icon icon="lucide:arrow-right" className="w-4 h-4" />}
               >
-                <span>Explore Expeditions</span>
-                <Icon icon="lucide:arrow-right" width="16" height="16" />
-              </Link>
-              <Link
+                Explore Expeditions
+              </Button>
+              <Button
                 href="/contact"
-                className="flex items-center justify-center gap-2.5 border border-primary/20 hover:bg-primary/5 text-primary font-semibold px-6 sm:px-7 py-3.5 sm:py-4 rounded-[12px] hoverEffect transition-all duration-300 text-[14px] sm:text-[15px] tracking-wide bg-white/80 backdrop-blur-sm"
+                variant="outline"
+                icon={<Icon icon="lucide:phone" className="w-4 h-4" />}
               >
-                <span>Plan Custom Trip</span>
-                <Icon icon="lucide:arrow-right" width="16" height="16" />
-              </Link>
+                Plan Custom Trip
+              </Button>
             </div>
           </div>
 
-          {/* Right Column: Floating Search/Booking Widget with Luxury Card Fill */}
+          {/* Right Column: Search Card Widget */}
           <div className="lg:col-span-5 flex justify-center lg:justify-end">
-            <div className="relative w-full max-w-md rounded-[28px] p-[1px] bg-gradient-to-tr from-accent/30 to-secondary/30 shadow-2xl backdrop-blur-xl transition-all duration-500 hover:scale-[1.01]">
-              <div className="bg-sand rounded-[27px] border border-primary/10 p-6 sm:p-8 space-y-6 shadow-xl">
+            <div className="relative w-full max-w-md rounded-3xl p-[1px] bg-gradient-to-tr from-accent/30 to-secondary/30 shadow-xl backdrop-blur-xl">
+              <div className="bg-sand rounded-[23px] border border-primary/10 p-6 sm:p-8 space-y-6 shadow-md">
                 
-                <div className="flex items-center justify-between border-b border-primary/10 pb-4 font-subheading">
+                <div className="flex items-center justify-between border-b border-primary/10 pb-4">
                   <div>
-                    <p className="text-[10px] tracking-[0.2em] font-bold text-accent uppercase">
+                    <p className="text-[10px] tracking-[0.2em] font-bold text-accent uppercase font-accent">
                       Curated Search
                     </p>
                     <h3 className="font-heading text-xl font-bold text-primary mt-0.5">
@@ -80,21 +81,21 @@ export default function Hero() {
                     </h3>
                   </div>
                   <div className="p-2.5 rounded-full bg-secondary/10 border border-secondary/20 text-secondary">
-                    <Icon icon="lucide:sliders" width="20" height="20" />
+                    <Icon icon="lucide:sliders" width="18" height="18" />
                   </div>
                 </div>
 
                 <form onSubmit={handleSearch} className="space-y-4">
                   {/* Destination Field */}
                   <div className="space-y-1.5">
-                    <label className="text-[11px] font-semibold tracking-wider text-primary/70 uppercase font-subheading block">
+                    <label className="text-label text-primary/70 block">
                       Destination
                     </label>
                     <div className="relative">
                       <select
                         value={destination}
                         onChange={(e) => setDestination(e.target.value)}
-                        className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm text-primary font-body focus:outline-none focus:border-secondary appearance-none cursor-pointer pr-10 shadow-sm"
+                        className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm text-primary font-body focus:outline-none focus:border-secondary appearance-none cursor-pointer pr-10 shadow-xs"
                       >
                         <option value="">Select Destination...</option>
                         <option value="Sundarbans">Sundarbans Mangrove</option>
@@ -109,14 +110,14 @@ export default function Hero() {
 
                   {/* Expedition Type */}
                   <div className="space-y-1.5">
-                    <label className="text-[11px] font-semibold tracking-wider text-primary/70 uppercase font-subheading block">
+                    <label className="text-label text-primary/70 block">
                       Expedition Style
                     </label>
                     <div className="relative">
                       <select
                         value={expeditionType}
                         onChange={(e) => setExpeditionType(e.target.value)}
-                        className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm text-primary font-body focus:outline-none focus:border-secondary appearance-none cursor-pointer pr-10 shadow-sm"
+                        className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm text-primary font-body focus:outline-none focus:border-secondary appearance-none cursor-pointer pr-10 shadow-xs"
                       >
                         <option value="">All Experiences...</option>
                         <option value="Wilderness Safari">Wilderness Safari</option>
@@ -131,9 +132,9 @@ export default function Hero() {
                   {/* Submit Search Button */}
                   <button
                     type="submit"
-                    className="w-full mt-2 flex items-center justify-center gap-2 bg-primary hover:bg-accent text-white font-semibold py-3.5 px-6 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg text-sm uppercase tracking-wider cursor-pointer font-subheading"
+                    className="w-full mt-2 flex items-center justify-center gap-2 bg-primary hover:bg-secondary text-white font-semibold py-3.5 px-6 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md text-xs uppercase tracking-wider cursor-pointer font-body"
                   >
-                    <Icon icon="lucide:search" width="16" height="16" />
+                    <Icon icon="lucide:search" width="15" height="15" />
                     <span>Search Journeys</span>
                   </button>
                 </form>
@@ -149,10 +150,10 @@ export default function Hero() {
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10">
         <button
           onClick={handleScrollDown}
-          className="flex flex-col items-center gap-1.5 cursor-pointer text-primary/50 hover:text-primary transition-colors duration-300"
+          className="flex flex-col items-center gap-1.5 cursor-pointer text-primary/50 hover:text-accent transition-colors duration-300"
           aria-label="Scroll down to content"
         >
-          <span className="text-[9px] sm:text-[10px] tracking-[0.25em] uppercase font-bold font-subheading">
+          <span className="text-[10px] tracking-[0.25em] uppercase font-bold font-body">
             Scroll to explore
           </span>
           <Icon icon="lucide:chevron-down" width="16" height="16" className="animate-bounce" />
@@ -161,3 +162,4 @@ export default function Hero() {
     </section>
   );
 }
+

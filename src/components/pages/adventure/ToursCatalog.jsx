@@ -116,7 +116,7 @@ export default function ToursCatalog({
 
   // Reusable Filter Sidebar Content
   const FilterContent = (
-    <div className="space-y-6 font-subheading">
+    <div className="space-y-6 font-body">
       <div className="flex items-center justify-between pb-4 border-b border-gray-200/80">
         <h3 className="font-heading text-xl font-bold text-primary flex items-center gap-2">
           <Icon icon="lucide:sliders-horizontal" className="w-5 h-5 text-secondary" />
@@ -125,7 +125,7 @@ export default function ToursCatalog({
         {hasActiveFilters && (
           <button
             onClick={handleReset}
-            className="text-xs font-semibold text-accent hover:text-accent/80 transition-colors cursor-pointer flex items-center gap-1"
+            className="text-xs font-semibold text-accent hover:text-accent/80 transition-colors cursor-pointer flex items-center gap-1 font-body"
           >
             <Icon icon="lucide:rotate-ccw" className="w-3.5 h-3.5" />
             <span>Reset</span>
@@ -134,8 +134,8 @@ export default function ToursCatalog({
       </div>
 
       {/* 1. Keyword Search */}
-      <div className="space-y-2">
-        <label className="text-[11px] font-bold text-primary/70 uppercase tracking-widest block font-subheading">
+      <div className="space-y-2 font-body">
+        <label className="text-[11px] font-bold text-primary/70 uppercase tracking-widest block font-body">
           Search Expeditions
         </label>
         <div className="relative group">
@@ -159,20 +159,20 @@ export default function ToursCatalog({
       </div>
 
       {/* 2. Destination / Location Filter */}
-      <div className="space-y-2 border-t border-gray-200/80 pt-5">
-        <label className="text-[11px] font-bold text-primary/70 uppercase tracking-widest block font-subheading">
+      <div className="space-y-2 border-t border-gray-200/80 pt-5 font-body">
+        <label className="text-[11px] font-bold text-primary/70 uppercase tracking-widest block font-body">
           Destinations
         </label>
         <div className="flex flex-col gap-1.5 max-h-64 overflow-y-auto pr-1">
           <button
             onClick={() => setSelectedLocation && setSelectedLocation("all")}
-            className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-subheading transition-all duration-300 cursor-pointer border ${
+            className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-body transition-all duration-300 cursor-pointer border ${
               selectedLocation === "all"
-                ? "bg-primary text-white border-primary font-semibold shadow-md"
+                ? "bg-primary text-white border-primary font-semibold shadow-xs"
                 : "bg-white border-gray-200 text-gray-700 hover:border-secondary hover:text-primary"
             }`}
           >
-            <span className="flex items-center gap-2">
+            <span className="flex items-center gap-2 font-body">
               <Icon icon="lucide:globe" className="w-3.5 h-3.5 text-accent" />
               All Destinations
             </span>
@@ -195,13 +195,13 @@ export default function ToursCatalog({
               <button
                 key={locName}
                 onClick={() => setSelectedLocation && setSelectedLocation(locName)}
-                className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-subheading transition-all duration-300 cursor-pointer border ${
+                className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-body transition-all duration-300 cursor-pointer border ${
                   isSelected
-                    ? "bg-primary text-white border-primary font-semibold shadow-md"
+                    ? "bg-primary text-white border-primary font-semibold shadow-xs"
                     : "bg-white border-gray-200 text-gray-700 hover:border-secondary hover:text-primary"
                 }`}
               >
-                <span className="flex items-center gap-2 truncate">
+                <span className="flex items-center gap-2 truncate font-body">
                   <Icon icon="lucide:map-pin" className="w-3.5 h-3.5 text-accent" />
                   {locName}
                 </span>
@@ -215,11 +215,11 @@ export default function ToursCatalog({
       </div>
 
       {/* 3. Price Range Filter */}
-      <div className="space-y-2 border-t border-gray-200/80 pt-5">
-        <label className="text-[11px] font-bold text-primary/70 uppercase tracking-widest block font-subheading">
+      <div className="space-y-2 border-t border-gray-200/80 pt-5 font-body">
+        <label className="text-[11px] font-bold text-primary/70 uppercase tracking-widest block font-body">
           Budget Range
         </label>
-        <div className="grid grid-cols-1 gap-2">
+        <div className="grid grid-cols-1 gap-2 font-body">
           {[
             { id: "all", label: "All Budgets" },
             { id: "under-5000", label: "Under ৳5,000" },
@@ -233,7 +233,7 @@ export default function ToursCatalog({
                 key={range.id}
                 type="button"
                 onClick={() => setPriceRange(range.id)}
-                className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-subheading transition-all cursor-pointer border ${
+                className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-body transition-all cursor-pointer border ${
                   isSelected
                     ? "bg-secondary/10 border-secondary text-primary font-bold shadow-xs"
                     : "bg-white border-gray-200 text-gray-700 hover:border-secondary"
@@ -250,11 +250,11 @@ export default function ToursCatalog({
       </div>
 
       {/* 4. Minimum Rating Filter */}
-      <div className="space-y-2 border-t border-gray-200/80 pt-5">
-        <label className="text-[11px] font-bold text-primary/70 uppercase tracking-widest block font-subheading">
+      <div className="space-y-2 border-t border-gray-200/80 pt-5 font-body">
+        <label className="text-[11px] font-bold text-primary/70 uppercase tracking-widest block font-body">
           Minimum Rating
         </label>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 font-body">
           {[
             { rating: 0, label: "Any" },
             { rating: 4.0, label: "4.0★+" },
@@ -266,9 +266,9 @@ export default function ToursCatalog({
                 key={r.rating}
                 type="button"
                 onClick={() => setMinRating(r.rating)}
-                className={`px-3.5 py-2 rounded-xl text-xs font-subheading font-semibold transition-all cursor-pointer border flex items-center gap-1 ${
+                className={`px-3.5 py-2 rounded-xl text-xs font-body font-semibold transition-all cursor-pointer border flex items-center gap-1 ${
                   isSelected
-                    ? "bg-accent text-white border-accent shadow-sm"
+                    ? "bg-accent text-white border-accent shadow-xs"
                     : "bg-white border-gray-200 text-gray-700 hover:border-accent"
                 }`}
               >
@@ -283,16 +283,16 @@ export default function ToursCatalog({
   );
 
   return (
-    <section id="tours-catalog" className="container mx-auto px-4 sm:px-6 md:px-10 lg:px-8 py-12 sm:py-16">
+    <section id="tours-catalog" className="container py-12 sm:py-16 font-body">
       
       {/* Catalog Header Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-8 border-b border-gray-200/80">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-8 border-b border-gray-200/80 font-body">
         <SectionHeading
           subtitle="CURATED CATALOG"
           title={
             <span className="flex items-center gap-3">
               Available Expeditions
-              <span className="text-xs font-subheading font-bold px-3 py-1 rounded-full bg-secondary/10 text-secondary border border-secondary/20 shadow-xs">
+              <span className="text-xs font-body font-bold px-3 py-1 rounded-full bg-secondary/10 text-secondary border border-secondary/20 shadow-xs">
                 {filteredTours.length} {filteredTours.length === 1 ? "Tour" : "Tours"}
               </span>
             </span>
@@ -300,10 +300,10 @@ export default function ToursCatalog({
         />
 
         {/* Controls: Mobile Filter Toggle & Sort Selector */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 font-body">
           <button
             onClick={() => setIsMobileFilterOpen(true)}
-            className="lg:hidden flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-gray-200 bg-white text-xs font-semibold text-primary font-subheading cursor-pointer shadow-sm hover:border-secondary"
+            className="lg:hidden flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-gray-200 bg-white text-xs font-semibold text-primary font-body cursor-pointer shadow-xs hover:border-secondary"
           >
             <Icon icon="lucide:sliders-horizontal" className="w-4 h-4 text-secondary" />
             <span>Filter</span>
@@ -313,13 +313,13 @@ export default function ToursCatalog({
           </button>
 
           {/* Sort Dropdown */}
-          <div className="flex items-center gap-2 bg-white border border-gray-200/80 rounded-2xl px-4 py-2.5 text-xs font-subheading text-primary shadow-xs">
+          <div className="flex items-center gap-2 bg-white border border-gray-200/80 rounded-2xl px-4 py-2.5 text-xs font-body text-primary shadow-xs">
             <Icon icon="lucide:arrow-up-down" className="w-3.5 h-3.5 text-gray-400" />
             <span className="text-gray-400 font-medium hidden sm:inline">Sort:</span>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="bg-transparent text-primary font-bold focus:outline-none cursor-pointer"
+              className="bg-transparent text-primary font-bold focus:outline-none cursor-pointer font-body"
             >
               <option value="newest">Newest First</option>
               <option value="price-low">Price: Low to High</option>
@@ -332,11 +332,11 @@ export default function ToursCatalog({
 
       {/* Active Filter Chips Bar */}
       {hasActiveFilters && (
-        <div className="flex flex-wrap items-center gap-2 pt-6 font-subheading">
-          <span className="text-xs text-gray-400 font-medium mr-1">Filters Active:</span>
+        <div className="flex flex-wrap items-center gap-2 pt-6 font-body">
+          <span className="text-xs text-gray-400 font-medium mr-1 font-body">Filters Active:</span>
 
           {searchQuery.trim() && (
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-primary text-white text-xs font-medium shadow-xs">
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-primary text-white text-xs font-medium shadow-xs font-body">
               Keyword: &quot;{searchQuery}&quot;
               <button onClick={() => setSearchQuery && setSearchQuery("")} className="hover:text-accent cursor-pointer ml-1">
                 <Icon icon="lucide:x" className="w-3.5 h-3.5" />
@@ -345,7 +345,7 @@ export default function ToursCatalog({
           )}
 
           {selectedLocation !== "all" && (
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-primary text-white text-xs font-medium shadow-xs">
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-primary text-white text-xs font-medium shadow-xs font-body">
               Location: {selectedLocation}
               <button onClick={() => setSelectedLocation && setSelectedLocation("all")} className="hover:text-accent cursor-pointer ml-1">
                 <Icon icon="lucide:x" className="w-3.5 h-3.5" />
@@ -354,7 +354,7 @@ export default function ToursCatalog({
           )}
 
           {priceRange !== "all" && (
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-primary text-white text-xs font-medium shadow-xs">
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-primary text-white text-xs font-medium shadow-xs font-body">
               Price: {priceRange}
               <button onClick={() => setPriceRange("all")} className="hover:text-accent cursor-pointer ml-1">
                 <Icon icon="lucide:x" className="w-3.5 h-3.5" />
@@ -363,7 +363,7 @@ export default function ToursCatalog({
           )}
 
           {minRating > 0 && (
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-primary text-white text-xs font-medium shadow-xs">
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-primary text-white text-xs font-medium shadow-xs font-body">
               Rating: {minRating}★+
               <button onClick={() => setMinRating(0)} className="hover:text-accent cursor-pointer ml-1">
                 <Icon icon="lucide:x" className="w-3.5 h-3.5" />
@@ -373,32 +373,32 @@ export default function ToursCatalog({
 
           <button
             onClick={handleReset}
-            className="text-xs font-bold text-accent hover:underline cursor-pointer ml-2"
+            className="text-xs font-bold text-accent hover:underline cursor-pointer ml-2 font-body"
           >
             Clear All
           </button>
         </div>
       )}
 
-      {/* Main Grid Layout: Left Desktop Sidebar + Right Tour Cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pt-8">
+      {/* Main Grid Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pt-8 font-body">
 
         {/* DESKTOP LEFT SIDEBAR */}
-        <aside className="hidden lg:block lg:col-span-3 sticky top-28 bg-sand border border-gray-200/90 rounded-3xl p-6 shadow-[0_8px_30px_rgba(13,35,30,0.06)]">
+        <aside className="hidden lg:block lg:col-span-3 sticky top-28 bg-sand border border-gray-200/90 rounded-3xl p-6 shadow-xs">
           {FilterContent}
         </aside>
 
-        {/* MOBILE FILTER DRAWER (OPENS FROM LEFT, HIGHEST Z-INDEX ABOVE NAVBAR) */}
+        {/* MOBILE FILTER DRAWER */}
         {isMobileFilterOpen && (
           <div className="lg:hidden fixed inset-0 z-[1005] flex">
             {/* Backdrop Blur Overlay */}
             <div
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+              className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
               onClick={() => setIsMobileFilterOpen(false)}
             />
 
             {/* Left Drawer Panel */}
-            <div className="relative mr-auto w-[85%] max-w-xs sm:max-w-sm bg-sand h-full p-6 overflow-y-auto shadow-2xl flex flex-col justify-between z-10 border-r border-gray-200/90">
+            <div className="relative mr-auto w-[85%] max-w-xs sm:max-w-sm bg-sand h-full p-6 overflow-y-auto shadow-2xl flex flex-col justify-between z-10 border-r border-gray-200/90 font-body">
               <div>
                 <div className="flex items-center justify-between pb-4 mb-4 border-b border-gray-200">
                   <h3 className="font-heading text-xl font-bold text-primary">
@@ -418,7 +418,7 @@ export default function ToursCatalog({
               <div className="pt-6 mt-6 border-t border-gray-200">
                 <button
                   onClick={() => setIsMobileFilterOpen(false)}
-                  className="w-full bg-primary hover:bg-secondary text-white font-semibold py-3.5 rounded-xl text-xs uppercase tracking-wider font-subheading cursor-pointer transition-colors shadow-md"
+                  className="w-full bg-primary hover:bg-secondary text-white font-semibold py-3.5 rounded-xl text-xs uppercase tracking-wider font-body cursor-pointer transition-colors shadow-xs"
                 >
                   Show Results ({filteredTours.length})
                 </button>
@@ -428,7 +428,7 @@ export default function ToursCatalog({
         )}
 
         {/* RIGHT MAIN: TOUR CARDS GRID */}
-        <main className="lg:col-span-9 w-full">
+        <main className="lg:col-span-9 w-full font-body">
           {filteredTours.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
               {filteredTours.map((tour) => (
@@ -436,7 +436,7 @@ export default function ToursCatalog({
               ))}
             </div>
           ) : (
-            <div className="bg-sand border border-gray-200/90 rounded-3xl p-12 text-center space-y-4 max-w-lg mx-auto my-8 shadow-sm">
+            <div className="bg-sand border border-gray-200/90 rounded-3xl p-12 text-center space-y-4 max-w-lg mx-auto my-8 shadow-xs font-body">
               <div className="w-16 h-16 rounded-full bg-primary/5 text-accent flex items-center justify-center mx-auto">
                 <Icon icon="lucide:search-x" className="w-8 h-8" />
               </div>
@@ -448,7 +448,7 @@ export default function ToursCatalog({
               </p>
               <button
                 onClick={handleReset}
-                className="inline-flex items-center gap-2 bg-primary hover:bg-secondary text-white text-xs font-semibold px-6 py-3.5 rounded-xl transition-colors cursor-pointer font-subheading shadow-sm"
+                className="inline-flex items-center gap-2 bg-primary hover:bg-secondary text-white text-xs font-semibold px-6 py-3.5 rounded-xl transition-colors cursor-pointer font-body shadow-xs"
               >
                 <Icon icon="lucide:rotate-ccw" className="w-4 h-4" />
                 <span>Reset All Filters</span>
@@ -462,3 +462,4 @@ export default function ToursCatalog({
     </section>
   );
 }
+

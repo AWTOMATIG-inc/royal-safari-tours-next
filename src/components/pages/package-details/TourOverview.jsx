@@ -10,19 +10,19 @@ export default function TourOverview({ tourPackage }) {
     .replace(/<p><\/p>/g, "");
 
   return (
-    <section className="py-12 sm:py-16 bg-white border-b border-gray-100 font-subheading">
-      <div className="container mx-auto px-4 sm:px-6 md:px-10 lg:px-8">
+    <section className="section-sm bg-white border-b border-gray-100 font-body">
+      <div className="container">
         <div className="max-w-4xl space-y-6">
           
           <SectionHeading
-            subtitle="EXPEDITION HIGHLIGHTS & OVERVIEW"
+            subtitle="EXPEDITION HIGHLIGHTS &amp; OVERVIEW"
             title="About This Experience"
           />
 
           {/* Clean Editorial HTML Description Box */}
-          <div className="bg-sand border border-gray-200/80 rounded-3xl p-6 sm:p-10 shadow-xs">
+          <div className="bg-sand border border-gray-200/80 rounded-3xl p-6 sm:p-10 shadow-xs font-body">
             <div
-              className="prose prose-emerald max-w-none text-sm sm:text-base text-gray-700 font-light leading-relaxed space-y-4 font-body [&>p]:mb-4 [&>ul]:list-disc [&>ul]:pl-5 [&>h3]:font-heading [&>h3]:text-xl [&>h3]:font-bold [&>h3]:text-primary [&>h3]:mt-6 [&>h3]:mb-3"
+              className="prose prose-emerald max-w-none text-body-md text-gray-700 font-light leading-relaxed space-y-4 font-body [&>p]:mb-4 [&>ul]:list-disc [&>ul]:pl-5 [&>h3]:font-heading [&>h3]:text-xl [&>h3]:font-bold [&>h3]:text-primary [&>h3]:mt-6 [&>h3]:mb-3"
               dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
             />
           </div>
@@ -32,3 +32,4 @@ export default function TourOverview({ tourPackage }) {
     </section>
   );
 }
+

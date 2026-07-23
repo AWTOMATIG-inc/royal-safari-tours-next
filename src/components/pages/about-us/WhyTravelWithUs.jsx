@@ -7,7 +7,7 @@ const features = [
   {
     icon: "lucide:compass",
     title: "Local Experts",
-    description: "Our guides possess deep, generational knowledge of the destinations, offering you unmatched insights and safety.",
+    description: "Deep, generational knowledge of the destinations, offering unmatched insights and safety.",
   },
   {
     icon: "lucide:sparkles",
@@ -22,13 +22,13 @@ const features = [
   {
     icon: "lucide:life-buoy",
     title: "Reliable Support",
-    description: "Round-the-clock assistance from planning through to your return, so you can explore with peace of mind.",
+    description: "Round-the-clock assistance from planning through to your return, so you can explore with peace.",
   },
 ];
 
 export default function WhyTravelWithUs() {
   return (
-    <section className="py-16 sm:py-24 md:py-32 text-primary border-t border-lightGray">
+    <section className="section-md text-primary border-t border-gray-100 bg-sand font-body">
       <div className="container">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
           
@@ -39,7 +39,7 @@ export default function WhyTravelWithUs() {
               title={
                 <>
                   Crafting Trust <br />
-                  <span className="italic font-normal">in Every Journey</span>
+                  <span className="italic font-normal font-heading text-accent">in Every Journey</span>
                 </>
               }
               description="We believe that luxury travel is defined by the details. By focusing on intimacy, safety, and authentic hospitality, we turn travel into transformation."
@@ -47,21 +47,21 @@ export default function WhyTravelWithUs() {
           </div>
 
           {/* Right Column: Clean Grid Features */}
-          <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-10 sm:gap-y-12">
+          <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-10 sm:gap-y-12 font-body">
             {features.map((feature, index) => (
               <div key={index} className="space-y-3 md:space-y-4 text-left group">
-                {/* Icon (small, outline, elegant) */}
+                {/* Icon */}
                 <div className="text-secondary transition-transform duration-300 group-hover:translate-y-[-2px] inline-block">
                   <Icon icon={feature.icon} className="w-8 h-8 font-light" />
                 </div>
 
                 {/* Title */}
-                <h3 className="font-heading text-xl font-bold text-primary/95">
+                <h3 className="font-heading text-xl font-bold text-primary">
                   {feature.title}
                 </h3>
 
                 {/* Description */}
-                <p className="text-sm leading-relaxed text-primary/70 font-light font-body">
+                <p className="text-body-sm leading-relaxed text-primary/75 font-light">
                   {feature.description}
                 </p>
               </div>
@@ -73,3 +73,4 @@ export default function WhyTravelWithUs() {
     </section>
   );
 }
+

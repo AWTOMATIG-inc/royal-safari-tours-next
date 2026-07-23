@@ -2,7 +2,6 @@
 
 import AdventureHero from "./AdventureHero";
 import ToursCatalog from "./ToursCatalog";
-import ContactNewsletter from "../contact/ContactNewsletter";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
 
@@ -72,9 +71,6 @@ function AdventureContent({ tourPackages = [], locations = [] }) {
         selectedLocation={selectedLocation}
         setSelectedLocation={setSelectedLocation}
       />
-
-      {/* 3. Bottom Dispatch / Newsletter bar */}
-      <ContactNewsletter />
     </main>
   );
 }
@@ -86,3 +82,4 @@ export default function AdventureClientPage(props) {
     </Suspense>
   );
 }
+

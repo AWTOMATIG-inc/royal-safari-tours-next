@@ -41,24 +41,24 @@ export default function FeaturedDestinations({ locations = [] }) {
   ];
 
   return (
-    <section id="featured-destinations" className="py-16 sm:py-24 md:py-32 text-primary">
+    <section id="featured-destinations" className="section-md text-primary font-body bg-sand">
       <div className="container">
         
         {/* Section Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 sm:mb-14 md:mb-16 gap-4 sm:gap-6 font-subheading">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 sm:mb-14 md:mb-16 gap-4 sm:gap-6">
           <SectionHeading
             subtitle="Sacred Sanctuaries"
             title={
               <>
                 Featured Destinations, <br />
-                <span className="italic font-normal">Unspoiled &amp; Raw</span>
+                <span className="italic font-normal font-heading text-accent">Unspoiled &amp; Raw</span>
               </>
             }
           />
 
           <Link
             href="/adventure"
-            className="inline-flex items-center gap-2 text-xs font-semibold tracking-[0.2em] uppercase text-primary hover:text-accent transition-colors duration-300 group shrink-0"
+            className="inline-flex items-center gap-2 text-label text-primary hover:text-accent transition-colors duration-300 group shrink-0"
           >
             <span>View All Destinations</span>
             <Icon icon="lucide:arrow-right" className="w-4 h-4 transition-transform group-hover:translate-x-1" />
@@ -66,7 +66,7 @@ export default function FeaturedDestinations({ locations = [] }) {
         </div>
 
         {/* Clean Balanced Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
           {displayLocations.map((item) => {
             const title = item.country || item.title || item.name || "Destination";
             const imageSrc = getDestinationImageUrl(item);
@@ -75,7 +75,7 @@ export default function FeaturedDestinations({ locations = [] }) {
               <Link
                 key={item._id}
                 href={`/adventure?destination=${encodeURIComponent(title)}`}
-                className="group relative rounded-3xl overflow-hidden aspect-[4/5] bg-black/5 shadow-md hover:shadow-2xl transition-all duration-500 hover:-translate-y-1.5 flex flex-col justify-end p-6 sm:p-7 md:p-8"
+                className="group relative rounded-3xl overflow-hidden aspect-[4/5] bg-black/5 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1 flex flex-col justify-end p-6 sm:p-7 md:p-8 border border-gray-200/80"
               >
                 {/* Image */}
                 <Image
@@ -91,8 +91,8 @@ export default function FeaturedDestinations({ locations = [] }) {
 
                 {/* Glass Tag & Info */}
                 <div className="relative z-10 space-y-2 text-white">
-                  <div className="flex items-center justify-between font-subheading">
-                    <span className="px-3 py-1 font-mansalva rounded-full bg-white/20 backdrop-blur-md text-white text-[10px] font-semibold tracking-[0.2em] uppercase">
+                  <div className="flex items-center justify-between">
+                    <span className="px-3 py-1 font-accent rounded-full bg-white/20 backdrop-blur-md text-white text-[10px] font-semibold tracking-[0.2em] uppercase">
                       Expedition Region
                     </span>
                     <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:translate-x-0 -translate-x-2">
@@ -105,7 +105,7 @@ export default function FeaturedDestinations({ locations = [] }) {
                   </h3>
 
                   {item.description && (
-                    <p className="text-xs font-light text-white/80 font-body line-clamp-2 leading-relaxed">
+                    <p className="text-body-sm font-light text-white/80 line-clamp-2 leading-relaxed">
                       {item.description}
                     </p>
                   )}
@@ -119,3 +119,4 @@ export default function FeaturedDestinations({ locations = [] }) {
     </section>
   );
 }
+

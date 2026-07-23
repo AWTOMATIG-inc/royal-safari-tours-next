@@ -20,15 +20,15 @@ export default function AdventureHero({
   };
 
   return (
-    <section className="relative w-full min-h-[75vh] sm:min-h-[80vh] flex flex-col justify-between pt-28 pb-32 md:pt-36 md:pb-36 bg-[url('/images/banners/camping.webp')] bg-fixed bg-cover bg-center text-white overflow-visible">
+    <section className="relative w-full min-h-[75vh] sm:min-h-[80vh] flex flex-col justify-between section-hero bg-[url('/images/banners/camping.webp')] bg-fixed bg-cover bg-center text-white overflow-visible font-body">
       {/* Gradients overlay */}
       <div className="absolute inset-0 bg-black/60 z-0" />
       <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-transparent to-black/40 z-0" />
 
       {/* Main Hero Centered Content */}
-      <div className="relative z-10 container mx-auto px-4 sm:px-6 md:px-10 lg:px-8 my-auto">
+      <div className="relative z-10 container mx-auto my-auto">
         <SectionHeading
-          subtitle="Explore Our Packages"
+          subtitle="EXPLORE OUR PACKAGES"
           title={
             <>
               Explore Extraordinary <br />
@@ -39,20 +39,20 @@ export default function AdventureHero({
           level="h1"
           align="center"
           dark
-          descriptionClassName="text-sm sm:text-base md:text-lg text-white/80 font-light font-body leading-relaxed max-w-2xl mx-auto"
+          descriptionClassName="text-body-lg text-white/85 max-w-2xl mx-auto"
         />
       </div>
 
-      {/* FLOATING SEARCH BAR AT THE MIDDLE BOTTOM OF HERO */}
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 z-20 w-full max-w-5xl px-4 sm:px-6">
-        <div className="bg-sand border border-gray-200/90 rounded-2xl sm:rounded-3xl shadow-[0_20px_50px_rgba(13,35,30,0.16)] p-4 sm:p-5">
+      {/* FLOATING SEARCH BAR */}
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 z-20 w-full max-w-5xl px-4 sm:px-6 font-body">
+        <div className="bg-sand border border-gray-200/90 rounded-3xl shadow-xl p-4 sm:p-5">
           <form
             onSubmit={handleSearchSubmit}
-            className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center font-subheading"
+            className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center font-body"
           >
             {/* Field 1: Keyword Input */}
-            <div className="sm:col-span-5 relative flex items-center bg-white border border-gray-200 rounded-xl px-3.5 py-3 focus-within:border-secondary transition-colors">
-              <Icon icon="lucide:search" className="w-5 h-5 text-gray-400 mr-2.5 flex-shrink-0" />
+            <div className="sm:col-span-5 relative flex items-center bg-white border border-gray-200 rounded-xl px-3.5 py-3 focus-within:border-secondary transition-colors shadow-xs">
+              <Icon icon="lucide:search" className="w-5 h-5 text-gray-400 mr-2.5 shrink-0" />
               <input
                 type="text"
                 placeholder="Where do you want to go?"
@@ -72,12 +72,12 @@ export default function AdventureHero({
             </div>
 
             {/* Field 2: Location Selector Dropdown */}
-            <div className="sm:col-span-4 relative flex items-center bg-white border border-gray-200 rounded-xl px-3.5 py-3 focus-within:border-secondary transition-colors">
-              <Icon icon="lucide:map-pin" className="w-5 h-5 text-accent mr-2.5 flex-shrink-0" />
+            <div className="sm:col-span-4 relative flex items-center bg-white border border-gray-200 rounded-xl px-3.5 py-3 focus-within:border-secondary transition-colors shadow-xs">
+              <Icon icon="lucide:map-pin" className="w-5 h-5 text-accent mr-2.5 shrink-0" />
               <select
                 value={selectedLocation}
                 onChange={(e) => setSelectedLocation && setSelectedLocation(e.target.value)}
-                className="w-full bg-transparent text-sm text-primary focus:outline-none cursor-pointer font-medium"
+                className="w-full bg-transparent text-sm text-primary focus:outline-none cursor-pointer font-medium font-body"
               >
                 <option value="all">All Destinations</option>
                 {locationList.map((locName) => (
@@ -92,7 +92,7 @@ export default function AdventureHero({
             <div className="sm:col-span-3">
               <button
                 type="submit"
-                className="w-full bg-primary hover:bg-secondary text-white font-semibold py-3.5 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 text-xs sm:text-sm tracking-wider uppercase cursor-pointer shadow-md"
+                className="w-full bg-primary hover:bg-secondary text-white font-semibold py-3.5 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 text-xs sm:text-sm tracking-wider uppercase cursor-pointer shadow-xs font-body"
               >
                 <span>Find Tours</span>
                 <Icon icon="lucide:arrow-right" className="w-4 h-4" />
@@ -104,3 +104,4 @@ export default function AdventureHero({
     </section>
   );
 }
+

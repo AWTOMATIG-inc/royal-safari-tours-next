@@ -28,7 +28,7 @@ const services = [
 
 export default function WhatWeOffer() {
   return (
-    <section className="py-16 sm:py-24 md:py-3 text-primary border-t border-lightGray">
+    <section className="section-md text-primary border-t border-gray-100 bg-white font-body">
       <div className="container">
         
         {/* Section Header */}
@@ -37,26 +37,26 @@ export default function WhatWeOffer() {
           title={
             <>
               Curated Expeditions, <br />
-              <span className="italic font-normal text-primary/95">Tailored to Your Soul</span>
+              <span className="italic font-normal font-heading text-accent">Tailored to Your Soul</span>
             </>
           }
-          className="mb-12 md:mb-20"
+          className="mb-12 md:mb-16"
         />
 
         {/* Services Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 font-body">
           {services.map((service, index) => (
             <div
               key={index}
-              className="relative group bg-light border border-lightGray/80 hover:border-white rounded-3xl p-6 sm:p-8 space-y-6 shadow-[0_4px_30px_rgba(13,35,30,0.02)] hover:shadow-[0_20px_50px_rgba(13,35,30,0.06)] hover:-translate-y-2 transition-all duration-500 ease-out"
+              className="relative group bg-sand border border-primary/10 rounded-3xl p-6 sm:p-8 space-y-6 shadow-xs hover:shadow-lg hover:border-secondary/40 hover:-translate-y-1 transition-all duration-500 ease-out"
             >
-              {/* Floating Top Arrow (Micro-interaction) */}
+              {/* Floating Top Arrow */}
               <div className="absolute top-6 right-6 sm:top-8 sm:right-8 text-accent opacity-0 group-hover:opacity-100 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all duration-300">
                 <Icon icon="lucide:arrow-up-right" className="w-5 h-5" />
               </div>
 
               {/* Icon Container */}
-              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-white flex items-center justify-center text-secondary border border-lightGray transition-all duration-500 group-hover:bg-secondary group-hover:text-white group-hover:scale-110">
+              <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-secondary border border-gray-200 transition-all duration-500 group-hover:bg-secondary group-hover:text-white group-hover:scale-105 shadow-xs">
                 <Icon icon={service.icon} className="w-5 h-5 sm:w-6 sm:h-6" />
               </div>
 
@@ -66,7 +66,7 @@ export default function WhatWeOffer() {
               </h3>
 
               {/* Description */}
-              <p className="text-sm leading-relaxed text-primary/70 font-light font-body">
+              <p className="text-body-sm leading-relaxed text-primary/75 font-light">
                 {service.description}
               </p>
             </div>
@@ -77,3 +77,4 @@ export default function WhatWeOffer() {
     </section>
   );
 }
+

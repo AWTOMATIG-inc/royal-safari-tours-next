@@ -1,38 +1,122 @@
-@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Inter:wght@300;400;500;600;700;800&family=Palanquin+Dark:wght@400;500;600;700&family=Young+Serif&display=swap");
-@import url('https://fonts.googleapis.com/css2?family=Mansalva&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Mansalva&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
 @import "tailwindcss";
 
 @theme inline {
-  /* Core Font Families */
-  --font-mansalva: "Mansalva", sans-serif;
-  --font-calibre: "calibre", sans-serif;
-  --font-playfair: "Playfair Display", serif;
-  --font-young: "Young Serif", serif;
-  --font-palanquin: "Palanquin Dark", sans-serif;
-  --font-inter: "Inter", sans-serif;
-  --font-plus-jakarta: "Plus Jakarta Sans", sans-serif;
+  /* Core Brand Fonts */
+  --font-heading: var(--font-heading-var), "Playfair Display", serif;
+  --font-body: var(--font-body-var), "Be Vietnam Pro", sans-serif;
+  --font-accent: var(--font-accent-var), "Mansalva", cursive;
 
-  /* Semantic Typography Mappings */
-  --font-heading: "Playfair Display", serif;
-  --font-subheading: "Plus Jakarta Sans", sans-serif;
-  --font-body: "calibre", sans-serif;
+  /* Backward Compatibility Aliases during system migration */
+  --font-subheading: var(--font-body-var), "Be Vietnam Pro", sans-serif;
+  --font-inter: var(--font-body-var), "Be Vietnam Pro", sans-serif;
+  --font-calibre: var(--font-body-var), "Be Vietnam Pro", sans-serif;
+  --font-sans: var(--font-body-var), "Be Vietnam Pro", sans-serif;
 
-  /* Centralized Color Tokens */
-  --color-primary: #0D231E;      /* Deep Forest Green */
-  --color-secondary: #2cb775;    /* Vibrant Green */
-  --color-accent: #DE8D3D;       /* Warm Amber / Orange */
-  --color-light: #fcfaee;        /* Soft Cream Background */
-  --color-lightGray: #f2efdf;    /* Neutral Cream Gray */
-  --color-sand: #fcfbf7;         /* Luxury Sand Background */
+  /* Centralized 60-30-10 Brand Palette Tokens */
+  --color-primary: #0D231E;      /* Deep Forest Green - 60% dominant */
+  --color-secondary: #2CB775;    /* Vibrant Emerald - 30% supporting */
+  --color-accent: #DE8D3D;       /* Warm Amber - 10% CTA focus */
+  --color-light: #FCFAEE;        /* Soft Cream Surface */
+  --color-lightGray: #F2EFDF;    /* Neutral Cream Gray */
+  --color-sand: #FCFBF7;         /* Luxury Sand Surface */
   --color-gold: #C49A5C;         /* Luxury Accent Gold */
-  --color-green: #2cb775;        /* Keep legacy mapping */
-  --color-orange: #DE8D3D;       /* Keep legacy mapping */
+  --color-whatsapp: #25D366;     /* Brand WhatsApp Green */
+  --color-green: #2CB775;
+  --color-orange: #DE8D3D;
 
   --breakpoint-xxs: 345px;
 }
+
+/* Container System Utilities */
 @utility container {
-  @apply mx-auto max-w-none 2xl:max-w-[1800px] px-4 md:!px-10 lg:px-8;
+  @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-0;
 }
+
+@utility container-wide {
+  @apply mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-0;
+}
+
+@utility container-narrow {
+  @apply mx-auto max-w-4xl px-4 sm:px-6;
+}
+
+
+/* Semantic Section Spacing Scale (4px/8px rhythm) */
+@utility section-sm {
+  @apply py-10 sm:py-12 md:py-14;
+}
+
+@utility section-md {
+  @apply py-16 sm:py-20 md:py-24;
+}
+
+@utility section-lg {
+  @apply py-20 sm:py-28 md:py-36;
+}
+
+@utility section-hero {
+  @apply pt-28 sm:pt-36 pb-16 sm:pb-24;
+}
+
+/* Glassmorphism Panel Primitive */
+@utility glass-panel {
+  @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-md;
+}
+
+/* Typography System Utility Classes */
+@layer utilities {
+  .text-display-xl {
+    @apply font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-[1.08] tracking-tight;
+  }
+  .text-display-lg {
+    @apply font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl leading-[1.12] tracking-tight;
+  }
+  .text-display-md {
+    @apply font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl leading-[1.18] tracking-tight;
+  }
+  .text-heading-xl {
+    @apply font-heading text-xl sm:text-2xl md:text-3xl lg:text-4xl leading-[1.2] font-bold;
+  }
+  .text-heading-lg {
+    @apply font-heading text-lg sm:text-xl md:text-2xl lg:text-3xl leading-[1.25] font-bold;
+  }
+  .text-heading-md {
+    @apply font-heading text-base sm:text-lg md:text-xl lg:text-2xl leading-[1.3] font-bold;
+  }
+  .text-heading-sm {
+    @apply font-heading text-sm sm:text-base md:text-lg leading-[1.35] font-semibold;
+  }
+  .text-body-lg {
+    @apply font-body text-base sm:text-lg leading-relaxed font-normal;
+  }
+  .text-body-md {
+    @apply font-body text-sm sm:text-base leading-relaxed font-normal;
+  }
+  .text-body-sm {
+    @apply font-body text-xs sm:text-sm leading-relaxed font-normal;
+  }
+  .text-label {
+    @apply font-body text-[11px] sm:text-xs font-semibold tracking-wider uppercase;
+  }
+  .text-caption {
+    @apply font-body text-[10px] sm:text-[11px] font-normal leading-normal;
+  }
+  .text-accent-style {
+    @apply font-accent text-accent tracking-widest uppercase;
+  }
+  .header-gradient {
+    background: linear-gradient(
+      180deg,
+      rgba(44, 183, 117) 0%,
+      rgba(222, 141, 61) 66.21%
+    );
+  }
+  .hoverEffect {
+    @apply transition-all duration-300;
+  }
+}
+
 @layer components {
   .bg-body {
     @apply bg-[url('/images/banners/bg-for-body.webp'),linear-gradient(#fcfaee,#fcfaee)] bg-center;
@@ -50,25 +134,16 @@
     @apply bg-[linear-gradient(rgba(0,0,0,0.6),rgba(0,0,0,0.6)),url('/images/banners/footer-banner.webp')] bg-center bg-cover;
   }
 }
-@layer utilities {
-  .header-gradient {
-    background: linear-gradient(
-      180deg,
-      rgba(44, 183, 117) 0%,
-      rgba(222, 141, 61) 66.21%
-    );
-  }
-  .hoverEffect {
-    @apply transition-colors duration-300;
-  }
-}
+
 @layer base {
   body {
-    @apply font-calibre;
+    @apply font-body bg-sand text-primary antialiased selection:bg-secondary/20 selection:text-primary;
   }
 }
+
 @custom-variant hover (&:hover);
 
+/* Quill Editor Styles */
 .ql-editor p {
   margin-top: 0;
   margin-bottom: 16px !important;
@@ -80,6 +155,7 @@
 .ql-editor h4,
 .ql-editor h5,
 .ql-editor h6 {
+  font-family: var(--font-heading);
   margin-top: 24px !important;
   margin-bottom: 12px !important;
 }
@@ -99,27 +175,25 @@
   margin-bottom: 8px;
 }
 .ql-editor a {
-  color: var(--color-slate);
+  color: var(--color-secondary);
   text-decoration: underline !important;
 }
-
 .ql-editor ol,
 .ql-editor ul {
   list-style: none;
   counter-reset: item;
   padding-left: 0;
 }
-
 .ql-editor ol li,
 .ql-editor ul li {
   counter-increment: item;
   display: flex;
   gap: 0.5rem;
 }
-
 .ql-editor ol li::before {
   content: counter(item) ".";
 }
 .ql-editor ul li::before {
   content: "•";
 }
+

@@ -5,7 +5,6 @@ import ContactQuickCards from "@/components/pages/contact/ContactQuickCards";
 import ContactFormSection from "@/components/pages/contact/ContactFormSection";
 import ContactWhyChooseUs from "@/components/pages/contact/ContactWhyChooseUs";
 import ContactMapSection from "@/components/pages/contact/ContactMapSection";
-import ContactNewsletter from "@/components/pages/contact/ContactNewsletter";
 
 export default function Contact() {
   return (
@@ -17,7 +16,7 @@ export default function Contact() {
       </div>
 
       {/* Spacer for overlapping contact cards */}
-      <div className="h-44 sm:h-48 md:h-52 lg:h-32" />
+      <div className="h-28 sm:h-32 md:h-36" />
 
       {/* 2. Contact form & office details */}
       <ContactFormSection />
@@ -27,9 +26,7 @@ export default function Contact() {
 
       {/* 4. Google Maps section */}
       <ContactMapSection />
-
-      {/* 5. Full width newsletter subscription footer */}
-      <ContactNewsletter />
     </div>
   );
 }
+

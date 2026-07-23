@@ -48,7 +48,6 @@ export default function CustomerSays() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [itemsPerPage, setItemsPerPage] = useState(2);
 
-  // Handle responsiveness for items per page and handle active index boundaries during resizing
   useEffect(() => {
     const handleResize = () => {
       const width = window.innerWidth;
@@ -85,105 +84,103 @@ export default function CustomerSays() {
   );
 
   return (
-    <section className="relative py-20 sm:py-28 md:py-36 bg-about-banner bg-fixed bg-center bg-cover text-white overflow-hidden">
-      {/* Background overlay for styling */}
-      <div className="absolute inset-0 bg-primary/75 backdrop-blur-[2px]" />
+    <section className="relative section-lg bg-about-banner bg-fixed bg-center bg-cover text-white overflow-hidden font-body">
+      {/* Background overlay */}
+      <div className="absolute inset-0 bg-primary/80 backdrop-blur-xs" />
 
       <div className="container relative z-10">
-        {/* Header section with layout flex */}
+        {/* Header section */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 md:mb-20 gap-8">
           <SectionHeading
             subtitle="Testimonials"
             title={
               <>
                 Voices of the <br />
-                <span className="italic font-normal">Discerning Traveler</span>
+                <span className="italic font-normal font-heading text-accent">Discerning Traveler</span>
               </>
             }
             dark
           />
 
           {/* Navigation Controls */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 shrink-0">
             <button
               onClick={handlePrev}
-              className="w-12 h-12 rounded-full border border-white/20 hover:border-white flex items-center justify-center bg-white/5 hover:bg-white/10 transition-all duration-300 cursor-pointer"
-              aria-label="Previous testimonials"
+              className="w-12 h-12 rounded-full border border-white/20 bg-white/10 hover:bg-accent hover:border-accent flex items-center justify-center text-white transition-all duration-300 backdrop-blur-md cursor-pointer shadow-xs"
+              aria-label="Previous testimonial page"
             >
-              <Icon icon="lucide:arrow-left" className="w-5 h-5 text-white" />
+              <Icon icon="lucide:arrow-left" className="w-5 h-5" />
             </button>
             <button
               onClick={handleNext}
-              className="w-12 h-12 rounded-full border border-white/20 hover:border-white flex items-center justify-center bg-white/5 hover:bg-white/10 transition-all duration-300 cursor-pointer"
-              aria-label="Next testimonials"
+              className="w-12 h-12 rounded-full border border-white/20 bg-white/10 hover:bg-accent hover:border-accent flex items-center justify-center text-white transition-all duration-300 backdrop-blur-md cursor-pointer shadow-xs"
+              aria-label="Next testimonial page"
             >
-              <Icon icon="lucide:arrow-right" className="w-5 h-5 text-white" />
+              <Icon icon="lucide:arrow-right" className="w-5 h-5" />
             </button>
           </div>
         </div>
 
-        {/* Carousel Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 transition-all duration-500 ease-in-out">
-          {visibleTestimonials.map((testimonial) => (
+        {/* Testimonials Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch font-body">
+          {visibleTestimonials.map((item) => (
             <div
-              key={testimonial.id}
-              className="relative p-[1px] rounded-3xl bg-gradient-to-tr from-white/5 to-white/20 backdrop-blur-xl shadow-2xl transition-transform duration-500 hover:scale-[1.01] max-w-2xl mx-auto lg:max-w-none w-full"
+              key={item.id}
+              className="relative p-[1px] rounded-3xl bg-gradient-to-tr from-white/5 to-white/20 backdrop-blur-xl shadow-xl transition-transform duration-500 hover:scale-[1.01] max-w-2xl mx-auto lg:max-w-none w-full"
             >
-              {/* Inner Glass Box */}
-              <div className="rounded-[23px] bg-black/20 p-6 sm:p-8 md:p-10 space-y-6">
-                
-                {/* Rating */}
-                <div className="flex gap-1 text-accent">
-                  {Array.from({ length: testimonial.rating }).map((_, i) => (
-                    <Icon key={i} icon="lucide:star" className="w-4 h-4 fill-accent" />
-                  ))}
+              <div className="bg-primary/80 backdrop-blur-md border border-white/10 p-8 sm:p-10 rounded-[23px] flex flex-col justify-between h-full space-y-6 text-left font-body">
+                <div className="space-y-4">
+                  {/* Rating Stars */}
+                  <div className="flex items-center gap-1 text-accent">
+                    {Array.from({ length: item.rating }).map((_, i) => (
+                      <Icon key={i} icon="lucide:star" className="w-4 h-4 fill-accent" />
+                    ))}
+                  </div>
+
+                  {/* Quote Text */}
+                  <p className="font-heading text-lg sm:text-xl md:text-2xl italic font-light leading-relaxed text-white/95">
+                    &ldquo;{item.reviewText}&rdquo;
+                  </p>
                 </div>
 
-                {/* Review Text */}
-                <p className="font-heading text-lg md:text-xl italic font-light leading-relaxed text-white/95 min-h-[120px] sm:min-h-[100px]">
-                  "{testimonial.reviewText}"
-                </p>
-
-                {/* User info */}
-                <div className="flex items-center gap-4 pt-4 border-t border-white/10">
-                  <div className="relative w-12 h-12 rounded-full overflow-hidden border border-white/25">
+                {/* User Info */}
+                <div className="flex items-center gap-4 pt-6 border-t border-white/10">
+                  <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden border-2 border-accent shrink-0 shadow-xs">
                     <Image
-                      src={testimonial.avatar}
-                      alt={testimonial.name}
+                      src={item.avatar}
+                      alt={item.name}
                       fill
-                      sizes="48px"
+                      sizes="56px"
                       className="object-cover"
                     />
                   </div>
-                  <div className="font-subheading">
-                    <h4 className="font-bold text-sm text-white tracking-wide">
-                      {testimonial.name}
+                  <div className="font-body">
+                    <h4 className="font-bold text-base sm:text-lg text-white font-heading">
+                      {item.name}
                     </h4>
-                    <p className="text-white/60 text-xs font-light tracking-wider mt-0.5 uppercase">
-                      {testimonial.country}
+                    <p className="text-white/60 text-label mt-0.5">
+                      {item.country}
                     </p>
                   </div>
                 </div>
-
               </div>
             </div>
           ))}
         </div>
 
-        {/* Bullet Indicators */}
-        <div className="flex justify-center gap-2 mt-12">
+        {/* Page Dots */}
+        <div className="flex justify-center gap-2 mt-12 font-body">
           {Array.from({ length: totalPages }).map((_, i) => (
             <button
               key={i}
               onClick={() => setActiveIndex(i)}
-              className={`h-1 rounded-full transition-all duration-300 cursor-pointer ${
+              className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
                 activeIndex === i ? "w-8 bg-accent" : "w-2 bg-white/20 hover:bg-white/40"
               }`}
-              aria-label={`Go to slide ${i + 1}`}
+              aria-label={`Go to testimonial slide ${i + 1}`}
             />
           ))}
         </div>
-
       </div>
     </section>
   );

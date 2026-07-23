@@ -1,5 +1,7 @@
 "use client";
 
+import SectionHeading from "@/components/SectionHeading";
+import Button from "@/components/Button";
 import Rating from "@/components/Rating";
 import { siteConfig } from "@/config/siteConfig";
 import { Icon } from "@iconify/react";
@@ -20,11 +22,11 @@ export default function TourHero({ tourPackage, onOpenBooking, onOpenGallery }) 
   );
 
   return (
-    <section className="pt-28 sm:pt-32 pb-12 sm:pb-16 bg-white border-b border-gray-100">
-      <div className="container mx-auto px-4 sm:px-6 md:px-10 lg:px-8">
+    <section className="pt-28 sm:pt-32 pb-12 sm:pb-16 bg-white border-b border-gray-100 font-body">
+      <div className="container">
         
         {/* Minimal Breadcrumb */}
-        <nav className="flex items-center gap-2 text-xs font-subheading text-gray-500 mb-6 sm:mb-8">
+        <nav className="flex items-center gap-2 text-xs font-body text-gray-500 mb-6 sm:mb-8">
           <Link href="/" className="hover:text-primary transition-colors">
             Home
           </Link>
@@ -45,11 +47,11 @@ export default function TourHero({ tourPackage, onOpenBooking, onOpenGallery }) 
         </nav>
 
         {/* Two-Column Premium Hero Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start font-subheading">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start font-body">
           
           {/* Left (7 Cols): Cinematic Large Tour Photography */}
-          <div className="lg:col-span-7 relative group">
-            <div className="relative w-full aspect-[4/3] sm:aspect-[16/10] rounded-3xl overflow-hidden shadow-[0_12px_40px_rgba(13,35,30,0.1)] border border-gray-200/80 bg-gray-100">
+          <div className="lg:col-span-7 relative group font-body">
+            <div className="relative w-full aspect-[4/3] sm:aspect-[16/10] rounded-3xl overflow-hidden shadow-xs border border-gray-200/80 bg-sand">
               <Image
                 src={imageUrl}
                 alt={tourPackage.title || "Tour Package Photography"}
@@ -64,7 +66,7 @@ export default function TourHero({ tourPackage, onOpenBooking, onOpenGallery }) 
 
               {/* Top Left: Location Badge */}
               {tourPackage.location && (
-                <div className="absolute top-4 left-4 z-10 bg-black/55 backdrop-blur-md text-white text-xs font-semibold px-3.5 py-1.5 rounded-full border border-white/20 flex items-center gap-1.5 shadow-sm">
+                <div className="absolute top-4 left-4 z-10 bg-black/60 backdrop-blur-md text-white text-xs font-semibold px-3.5 py-1.5 rounded-full border border-white/20 flex items-center gap-1.5 shadow-xs font-body">
                   <Icon icon="lucide:map-pin" className="w-3.5 h-3.5 text-accent" />
                   <span>{tourPackage.location}</span>
                 </div>
@@ -73,7 +75,7 @@ export default function TourHero({ tourPackage, onOpenBooking, onOpenGallery }) 
               {/* Bottom Right: View Gallery Button */}
               <button
                 onClick={onOpenGallery}
-                className="absolute bottom-4 right-4 z-10 bg-black/60 hover:bg-primary backdrop-blur-md text-white text-xs font-semibold px-4 py-2.5 rounded-xl border border-white/20 flex items-center gap-2 shadow-md hover:scale-105 transition-all cursor-pointer"
+                className="absolute bottom-4 right-4 z-10 bg-black/60 hover:bg-primary backdrop-blur-md text-white text-xs font-semibold px-4 py-2.5 rounded-xl border border-white/20 flex items-center gap-2 shadow-xs hover:scale-105 transition-all cursor-pointer font-body"
               >
                 <Icon icon="lucide:camera" className="w-4 h-4 text-accent" />
                 <span>View Photos</span>
@@ -82,15 +84,15 @@ export default function TourHero({ tourPackage, onOpenBooking, onOpenGallery }) 
           </div>
 
           {/* Right (5 Cols): Information & Booking Panel */}
-          <div className="lg:col-span-5 space-y-6">
+          <div className="lg:col-span-5 space-y-6 font-body">
             
             {/* Category Tag & Rating */}
-            <div className="space-y-3">
+            <div className="space-y-3 font-body">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-mansalva font-bold tracking-[0.25em] text-accent uppercase">
+                <span className="text-xs font-accent font-bold tracking-[0.25em] text-accent uppercase">
                   CURATED EXPEDITION
                 </span>
-                <div className="flex items-center gap-1.5 bg-gray-50 border border-gray-200/80 px-3 py-1 rounded-full text-xs font-semibold text-primary">
+                <div className="flex items-center gap-1.5 bg-gray-50 border border-gray-200/80 px-3 py-1 rounded-full text-xs font-semibold text-primary font-body">
                   <Icon icon="solar:star-bold" className="w-3.5 h-3.5 text-accent" />
                   <span>{numRating.toFixed(1)}</span>
                   <span className="text-gray-400 font-normal">(Verified)</span>
@@ -103,7 +105,7 @@ export default function TourHero({ tourPackage, onOpenBooking, onOpenGallery }) 
               </h1>
 
               {/* Rating Bar */}
-              <div className="flex items-center gap-3 pt-1">
+              <div className="flex items-center gap-3 pt-1 font-body">
                 <Rating rating={numRating} className="text-accent w-4 h-4" />
                 <span className="text-xs text-gray-500 font-medium">
                   {numRating >= 4.8 ? "Exceptional" : "Highly Rated"} Expedition
@@ -112,7 +114,7 @@ export default function TourHero({ tourPackage, onOpenBooking, onOpenGallery }) 
             </div>
 
             {/* Key Info Strip */}
-            <div className="grid grid-cols-3 gap-2 py-3 border-y border-gray-100 text-xs">
+            <div className="grid grid-cols-3 gap-2 py-3 border-y border-gray-100 text-xs font-body">
               <div className="flex flex-col">
                 <span className="text-[10px] uppercase font-bold text-gray-400">Duration</span>
                 <span className="font-semibold text-primary flex items-center gap-1 mt-0.5">
@@ -140,18 +142,18 @@ export default function TourHero({ tourPackage, onOpenBooking, onOpenGallery }) 
 
             {/* Short Description */}
             {tourPackage.shortDescription && (
-              <p className="text-xs sm:text-sm text-gray-600 font-body font-light leading-relaxed">
+              <p className="text-body-sm text-gray-600 font-light leading-relaxed font-body">
                 {tourPackage.shortDescription}
               </p>
             )}
 
             {/* Pricing Section */}
-            <div className="pt-2 space-y-1">
+            <div className="pt-2 space-y-1 font-body">
               <span className="text-[11px] uppercase font-bold tracking-widest text-gray-400 block">
                 Total Price Per Guest
               </span>
               <div className="flex items-baseline gap-3">
-                <span className="text-3xl sm:text-4xl font-bold text-primary">
+                <span className="text-3xl sm:text-4xl font-bold text-primary font-heading">
                   ৳{Number(tourPackage.price).toLocaleString()}
                 </span>
                 {tourPackage.priceOff && (
@@ -166,24 +168,26 @@ export default function TourHero({ tourPackage, onOpenBooking, onOpenGallery }) 
             </div>
 
             {/* Action Buttons */}
-            <div className="space-y-3 pt-2">
-              <button
+            <div className="space-y-3 pt-2 font-body">
+              <Button
                 onClick={onOpenBooking}
-                className="w-full bg-primary hover:bg-secondary text-white font-semibold py-4 px-6 rounded-2xl transition-all duration-300 flex items-center justify-center gap-2 text-sm tracking-wider uppercase cursor-pointer shadow-md hover:-translate-y-0.5"
+                variant="primary"
+                className="w-full"
+                icon={<Icon icon="lucide:arrow-right" className="w-4 h-4" />}
               >
-                <span>Book This Tour</span>
-                <Icon icon="lucide:arrow-right" className="w-4 h-4" />
-              </button>
+                Book This Tour
+              </Button>
 
-              <a
+              <Button
                 href={`https://api.whatsapp.com/send?phone=${siteConfig.contact.phone.whatsappRaw}&text=${whatsappMessage}`}
                 target="_blank"
                 rel="noreferrer"
-                className="w-full bg-white hover:bg-gray-50 border border-gray-200 text-primary font-semibold py-3.5 px-6 rounded-2xl transition-all duration-300 flex items-center justify-center gap-2.5 text-xs sm:text-sm cursor-pointer shadow-xs"
+                variant="outline"
+                className="w-full"
+                icon={<Icon icon="akar-icons:whatsapp-fill" className="w-5 h-5 text-whatsapp" />}
               >
-                <Icon icon="akar-icons:whatsapp-fill" className="w-5 h-5 text-emerald-500" />
-                <span>Chat on WhatsApp (+8801898-334733)</span>
-              </a>
+                Chat on WhatsApp (+8801898-334733)
+              </Button>
             </div>
 
           </div>
@@ -194,3 +198,4 @@ export default function TourHero({ tourPackage, onOpenBooking, onOpenGallery }) 
     </section>
   );
 }
+

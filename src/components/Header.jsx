@@ -85,12 +85,12 @@ export default function Header() {
   // Translucent glassmorphic tokens that dynamically contract when scrolled
   const dockWrapperClass = scrolled
     ? "top-3 sm:top-4 py-2 sm:py-2.5 px-5 sm:px-6 bg-white/90 backdrop-blur-lg border-primary/12 shadow-[0_12px_40px_rgba(13,35,30,0.08)]"
-    : "top-4 sm:top-6 py-3 sm:py-3.5 px-6 sm:px-8 bg-light/75 backdrop-blur-lg border-primary/8 shadow-[0_8px_30px_rgba(13,35,30,0.04)]";
+    : "top-4 sm:top-6 py-3 sm:py-3.5 px-6 sm:px-8 bg-light/85 backdrop-blur-lg border-primary/8 shadow-[0_8px_30px_rgba(13,35,30,0.04)]";
 
   return (
     <>
       {/* 1. SUSPENDED FLOATING NAVIGATION DOCK */}
-      <header className={`fixed left-1/2 -translate-x-1/2 z-[999] w-[92%] sm:w-[90%] max-w-7xl rounded-[15px] border transition-all duration-500 ease-out font-inter text-primary ${dockWrapperClass}`}>
+      <header className={`fixed left-1/2 -translate-x-1/2 z-[999] w-[92%] sm:w-[90%] max-w-7xl rounded-2xl border transition-all duration-500 ease-out font-body text-primary ${dockWrapperClass}`}>
         
         {/* DESKTOP: 3 EQUAL SECTIONS GRID TO PLACE NAV EXACTLY IN THE MIDDLE */}
         <nav className="hidden lg:grid grid-cols-3 items-center w-full h-9 sm:h-11">
@@ -103,14 +103,14 @@ export default function Header() {
                 src={royal_logo}
                 alt="Royal Safari Tours"
                 priority
-                className="h-8 sm:h-10 md:h-12 w-auto object-contain transition-all duration-300"
+                className="h-7 sm:h-8 md:h-11 w-auto object-contain transition-all duration-300"
               />
             </Link>
           </div>
 
-          {/* SECTION 2 (CENTER): MAIN NAVIGATION ITEMS (EXACTLY IN THE MIDDLE) */}
+          {/* SECTION 2 (CENTER): MAIN NAVIGATION ITEMS */}
           <div className="flex items-center justify-center">
-            <ul className="flex items-center gap-6 xl:gap-8 text-[13px] font-semibold tracking-[0.25em] uppercase">
+            <ul className="flex items-center gap-6 xl:gap-8 text-[13px] font-semibold tracking-[0.25em] uppercase font-body">
               {navigationItems.map((item) => {
                 const isActive = pathname === item.path;
                 return (
@@ -118,7 +118,7 @@ export default function Header() {
                     <Link
                       href={item.path}
                       className={`transition-colors duration-300 hover:text-accent ${
-                        isActive ? "text-accent" : "text-primary/80"
+                        isActive ? "text-accent font-bold" : "text-primary/80"
                       }`}
                     >
                       {item.name}
@@ -134,7 +134,7 @@ export default function Header() {
                   <Link
                     href="/dashboard"
                     className={`transition-colors duration-300 hover:text-accent ${
-                      pathname === "/dashboard" ? "text-accent" : "text-primary/80"
+                      pathname === "/dashboard" ? "text-accent font-bold" : "text-primary/80"
                     }`}
                   >
                     Dashboard
@@ -163,7 +163,7 @@ export default function Header() {
               href={whatsappUrl}
               target="_blank"
               rel="noreferrer"
-              className="bg-primary hover:bg-secondary hover:scale-[1.02] text-white text-[11px] tracking-[0.15em] font-bold py-2.5 px-4 sm:px-5 rounded-full transition-all duration-300 uppercase cursor-pointer shadow-sm hover:shadow flex items-center gap-2"
+              className="bg-primary hover:bg-secondary hover:scale-[1.02] text-white text-[11px] tracking-[0.15em] font-bold py-2.5 px-4 sm:px-5 rounded-full transition-all duration-300 uppercase cursor-pointer shadow-xs flex items-center gap-2 font-body"
             >
               <Icon icon="akar-icons:whatsapp-fill" className="w-4 h-4 text-white" />
               <span>Chat Now</span>
@@ -173,7 +173,7 @@ export default function Header() {
         </nav>
 
         {/* MOBILE & TABLET LAYOUT */}
-        <nav className="flex lg:hidden items-center justify-between w-full h-9 sm:h-11">
+        <nav className="flex lg:hidden items-center justify-between w-full h-9 sm:h-11 font-body">
           {/* Logo */}
           <Link href="/" className="flex items-center" aria-label="Royal Safari Tours Logo">
             <Image
@@ -181,30 +181,30 @@ export default function Header() {
               src={royal_logo}
               alt="Royal Safari Tours"
               priority
-              className="h-8 sm:h-10 w-auto object-contain"
+              className="h-7 sm:h-8 md:h-10 w-auto object-contain transition-all duration-300"
             />
           </Link>
 
           {/* Right Action Buttons: Search + Chat + Hamburger */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 font-body">
             {/* Search Button Outside Drawer */}
             <button
               onClick={() => setShowSearch(true)}
-              className="p-1.5 hover:text-accent transition-colors cursor-pointer flex items-center justify-center text-primary"
+              className="p-1.5 text-primary/80 hover:text-accent transition-colors cursor-pointer flex items-center justify-center"
               aria-label="Open Search"
             >
               <Icon icon="lucide:search" width="20" height="20" />
             </button>
 
-            {/* WhatsApp Button */}
+            {/* WhatsApp Chat Now Button - Aligned with Desktop Primary Brand Styling */}
             <a
               href={whatsappUrl}
               target="_blank"
               rel="noreferrer"
-              className="bg-[#25D366] text-white text-[10px] tracking-wider font-bold py-1.5 px-3 rounded-full flex items-center gap-1.5 cursor-pointer shadow-xs"
+              className="bg-primary hover:bg-secondary text-white text-[10px] tracking-wider font-bold py-1.5 px-3.5 rounded-full flex items-center gap-1.5 cursor-pointer shadow-xs transition-all duration-300 uppercase font-body"
             >
-              <Icon icon="akar-icons:whatsapp-fill" className="w-3.5 h-3.5" />
-              <span>Chat</span>
+              <Icon icon="akar-icons:whatsapp-fill" className="w-3.5 h-3.5 text-white" />
+              <span>Chat Now</span>
             </a>
 
             {/* Hamburger Menu Toggle */}
@@ -225,7 +225,7 @@ export default function Header() {
 
       </header>
 
-      {/* 2. DYNAMIC RESPONSIVE SPOTLIGHT SEARCH POPUP OVERLAY (DESKTOP & MOBILE) */}
+      {/* 2. DYNAMIC RESPONSIVE SPOTLIGHT SEARCH POPUP OVERLAY */}
       <div 
         className={`fixed inset-0 z-[1010] bg-primary/60 backdrop-blur-sm transition-opacity duration-300 ease-out ${
           showSearch ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
@@ -233,13 +233,13 @@ export default function Header() {
         onClick={() => setShowSearch(false)}
       />
 
-      <div className={`fixed top-[10%] sm:top-[18%] left-1/2 -translate-x-1/2 z-[1015] w-[92%] sm:w-[90%] max-w-2xl bg-sand border border-primary/15 rounded-3xl shadow-[0_32px_64px_rgba(13,35,30,0.25)] transition-all duration-300 ease-out transform p-5 sm:p-7 ${
+      <div className={`fixed top-[10%] sm:top-[18%] left-1/2 -translate-x-1/2 z-[1015] w-[92%] sm:w-[90%] max-w-2xl bg-sand border border-primary/15 rounded-3xl shadow-2xl transition-all duration-300 ease-out transform p-5 sm:p-7 ${
         showSearch ? "translate-y-0 scale-100 opacity-100" : "-translate-y-6 scale-95 opacity-0 pointer-events-none"
       }`}>
         
         {/* Popup Header */}
         <div className="flex items-center justify-between pb-3 border-b border-gray-200">
-          <span className="text-[10px] sm:text-xs font-bold tracking-[0.2em] text-accent uppercase font-inter">
+          <span className="text-[10px] sm:text-xs font-bold tracking-[0.2em] text-accent uppercase font-body">
             SEARCH EXPEDITIONS & TOURS
           </span>
           <button
@@ -260,7 +260,7 @@ export default function Header() {
             placeholder="Where do you want to go? (e.g. Sajek, Sundarbans)"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-transparent text-primary font-inter text-sm sm:text-base font-semibold placeholder:text-gray-400 focus:outline-none"
+            className="w-full bg-transparent text-primary font-body text-sm sm:text-base font-medium placeholder:text-gray-400 focus:outline-none"
           />
           {searchQuery && (
             <button
@@ -274,7 +274,7 @@ export default function Header() {
           )}
           <button
             type="submit"
-            className="bg-primary hover:bg-secondary text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-colors cursor-pointer font-inter uppercase tracking-wider shadow-sm flex-shrink-0"
+            className="bg-primary hover:bg-secondary text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-colors cursor-pointer font-body uppercase tracking-wider shadow-xs flex-shrink-0"
           >
             Search
           </button>
@@ -282,7 +282,7 @@ export default function Header() {
         
         {/* Quick Popular Search Tags */}
         <div className="pt-4 border-t border-gray-200/80 text-left">
-          <span className="text-[10px] font-bold tracking-widest text-gray-400 uppercase block mb-2 font-inter">
+          <span className="text-[10px] font-bold tracking-widest text-primary/50 uppercase block mb-2 font-body">
             Popular Destinations
           </span>
           <div className="flex flex-wrap gap-2">
@@ -291,7 +291,7 @@ export default function Header() {
                 key={term}
                 type="button"
                 onClick={() => handlePopularSearch(term)}
-                className="text-[11px] sm:text-xs text-primary bg-gray-100 hover:bg-secondary hover:text-white border border-gray-200 px-3 py-1.5 rounded-full transition-all duration-300 cursor-pointer font-inter font-medium"
+                className="text-[11px] sm:text-xs text-primary bg-white hover:bg-secondary hover:text-white border border-gray-200 px-3 py-1.5 rounded-full transition-all duration-300 cursor-pointer font-body font-medium"
               >
                 {term}
               </button>
@@ -309,23 +309,23 @@ export default function Header() {
       />
 
       <div
-        className={`lg:hidden fixed top-0 right-0 z-[1001] h-screen w-[280px] sm:w-[320px] bg-lightGray text-green shadow-2xl p-6 border-l border-white/10 transition-transform duration-500 ease-out transform ${
+        className={`lg:hidden fixed top-0 right-0 z-[1001] h-screen w-[280px] sm:w-[320px] bg-sand text-primary shadow-2xl p-6 border-l border-gray-200 transition-transform duration-500 ease-out transform font-body ${
           isShowNav ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        <div className="flex flex-col h-full justify-between gap-6 overflow-y-auto">
+        <div className="flex flex-col h-full justify-between gap-6 overflow-y-auto font-body">
           
           {/* Top Section - Logo & Close */}
-          <div className="flex justify-between items-center pb-4 border-b border-white/10">
+          <div className="flex justify-between items-center pb-4 border-b border-gray-200/80 font-body">
             <Image
               loading="eager"
               src={royal_logo}
               alt="Royal Safari Tours"
-              className="h-8 w-auto object-contain "
+              className="h-8 w-auto object-contain"
             />
             <button
               onClick={() => setIsShowNav(false)}
-              className="p-1 text-primary hover:text-accent transition-colors cursor-pointer"
+              className="p-1.5 rounded-full hover:bg-primary/10 text-primary hover:text-accent transition-colors cursor-pointer"
               aria-label="Close menu drawer"
             >
               <Icon icon="lucide:x" width="20" height="20" />
@@ -333,28 +333,31 @@ export default function Header() {
           </div>
 
           {/* Middle Section - Link items list */}
-          <div className="flex-grow py-4 flex flex-col justify-center">
-            <ul className="flex flex-col items-center gap-5 text-base font-semibold tracking-wider uppercase">
-              {navigationItems.map((item) => (
-                <li key={item.id}>
-                  <Link
-                    href={item.path}
-                    onClick={() => setIsShowNav(false)}
-                    className={`hover:text-accent transition-colors ${
-                      pathname === item.path ? "text-accent" : "text-primary"
-                    }`}
-                  >
-                    {item.name}
-                  </Link>
-                </li>
-              ))}
+          <div className="flex-grow py-4 flex flex-col justify-center font-body">
+            <ul className="flex flex-col items-center gap-5 text-sm sm:text-base font-semibold tracking-widest uppercase font-body">
+              {navigationItems.map((item) => {
+                const isActive = pathname === item.path;
+                return (
+                  <li key={item.id}>
+                    <Link
+                      href={item.path}
+                      onClick={() => setIsShowNav(false)}
+                      className={`transition-colors py-1 block ${
+                        isActive ? "text-accent font-bold border-b-2 border-accent" : "text-primary hover:text-secondary"
+                      }`}
+                    >
+                      {item.name}
+                    </Link>
+                  </li>
+                );
+              })}
               {isAdmin && (
                 <li>
                   <Link
                     href="/dashboard"
                     onClick={() => setIsShowNav(false)}
-                    className={`hover:text-accent transition-colors ${
-                      pathname === "/dashboard" ? "text-accent" : "text-primary/80"
+                    className={`transition-colors py-1 block ${
+                      pathname === "/dashboard" ? "text-accent font-bold border-b-2 border-accent" : "text-primary/80 hover:text-secondary"
                     }`}
                   >
                     Dashboard
@@ -365,14 +368,14 @@ export default function Header() {
           </div>
 
           {/* Bottom Section - Contact info and CTAs */}
-          <div className="flex flex-col gap-5 pt-4 border-t border-white/10">
+          <div className="flex flex-col gap-4 pt-4 border-t border-gray-200/80 font-body">
             <a
               href={whatsappUrl}
               target="_blank"
               rel="noreferrer"
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-[10px] bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold transition-colors text-xs text-center uppercase tracking-widest shadow-sm"
+              className="w-full flex items-center justify-center gap-2.5 py-3.5 rounded-xl bg-primary hover:bg-secondary text-white font-bold transition-all duration-300 text-xs text-center uppercase tracking-widest shadow-xs cursor-pointer font-body"
             >
-              <Icon icon="akar-icons:whatsapp-fill" className="w-4 h-4" />
+              <Icon icon="akar-icons:whatsapp-fill" className="w-4 h-4 text-white" />
               <span>Chat Now</span>
             </a>
           </div>
@@ -382,3 +385,4 @@ export default function Header() {
     </>
   );
 }
+
