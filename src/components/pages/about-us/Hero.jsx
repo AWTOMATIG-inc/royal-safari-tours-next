@@ -61,7 +61,7 @@ export default function Hero() {
           className="flex flex-col items-center gap-1.5 cursor-pointer text-primary/50 hover:text-accent transition-colors duration-300"
           aria-label="Scroll down to content"
         >
-          <span className="text-[10px] tracking-[0.25em] uppercase font-bold font-body">
+          <span className="text-[10px] tracking-[0.25em] uppercase font-bold font-accent">
             Scroll to explore
           </span>
           <Icon

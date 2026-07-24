@@ -61,7 +61,7 @@ export default function ContactQuickCards() {
 
           {/* Our Office */}
           <div className="flex flex-col items-center text-center p-2 sm:p-4 lg:pt-2 lg:pl-6 font-body">
-            <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center mb-2 sm:mb-4 shrink-0">
+            <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-accent/10 text-primary flex items-center justify-center mb-2 sm:mb-4 shrink-0">
               <Icon icon="lucide:map-pin" className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <h3 className="text-[13px] sm:text-lg font-bold text-primary font-heading mb-0.5 sm:mb-1">Our Office</h3>

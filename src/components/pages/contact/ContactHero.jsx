@@ -36,7 +36,7 @@ export default function ContactHero() {
               href={siteConfig.contact.phone.whatsappUrl}
               target="_blank"
               rel="noreferrer"
-              variant="whatsapp"
+              variant="primary"
               icon={<Icon icon="akar-icons:whatsapp-fill" className="w-5 h-5" />}
             >
               Chat on WhatsApp
