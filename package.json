@@ -9,32 +9,36 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@hookform/resolvers": "^5.2.2",
-    "@next/third-parties": "^16.2.6",
+    "@google-analytics/data": "^6.1.0",
+    "@hookform/resolvers": "^5.5.7",
+    "@next/third-parties": "^14.2.35",
     "bcryptjs": "^3.0.3",
-    "jose": "^6.2.3",
+    "jose": "^6.2.4",
     "jsonwebtoken": "^9.0.3",
     "mime-types": "^3.0.2",
-    "mongoose": "^9.6.2",
-    "next": "16.2.6",
-    "nodemailer": "^8.0.7",
+    "mongoose": "^8.3.0",
+    "next": "^14.2.35",
+    "nodemailer": "^9.0.3",
     "quill-image-resize-module-react": "^3.0.0",
-    "react": "19.2.4",
-    "react-dom": "19.2.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "react-fast-marquee": "^1.6.5",
-    "react-hook-form": "^7.76.0",
+    "react-hook-form": "^7.83.0",
     "react-hot-toast": "^2.6.0",
-    "react-quill-new": "^3.8.3",
+    "react-quill-new": "^3.7.0",
     "react-super-responsive-table": "^6.0.2",
-    "swiper": "^12.1.4",
-    "uuid": "^14.0.0",
+    "swiper": "^14.0.7",
+    "uuid": "^14.0.1",
     "yup": "^1.7.1"
   },
   "devDependencies": {
     "@iconify/react": "^6.0.2",
     "@tailwindcss/postcss": "^4",
-    "eslint": "^9",
-    "eslint-config-next": "16.2.6",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "^14.2.35",
     "tailwindcss": "^4"
+  },
+  "overrides": {
+    "postcss": "^8.5.14"
   }
 }

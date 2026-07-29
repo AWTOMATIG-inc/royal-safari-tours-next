@@ -1,11 +1,13 @@
 "use client";
+
+import DashboardPageHeader from "@/components/dashboard/DashboardPageHeader";
 import { Icon } from "@iconify/react";
 import Image from "next/image";
-import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useRef, useState } from "react";
 import toast from "react-hot-toast";
 
-export default function GalleryPage({ images }) {
+export default function GalleryPage({ images = [] }) {
   const router = useRouter();
   const fileInputRef = useRef(null);
   const [uploading, setUploading] = useState(false);
@@ -52,9 +54,17 @@ export default function GalleryPage({ images }) {
   };
 
   return (
-    <div className="md:w-4/5 mx-auto">
-      <div className="flex justify-between mt-8 items-center">
-        <h1 className="text-2xl font-bold">Gallery</h1>
+    <div className="max-w-7xl mx-auto space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-gray-200">
+        <div className="space-y-1">
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#0D231E] font-inter">
+            Photo Gallery
+          </h1>
+          <p className="text-xs sm:text-sm text-gray-500 font-light font-inter">
+            Manage high-resolution wilderness photography and travel asset media.
+          </p>
+        </div>
+
         <div>
           <input
             ref={fileInputRef}
@@ -67,49 +77,67 @@ export default function GalleryPage({ images }) {
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
-            className="bg-orange text-white px-4 py-2 rounded-xl cursor-pointer disabled:opacity-60"
+            className="inline-flex items-center gap-2 bg-[#2cb775] hover:bg-[#DE8D3D] text-white font-semibold text-xs tracking-wider uppercase px-5 py-3 rounded-xl transition-all duration-300 shadow-sm disabled:opacity-60 cursor-pointer"
           >
-            {uploading ? "Uploading..." : "Upload Images"}
+            <Icon icon="lucide:upload-cloud" className="w-4 h-4" />
+            <span>{uploading ? "Uploading..." : "Upload New Images"}</span>
           </button>
         </div>
       </div>
 
-      <div className="mt-10">
-        {images.length === 0 && (
-          <div className="w-fit mx-auto text-center">
-            <Image
-              src="/images/dashboard/empty.png"
-              width={400}
-              height={400}
-              loading="eager"
-              alt="empty"
-            />
-            <p className="text-gray-500 text-xl mt-8 font-inter">
-              No gallery images yet!
-            </p>
-          </div>
-        )}
-
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {images.map((item) => (
-            <div key={item._id} className="relative group rounded-md overflow-hidden shadow-md">
-              <Image
-                src={`/api/uploads/gallery/${item.filename}`}
-                width={400}
-                height={300}
-                alt="gallery"
-                className="w-full h-48 object-cover"
-              />
-              <button
-                onClick={() => handleDelete(item._id)}
-                className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-              >
-                <Icon icon="mingcute:delete-2-line" width="18" height="18" />
-              </button>
-            </div>
-          ))}
+      {images.length === 0 ? (
+        <div className="bg-white rounded-3xl p-12 text-center border border-gray-100 shadow-sm max-w-md mx-auto my-12 space-y-4">
+          <Image
+            src="/images/dashboard/empty.png"
+            width={300}
+            height={300}
+            priority
+            alt="Empty state"
+            className="mx-auto opacity-80"
+          />
+          <p className="text-gray-500 font-medium font-inter text-base">
+            No gallery images found. Upload photos to showcase your expeditions.
+          </p>
         </div>
-      </div>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
+          {images.map((item) => {
+            const imgSrc = item.filename?.startsWith("http") || item.filename?.startsWith("/")
+              ? item.filename
+              : `/api/uploads/gallery/${item.filename}`;
+
+            return (
+              <div
+                key={item._id}
+                className="group relative rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 shadow-[0_4px_20px_rgba(13,35,30,0.03)] hover:shadow-[0_12px_35px_rgba(13,35,30,0.1)] transition-all duration-300 aspect-square"
+              >
+                <Image
+                  src={imgSrc}
+                  fill
+                  sizes="(max-width: 640px) 50vw, 25vw"
+                  alt="Gallery photography"
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+
+                {/* Dark Hover Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-between p-3">
+                  <span className="text-[10px] text-white/80 font-mono truncate max-w-[70%]">
+                    {item.filename}
+                  </span>
+
+                  <button
+                    onClick={() => handleDelete(item._id)}
+                    className="p-2 rounded-lg bg-rose-600 text-white hover:bg-rose-700 transition-colors shadow-md cursor-pointer"
+                    title="Delete image"
+                  >
+                    <Icon icon="lucide:trash-2" className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

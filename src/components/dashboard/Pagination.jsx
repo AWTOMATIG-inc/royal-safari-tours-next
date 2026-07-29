@@ -2,13 +2,13 @@
 
 import Link from "next/link";
 
-export default function Pagination({page,limit,total,totalPages}) {
+export default function Pagination({ page, limit, total, totalPages }) {
   return (
-    <div className="flex justify-center items-center gap-2 mt-8">
+    <div className="flex justify-center items-center gap-2 mt-8 font-body">
       <Link
         disabled={Number(page) === 1}
         href={`/dashboard/bookings?page=${Number(page) - 1}`}
-        className="disabled:cursor-not-allowed px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+        className="disabled:cursor-not-allowed text-xs font-semibold px-4 py-2 bg-sand hover:bg-gray-200 text-primary rounded-xl border border-gray-200 disabled:opacity-50 transition-colors"
       >
         Prev
       </Link>
@@ -20,8 +20,10 @@ export default function Pagination({page,limit,total,totalPages}) {
           <Link
             key={pageNumber}
             href={`/dashboard/bookings?page=${Number(pageNumber)}`}
-            className={`px-4 py-2 rounded ${
-              page === pageNumber ? "bg-slate text-white" : "bg-gray-200"
+            className={`text-xs font-semibold px-4 py-2 rounded-xl border transition-colors ${
+              page === pageNumber
+                ? "bg-primary text-white border-primary shadow-xs"
+                : "bg-sand text-primary border-gray-200 hover:bg-gray-200"
             }`}
           >
             {pageNumber}
@@ -32,10 +34,11 @@ export default function Pagination({page,limit,total,totalPages}) {
       <Link
         disabled={Number(page) === Number(totalPages)}
         href={`/dashboard/bookings?page=${Number(page) + 1}`}
-        className="disabled:cursor-not-allowed px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+        className="disabled:cursor-not-allowed text-xs font-semibold px-4 py-2 bg-sand hover:bg-gray-200 text-primary rounded-xl border border-gray-200 disabled:opacity-50 transition-colors"
       >
         Next
       </Link>
     </div>
   );
 }
+

@@ -26,7 +26,7 @@ export default function ScrollButton() {
     return (
       <button
         onClick={scrollToTop}
-        className="fixed bg-orange bottom-10 right-0 text-white z-99 p-2 rounded-sm cursor-pointer"
+        className="fixed bg-primary bottom-10 right-5 text-white z-99 p-2 rounded-full cursor-pointer hover:bg-accent"
       >
         <Icon icon="stash:arrow-up" width="25" height="25" />
       </button>

@@ -1,19 +1,17 @@
 "use client";
-import Button from "@/components/Button";
-import Card from "@/components/dashboard/Card";
-import { EditIcon } from "@/components/SvgIcons";
-import { useAuth } from "@/hook/useAuth";
+
+import DashboardPageHeader from "@/components/dashboard/DashboardPageHeader";
+import { useAuth } from "@/hooks/useAuth";
+import { Icon } from "@iconify/react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import toast from "react-hot-toast";
 
 export default function Account() {
   const { user } = useAuth();
   const fileRef = useRef(null);
-  const router = useRouter();
-  const [isName, setIsName] = useState(false);
-  const nameRef = useRef("");
+  const nameRef = useRef(null);
+  const [isEditingName, setIsEditingName] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleProfileChange = async (e) => {
@@ -32,13 +30,14 @@ export default function Account() {
       if (!response.ok) {
         throw new Error("Failed to upload profile picture");
       }
-      const data = await response.json();
+      toast.success("Profile picture updated!");
       window.location.reload();
-      console.log(data);
     } catch (error) {
       console.error("Error uploading profile picture:", error);
+      toast.error("Failed to update profile picture");
     }
   };
+
   const handleNameChange = async (e) => {
     e.preventDefault();
     const username = nameRef?.current?.value;
@@ -47,15 +46,15 @@ export default function Account() {
     formData.append("name", username);
     try {
       setLoading(true);
-      const response = await fetch(`/api/users/${user.id}`, {
+      const response = await fetch(`/api/users/${user?.id}`, {
         method: "PUT",
         body: formData,
       });
       if (!response.ok) {
         throw new Error("Failed to change name!");
       }
-      const data = await response.json();
       setLoading(false);
+      toast.success("Name updated successfully!");
       window.location.reload();
     } catch (error) {
       toast.error(error.message);
@@ -63,73 +62,123 @@ export default function Account() {
       console.error("Failed to change name!", error);
     }
   };
-  return (
-    <div>
-      <div className="w-full md:max-w-3/4 mx-auto mt-10">
-        <Card className="">
-          <h1 className="text-2xl font-bold mb-4">Account Information</h1>
-          <div className="grid sm:grid-cols-2">
-            <div>
-              <h5>Profile picture</h5>
-              <div className="border w-fit rounded-md mt-2">
-                <Image
-                  src={
-                    user?.avatar
-                      ? `/api/uploads/user/${user?.avatar}`
-                      : "/avatar.png"
-                  }
-                  alt="User Avatar"
-                  width={160}
-                  height={160}
-                  className="w-40 h-40 "
-                />
-              </div>
-              <input
-                ref={fileRef}
-                type="file"
-                accept="image/*"
-                onChange={handleProfileChange}
-                hidden
-              />
-              <button
-                onClick={() => fileRef.current.click()}
-                className="bg-gold px-4 py-1 rounded-lg mt-4 cursor-pointer"
-              >
-                Change Profile
-              </button>
-            </div>
 
-            <div className="space-y-2 mt-8">
-              <p className="flex gap-1 items-center">
-                <strong>Name:</strong> {user?.name}{" "}
-                <button onClick={() => setIsName((prev) => !prev)}>
-                  <EditIcon className="hover:text-gold cursor-pointer" />
+  return (
+    <div className="max-w-4xl mx-auto space-y-6">
+      <DashboardPageHeader
+        title="Account Settings"
+        description="Manage your admin profile, avatar, credentials, and access role."
+      />
+
+      <div className="bg-white rounded-3xl border border-gray-100 shadow-[0_4px_20px_rgba(13,35,30,0.03)] p-8 sm:p-10 space-y-8">
+        
+        {/* Profile Header */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 pb-8 border-b border-gray-100">
+          <div className="relative group">
+            <div className="relative w-28 h-28 rounded-2xl overflow-hidden border-2 border-[#2cb775]/20 shadow-md">
+              <Image
+                src={
+                  user?.avatar
+                    ? `/api/uploads/user/${user?.avatar}`
+                    : "/avatar.png"
+                }
+                alt={user?.name || "User Avatar"}
+                fill
+                sizes="112px"
+                className="object-cover"
+              />
+            </div>
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/*"
+              onChange={handleProfileChange}
+              hidden
+            />
+            <button
+              onClick={() => fileRef.current?.click()}
+              className="absolute -bottom-2 -right-2 p-2 rounded-xl bg-[#0D231E] text-white hover:bg-[#2cb775] transition-colors shadow-lg cursor-pointer"
+              title="Change avatar"
+            >
+              <Icon icon="lucide:camera" className="w-4 h-4" />
+            </button>
+          </div>
+
+          <div className="space-y-1">
+            <h2 className="text-2xl font-bold text-[#0D231E] font-inter">
+              {user?.name || "Admin Account"}
+            </h2>
+            <p className="text-sm text-gray-500 font-inter font-light">
+              {user?.email || "admin@royalsafari.com"}
+            </p>
+            <div className="pt-2">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#2cb775]/10 text-[#2cb775] border border-[#2cb775]/20 text-xs font-semibold uppercase tracking-wider">
+                <Icon icon="lucide:shield-check" className="w-3.5 h-3.5" />
+                {user?.role || "Administrator"}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Account Information Details */}
+        <div className="space-y-6">
+          <h3 className="text-lg font-bold text-[#0D231E] font-inter">
+            Personal Credentials
+          </h3>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            
+            {/* Name Field */}
+            <div className="bg-gray-50 rounded-2xl p-5 border border-gray-100 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider font-inter">
+                  Full Name
+                </span>
+                <button
+                  onClick={() => setIsEditingName((prev) => !prev)}
+                  className="text-xs font-semibold text-[#2cb775] hover:text-[#DE8D3D] transition-colors flex items-center gap-1 font-inter cursor-pointer"
+                >
+                  <Icon icon="lucide:pencil" className="w-3.5 h-3.5" />
+                  <span>{isEditingName ? "Cancel" : "Edit"}</span>
                 </button>
-              </p>
-              {isName && (
-                <form onSubmit={handleNameChange} className="gap-1 flex">
+              </div>
+
+              {isEditingName ? (
+                <form onSubmit={handleNameChange} className="flex gap-2 pt-1">
                   <input
                     type="text"
                     ref={nameRef}
                     defaultValue={user?.name}
-                    className="border border-gold rounded-md py-0.5 px-2 focus:outline-none"
+                    className="flex-1 bg-white border border-gray-200 rounded-xl px-3 py-1.5 text-xs font-inter text-[#0D231E] focus:outline-none focus:border-[#2cb775]"
                   />
-                  <Button
-                    name={loading ? "Changing..." : "Change"}
-                    className="!py-0.5 !px-2 !text-base"
-                  />
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="bg-[#0D231E] hover:bg-[#2cb775] text-white text-xs font-semibold px-4 py-1.5 rounded-xl transition-colors cursor-pointer"
+                  >
+                    {loading ? "Saving..." : "Save"}
+                  </button>
                 </form>
+              ) : (
+                <p className="text-base font-bold text-[#0D231E] font-inter">
+                  {user?.name || "Not set"}
+                </p>
               )}
+            </div>
 
-              <p>
-                <strong>Email:</strong> {user?.email}
-              </p>
-              <p>
-                <strong>Role:</strong> {user?.role}
+            {/* Email Field */}
+            <div className="bg-gray-50 rounded-2xl p-5 border border-gray-100 space-y-2">
+              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider font-inter">
+                Email Address
+              </span>
+              <p className="text-base font-bold text-[#0D231E] font-inter font-mono">
+                {user?.email || "admin@royalsafari.com"}
               </p>
             </div>
+
           </div>
-        </Card>
+        </div>
+
       </div>
     </div>
   );

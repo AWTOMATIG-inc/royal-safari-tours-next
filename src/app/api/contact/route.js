@@ -10,14 +10,17 @@ export async function POST(request) {
     !formData.has("name") ||
     !formData.has("email") ||
     !formData.has("phone") ||
-    !formData.has("message")
+    !formData.has("message") ||
+    !formData.has("destination") ||
+    !formData.has("date") ||
+    !formData.has("people")
   ) {
     return NextResponse.json(
       { error: "Missing required fields" },
       { status: 400 },
     );
   }
-  const { name, email, phone, message } = Object.fromEntries(formData);
+  const { name, email, phone, message, destination, date, people } = Object.fromEntries(formData);
 
   try {
     await db_connect();
@@ -26,6 +29,9 @@ export async function POST(request) {
       email,
       phone,
       message,
+      destination,
+      date,
+      people,
     });
     if (!contactData) {
       return NextResponse.json(
@@ -39,6 +45,9 @@ export async function POST(request) {
         <p><strong>Name:</strong> ${name}</p>
         <p><strong>Email:</strong> ${email}</p>
         <p><strong>Phone:</strong> ${phone}</p>
+        <p><strong>Destination:</strong> ${destination}</p>
+        <p><strong>Travel Date:</strong> ${date}</p>
+        <p><strong>Number of People:</strong> ${people}</p>
         <p><strong>Message:</strong></p>
         <p>${message}</p>
       </div>

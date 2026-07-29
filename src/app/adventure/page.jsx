@@ -1,19 +1,19 @@
-"use client";
+import { getTourPackagesAndLocations } from "@/actions/tour-package";
+import AdventureClientPage from "@/components/pages/adventure/AdventureClientPage";
 
-import HeroSection from "@/components/HeroSection";
-import AdvanturePackages from "@/components/pages/adventure/AdvanturePackages";
+export const metadata = {
+  title: "Adventure Expeditions & Tours | Royal Safari Tours",
+  description:
+    "Discover hand-crafted wilderness adventures, high mountain treks, mangrove boat safaris, and coastal expeditions.",
+};
 
-export default function Adventure() {
+export default async function AdventurePage() {
+  const results = await getTourPackagesAndLocations();
+
   return (
-    <div>
-      <HeroSection banner="/images/adventure/hp4.webp">
-        <div>
-          <h5 className="text-white text-3xl sm:text-4xl md:text-5xl xl:text-6xl font-bold font-palanquin uppercase">
-            Collections
-          </h5>
-        </div>
-      </HeroSection>
-      <AdvanturePackages />
-    </div>
+    <AdventureClientPage
+      tourPackages={results?.tourPackages || []}
+      locations={results?.locations || []}
+    />
   );
 }

@@ -1,314 +1,161 @@
 "use client";
-import { Icon } from "@iconify/react";
 
 import logo from "@/assets/logo/royal-safari-2.png";
+import royal_logo from "@/assets/logo/royal-logo.png";
+import { Icon } from "@iconify/react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
-import toast from "react-hot-toast";
-import ShapeButton from "../components/ShapeButton";
-import { PaymentIcon, SupportIcon } from "./svg-icons";
-const helperLinks = [
-  {
-    id: 0,
-    lavel: "Home",
-    link: "/",
-  },
-  {
-    id: 1,
-    lavel: "Adventure",
-    link: "/adventure",
-  },
-  {
-    id: 2,
-    lavel: "About Us",
-    link: "/about-us",
-  },
-  {
-    id: 3,
-    lavel: "Contact us",
-    link: "/contact",
-  },
-];
-const countryLinks = [
-  {
-    id: 1,
-    lavel: "Bangladesh",
-    link: "/bangladesh",
-  },
-  {
-    id: 2,
-    lavel: "Thailand",
-    link: "/thailand",
-  },
-  {
-    id: 3,
-    lavel: "nepal",
-    link: "/Nepal",
-  },
-  {
-    id: 4,
-    lavel: "singapore",
-    link: "/singapore",
-  },
-  {
-    id: 5,
-    lavel: "srilanka",
-    link: "/srilanka",
-  },
-];
+import { PaymentIcon } from "./svg-icons";
+import ContactNewsletter from "@/components/pages/contact/ContactNewsletter";
+
+import { siteConfig } from "@/config/siteConfig";
+import { navigationConfig } from "@/config/navigationConfig";
+
+const helperLinks = navigationConfig.footerExplore;
+const countryLinks = navigationConfig.footerDestinations;
+
 export default function Footer() {
   const pathname = usePathname();
-  const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!name) {
-      return toast.error("Please add your name");
-    }
-    if (!email) {
-      return toast.error("Please add a valid gmail");
-    }
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const isValid = regex.test(email);
-    if (!isValid) {
-      return toast.error("Please add a valid gmail");
-    }
-    try {
-      const res = await fetch("/api/subscriber", {
-        method: "POST",
-        body: JSON.stringify({ name, email }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      if (res.status === 409) {
-        setEmail("");
-        setName("");
-        return toast.error("You have already Subscribed!");
-      }
-      const data = await res.json();
-      setEmail("");
-      setName("");
-      return toast.success("Subscribed successfuly!");
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  if (pathname.includes("/dashboard")) {
+
+  // Hide footer inside dashboard views
+  if (pathname?.includes("/dashboard")) {
     return null;
   }
+
   return (
-    <footer className="bg-footer-banner">
-      <div className="container text-white pt-10 sm:pt-20">
-        <div className="sm:hidden">
-          <div>
-            <Image
-              loading="eager"
-              src={logo}
-              alt="logo"
-              className="max-w-[109px] h-auto"
-            />
-            <p className="mt-6">Address : khilgaon, Dhaka, Bangladesh, 1219</p>
-          </div>
-          <div className="mt-7">
-            <p>01898-334722 / 01898-334722</p>
-            <div className="flex items-center gap-2 mt-3 group w-fit">
-              <SupportIcon className="group-hover:text-orange-400" />
-              <a
-                className="group-hover:underline group-hover:text-orange-400"
-                href="mailto:support@example.com"
-              >
-                support@example.com
-              </a>
-            </div>
-          </div>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-[2fr_1.5fr_1fr] md:grid-cols-[2fr_1fr_1fr] xl:grid-cols-[2fr_1fr_1fr_1fr_1fr] gap-6 md:gap-8 mt-14 sm:mt-0">
-          <div className="border-r border-gray-500 hidden sm:block">
-            <div>
+    <footer className="bg-body text-primary font-body relative overflow-hidden">
+      {/* 1. TOP NEWSLETTER BANNER */}
+      <ContactNewsletter />
+
+      <div className="container pt-14 sm:pt-20 pb-8">
+
+        {/* ROW 1: BRAND LOGO, MENU LINKS & OFFICE ADDRESS */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-12 pb-12 sm:pb-16 text-left">
+
+          {/* Column 1 - Logo and branding */}
+          <div className="lg:col-span-4 flex flex-col items-start max-w-sm">
+            <Link href="/" className="mb-5 block">
               <Image
                 loading="eager"
-                src={logo}
-                alt="logo"
-                className="max-w-[109px] h-auto"
+                src={royal_logo}
+                alt="Royal Safari Tours"
+                className="w-28 sm:w-32 h-auto object-contain"
               />
-              <p className="mt-6">
-                Address : khilgaon, Dhaka, Bangladesh, 1219
-              </p>
-            </div>
-            <div className="mt-7">
-              <p>01898-334722 / 01898-334722</p>
-              <div className="flex items-center gap-2 mt-3 group w-fit">
-                <SupportIcon className="group-hover:text-orange-400" />
-                <a
-                  className="group-hover:underline group-hover:text-orange-400"
-                  href="mailto:info.royalsafaritours@gmail.com"
-                >
-                  info.royalsafaritours@gmail.com
-                </a>
+            </Link>
+            <p className="text-sm text-primary/80 leading-relaxed font-light mb-6">
+              {siteConfig.fullDescription}
+            </p>
+
+            {/* Social Icons */}
+            <ul className="flex items-center gap-2.5">
+              {siteConfig.socials.map((social, idx) => (
+                <li key={idx}>
+                  <a
+                    href={social.url}
+                    className="flex items-center justify-center w-9 h-9 rounded-full border border-primary/15 text-primary/70 hover:text-accent hover:border-accent hover:bg-accent/5 transition-all duration-300"
+                    target={social.url !== "#" ? "_blank" : undefined}
+                    rel="noreferrer"
+                    aria-label={`Follow ${siteConfig.name} on ${social.name}`}
+                  >
+                    <Icon icon={social.icon} width="16" height="16" />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Column 2 - Menu Links (Explore) */}
+          <div className="lg:col-span-2">
+            <h5 className="text-xs font-bold tracking-[0.2em] text-primary uppercase mb-5 font-body">
+              Explore
+            </h5>
+            <ul className="flex flex-col gap-3 text-[13px] sm:text-sm font-medium tracking-wide font-body">
+              {helperLinks.map((link) => (
+                <li key={link.id}>
+                  <Link href={link.link} className="text-primary/80 hover:text-accent transition-colors duration-300">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Column 3 - Menu Links (Destinations) */}
+          <div className="lg:col-span-2">
+            <h5 className="text-xs font-bold tracking-[0.2em] text-primary uppercase mb-5 font-body">
+              Destinations
+            </h5>
+            <ul className="flex flex-col gap-3 text-[13px] sm:text-sm font-medium tracking-wide font-body">
+              {countryLinks.map((link) => (
+                <li key={link.id}>
+                  <Link href={link.link} className="text-primary/80 hover:text-accent transition-colors duration-300">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Column 4 - Office address */}
+          <div className="lg:col-span-4 flex flex-col text-sm font-light text-primary/90 leading-relaxed font-body">
+            <h5 className="text-xs font-bold tracking-[0.2em] text-primary uppercase mb-5 font-body">
+              Office Support
+            </h5>
+
+            <div className="flex flex-col gap-3.5">
+              <a href={`tel:${siteConfig.contact.phone.primaryRaw}`} className="flex items-center gap-3 hover:text-accent transition-colors">
+                <Icon icon="lucide:phone" width="16" height="16" className="text-accent flex-shrink-0" />
+                <span className="font-semibold">{siteConfig.contact.phone.primary}</span>
+              </a>
+
+              <a href={`mailto:${siteConfig.contact.email.info}`} className="flex items-center gap-3 hover:text-accent transition-colors font-semibold">
+                <Icon icon="lucide:mail" width="16" height="16" className="text-accent flex-shrink-0" />
+                <span>{siteConfig.contact.email.info}</span>
+              </a>
+
+              <div className="flex items-start gap-3">
+                <Icon icon="lucide:map-pin" width="16" height="16" className="text-accent mt-0.5 flex-shrink-0" />
+                <span>{siteConfig.contact.address.full}</span>
+              </div>
+
+              <div className="flex items-center gap-3 text-primary/70 text-[13px] font-normal pt-0.5">
+                <Icon icon="lucide:clock" width="15" height="15" className="text-accent/80 flex-shrink-0" />
+                <span>{siteConfig.contact.hours.weekday}</span>
               </div>
             </div>
           </div>
 
-          <ul className="sm:border-r border-gray-500 space-y-3 ">
-            {helperLinks.map((link) => (
-              <li
-                className="hover:text-orange-400 hoverEffect uppercase font-medium"
-                key={link.id}
-              >
-                <Link href={link.link}>{link.lavel}</Link>
-              </li>
-            ))}
-          </ul>
+        </div>
 
-          <ul className="xl:border-r border-gray-500 space-y-3">
-            {countryLinks.map((link) => (
-              <li
-                className="hover:text-orange-400 hoverEffect uppercase font-medium"
-                key={link.id}
+        {/* ROW 2: COPYRIGHT, CREDITS & PAYMENTS */}
+        <div className="pt-8 border-t border-primary/10 flex flex-col md:flex-row items-center gap-4 justify-between text-[13px] text-primary/60 font-light font-body">
+
+          <div className="flex text-primary font-normal flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left">
+            <span>© 2026 Royal Safari Tours. All Rights Reserved.</span>
+            <span className="hidden sm:inline text-primary/20">|</span>
+            <span>
+              Powered by{" "}
+              <a
+                className="text-accent font-bold hover:underline"
+                href="https://awtomatig.com/"
+                target="_blank"
+                rel="noreferrer"
               >
-                <Link href={link.link}>{link.lavel}</Link>
-              </li>
-            ))}
-          </ul>
-          {/* for desktop social media links */}
-          <div className="hidden lg:block border-r border-gray-500 lg:pt-36 xl:pt-0">
-            <h4 className="uppercase font-medium">Follow US</h4>
-            <ul className="mt-4 grid grid-cols-4 xl:grid-cols-2 w-fit gap-x-4 gap-y-2.5">
-              <li>
-                <a
-                  href="#"
-                  className="bg-green p-4 block transtion-all duration-300 rounded-sm hover:bg-black w-full h-full"
-                >
-                  <Icon icon="prime:twitter" width="19" height="19" />
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://www.facebook.com/royalsafaritour"
-                  className="bg-green p-4 block transtion-all duration-300 rounded-sm hover:bg-black w-full h-full"
-                  target="_blank"
-                >
-                  <Icon icon="uiw:facebook" width="18" height="18" />
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://www.instagram.com/royal.safari.tours?igsh=ZmU3YXkxbzdxMDlt"
-                  className="bg-green p-4 block transtion-all duration-300 rounded-sm hover:bg-black  w-full h-full"
-                  target="_blank"
-                >
-                  <Icon icon="mdi:instagram" width="21" height="21" />
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="bg-green p-4 block transtion-all duration-300 rounded-sm hover:bg-black w-full h-full"
-                >
-                  <Icon icon="mdi:youtube" width="21" height="21" />
-                </a>
-              </li>
-            </ul>
+                AWTOMATIG
+              </a>
+            </span>
           </div>
 
-          <div className="hidden lg:block">
-            <h5 className="uppercase font-medium">
-              Get Update On New Tours & Blog News
-            </h5>
-            <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-              <input
-                type="text"
-                placeholder="Name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="border-b focus:outline-none py-2"
-              />
-              <input
-                type="text"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="border-b focus:outline-none py-2"
-             
-               
-              />
-              <ShapeButton
-                name="SEND MAIL"
-                className="group-hover:text-black hoverEffect"
-              />
-            </form>
+          <div className="flex items-center">
+            <PaymentIcon className="scale-95" />
           </div>
+
         </div>
-        {/* for mobile social media links */}
-        <div className="w-fit mx-auto text-center lg:hidden mt-14">
-          <h4 className="uppercase font-medium">Follow US</h4>
-          <ul className="mt-4 grid grid-cols-4 gap-4">
-            <li>
-              <a
-                href="#"
-                className="bg-green p-4 block h-full w-full transtion-all duration-300 rounded-sm hover:bg-black hover:scale-110"
-              >
-                <Icon icon="prime:twitter" width="19" height="19" />
-              </a>
-            </li>
-            <li>
-              <a
-                href="https://www.facebook.com/royalsafaritour"
-                className="bg-green p-4 block h-full w-full transtion-all duration-300 rounded-sm hover:bg-black hover:scale-110"
-                target="_blank"
-              >
-                <Icon icon="uiw:facebook" width="18" height="18" />
-              </a>
-            </li>
-            <li>
-              <a
-                href="https://www.instagram.com/royal.safari.tours?igsh=ZmU3YXkxbzdxMDlt"
-                className="bg-green p-4 block h-full w-full transtion-all duration-300 rounded-sm hover:bg-black hover:scale-110"
-                target="_blank"
-              >
-                <Icon icon="mdi:instagram" width="21" height="21" />
-              </a>
-            </li>
-            <li>
-              <a
-                href="#"
-                className="bg-green p-4 block h-full w-full transtion-all duration-300 rounded-sm hover:bg-black hover:scale-110"
-              >
-                <Icon icon="mdi:youtube" width="21" height="21" />
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div className="py-10 border-t border-gray-600 mt-10 relative flex flex-col sm:flex-row items-center gap-3 justify-between lg:flex-col">
-          <div className="text-center">
-            Powered By{" "}
-            <a
-              className="hover:text-orange-400 hover:underline"
-              href="https://awtomatig.com/"
-            >
-              AWTOMATIG
-            </a>
-          </div>
-          <div className="lg:absolute top-1/2 lg:-translate-y-1/2 right-0 ">
-            <PaymentIcon className="scale-90 xl:scale-100" />
-          </div>
-          {/* <div className="text-center">
-            Powerby{" "}
-            <a
-              className="hover:text-orange-400 hover:underline"
-              href="https://awtomatig.com/"
-            >
-              Awtomatig
-            </a>
-          </div>
-          <div className="lg:absolute top-1/2 lg:-translate-y-1/2 right-0 w-fit mx-auto mt-3 lg:mt-0">
-            <PaymentIcon className="scale-90 xl:scale-100" />
-          </div> */}
-        </div>
+
       </div>
     </footer>
   );
 }
+
+

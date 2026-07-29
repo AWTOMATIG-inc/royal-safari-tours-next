@@ -13,11 +13,11 @@ export default async function DashboardLayout({ children }) {
   }
 
   return (
-    <div className="flex font-moulpali py-4">
+    <div className="flex min-h-screen bg-[#f8fafc] font-inter">
       <Sidebar />
-      <div className="flex-1 bg-[#f4f6fb] min-h-screen">
+      <div className="flex-1 flex flex-col min-w-0">
         <Navbar />
-        <div className="px-8 ">{children}</div>
+        <main className="flex-1 px-4 sm:px-8 pb-12">{children}</main>
       </div>
     </div>
   );

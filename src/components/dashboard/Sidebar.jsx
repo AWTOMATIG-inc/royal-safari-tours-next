@@ -1,143 +1,114 @@
 "use client";
+
 import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { LeftArrowIcon, RightArrowIcon } from "../SvgIcons";
 
-const Sidebar = () => {
-  const [isSidebar, setIsSidebar] = useState(false);
-  const path = usePathname();
+const navItems = [
+  { name: "Dashboard", href: "/dashboard", icon: "lucide:layout-dashboard" },
+  { name: "Google Analytics", href: "/dashboard/analytics", icon: "lucide:bar-chart-3" },
+  { name: "Tour Packages", href: "/dashboard/tour-packages", icon: "lucide:package" },
+  { name: "Tour Locations", href: "/dashboard/tour-locations", icon: "lucide:map-pin" },
+  { name: "Contact Requests", href: "/dashboard/contact-requests", icon: "lucide:mail" },
+  { name: "Users", href: "/dashboard/users", icon: "lucide:users" },
+  { name: "Subscribers", href: "/dashboard/subscribers", icon: "lucide:bell" },
+  { name: "Testimonials", href: "/dashboard/testimonials", icon: "lucide:quote" },
+  { name: "Gallery", href: "/dashboard/gallery", icon: "lucide:image" },
+  { name: "My Account", href: "/dashboard/account", icon: "lucide:user-cog" },
+];
+
+export default function Sidebar() {
+  const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
+
   return (
-    <div
-      className={`bg-green sidebar text-white h-screen w-72 sm:w-96 p-6 flex flex-col gap-8 fixed lg:sticky top-0 z-100 lg:rounded-[20px]  ${
-        isSidebar ? "left-[0px]" : "-left-[290px] sm:-left-[385px]"
-      }`}
-    >
-      <div className="relative w-full h-full">
-        <button
-          onClick={() => setIsSidebar((prev) => !prev)}
-          className="absolute sidebar-button top-32 sm:top-20 -right-[60px]  bg-green h-10 w-10 grid place-items-center rounded-r-full lg:hidden cursor-pointer z-99"
-        >
-          {isSidebar ? <RightArrowIcon /> : <LeftArrowIcon />}
-        </button>
-        <h1 className="text-3xl font-bold px-4">Admin</h1>
-        <nav className="flex flex-col gap-y-8 text-lg mt-8 sidebar">
-          <Link
-            onClick={() => setIsSidebar(false)}
-            href="/dashboard"
-            className={`flex items-center gap-2 py-2 px-4 rounded-md hover:bg-black/10 ${
-              path === "/dashboard" ? "bg-black/10" : ""
-            }`}
-          >
-            <Icon
-              icon="material-symbols:dashboard-outline"
-              width="24"
-              height="24"
-            />
-            <span>Dashboard</span>
-          </Link>
-          <Link
-            onClick={() => setIsSidebar(false)}
-            href="/dashboard/tour-packages"
-            className={`flex items-center gap-2 py-2 px-4 rounded-md hover:bg-black/10 ${
-              path === "/dashboard/tour-packages" ? "bg-black/10" : ""
-            }`}
-          >
-            <Icon icon="carbon:tour" width="24" height="24" />
-            <span>Tour Packages</span>
-          </Link>
-          <Link
-            onClick={() => setIsSidebar(false)}
-            href="/dashboard/tour-locations"
-            className={`flex items-center gap-2 py-2 px-4 rounded-md hover:bg-black/10 ${
-              path === "/dashboard/tour-locations" ? "bg-black/10" : ""
-            }`}
-          >
-            <Icon icon="ep:place" width="24" height="24" />
-            <span>Tour Locations</span>
-          </Link>
+    <>
+      {/* Mobile Drawer Backdrop */}
+      {isOpen && (
+        <div
+          onClick={() => setIsOpen(false)}
+          className="fixed inset-0 bg-black/60 backdrop-blur-xs z-40 lg:hidden"
+        />
+      )}
 
-          <Link
-            onClick={() => setIsSidebar(false)}
-            href="/dashboard/contact-requests"
-            className={`flex items-center gap-2 py-2 px-4 rounded-md hover:bg-black/10 ${
-              path === "/dashboard/contact-requests" ? "bg-black/10" : ""
-            }`}
-          >
-            <Icon
-              icon="material-symbols:contact-mail-outline-rounded"
-              width="22"
-              height="24"
-            />
-            <span>Contact Requests</span>
-          </Link>
-          <Link
-            onClick={() => setIsSidebar(false)}
-            href="/dashboard/users"
-            className={`flex items-center gap-2 py-2 px-4 rounded-md hover:bg-black/10 ${
-              path === "/dashboard/users" ? "bg-black/10" : ""
-            }`}
-          >
-            <Icon icon="flowbite:users-outline" width="24" height="24" />
-            <span>Users</span>
-          </Link>
-          <Link
-            onClick={() => setIsSidebar(false)}
-            href="/dashboard/subscribers"
-            className={`flex items-center gap-2 py-2 px-4 rounded-md hover:bg-black/10 ${
-              path === "/dashboard/subscribers" ? "bg-black/10" : ""
-            }`}
-          >
-            <Icon icon="fluent-mdl2:subscribe" width="20" height="24" />
-            <span>Subscribers</span>
-          </Link>
-          <Link
-            onClick={() => setIsSidebar(false)}
-            href="/dashboard/testimonials"
-            className={`flex items-center gap-2 py-2 px-4 rounded-md hover:bg-black/10 ${
-              path === "/dashboard/testimonials" ? "bg-black/10" : ""
-            }`}
-          >
-            <Icon icon="material-symbols:format-quote-outline-rounded" width="24" height="24" />
-            <span>Testimonials</span>
-          </Link>
-          <Link
-            onClick={() => setIsSidebar(false)}
-            href="/dashboard/gallery"
-            className={`flex items-center gap-2 py-2 px-4 rounded-md hover:bg-black/10 ${
-              path === "/dashboard/gallery" ? "bg-black/10" : ""
-            }`}
-          >
-            <Icon icon="mdi:image-multiple-outline" width="24" height="24" />
-            <span>Gallery</span>
-          </Link>
-        </nav>
+      {/* Sidebar Container */}
+      <aside
+        className={`fixed lg:sticky top-0 left-0 z-50 h-screen w-64 bg-primary text-white flex flex-col justify-between p-5 transition-transform duration-300 ease-in-out border-r border-white/10 font-body ${
+          isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        }`}
+      >
+        <div className="space-y-6">
+          {/* Header Brand */}
+          <div className="flex items-center justify-between pb-4 border-b border-white/10 px-2">
+            <Link href="/dashboard" className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center text-white font-bold text-lg font-heading">
+                R
+              </div>
+              <div>
+                <h2 className="font-heading text-lg font-bold text-white tracking-wide">
+                  Royal Safari
+                </h2>
+                <p className="text-[10px] text-white/60 uppercase font-semibold font-body tracking-widest">
+                  Admin Console
+                </p>
+              </div>
+            </Link>
 
-        <Link
-          onClick={() => setIsSidebar(false)}
-          href="/"
-          className="flex items-center gap-2 py-2 px-4 rounded-md hover:bg-black/10 text-lg absolute bottom-0 left-0 "
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="size-6"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
-            />
-          </svg>
+            {/* Mobile Close Button */}
+            <button
+              onClick={() => setIsOpen(false)}
+              className="lg:hidden p-1.5 rounded-lg bg-white/10 text-white hover:bg-white/20 cursor-pointer"
+            >
+              <Icon icon="lucide:x" className="w-5 h-5" />
+            </button>
+          </div>
 
-          <span>Back home</span>
-        </Link>
-      </div>
-    </div>
+          {/* Navigation Links */}
+          <nav className="space-y-1 overflow-y-auto max-h-[calc(100vh-220px)] scrollbar-none pr-1 font-body">
+            {navItems.map((item) => {
+              const isActive = pathname === item.href;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setIsOpen(false)}
+                  className={`flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-semibold tracking-wide transition-all duration-200 font-body ${
+                    isActive
+                      ? "bg-secondary text-white shadow-xs"
+                      : "text-white/70 hover:bg-white/10 hover:text-white"
+                  }`}
+                >
+                  <Icon icon={item.icon} className="w-4 h-4 shrink-0" />
+                  <span>{item.name}</span>
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+
+        {/* Footer Actions */}
+        <div className="pt-4 border-t border-white/10 space-y-2 font-body">
+          <Link
+            href="/"
+            onClick={() => setIsOpen(false)}
+            className="flex items-center gap-2.5 px-3.5 py-3 rounded-xl text-xs font-semibold text-white/80 hover:bg-white/10 hover:text-white transition-all font-body"
+          >
+            <Icon icon="lucide:globe" className="w-4 h-4 text-accent" />
+            <span>Back to Main Site</span>
+          </Link>
+        </div>
+      </aside>
+
+      {/* Mobile Sidebar Toggle Button */}
+      <button
+        onClick={() => setIsOpen(true)}
+        className="lg:hidden fixed bottom-5 right-5 z-40 w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center shadow-xl border border-white/20 cursor-pointer"
+        aria-label="Open Sidebar Menu"
+      >
+        <Icon icon="lucide:menu" className="w-6 h-6" />
+      </button>
+    </>
   );
-};
-export default Sidebar;
+}
+

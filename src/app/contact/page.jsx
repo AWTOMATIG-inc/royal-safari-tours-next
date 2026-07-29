@@ -1,17 +1,32 @@
-import HeroSection from "@/components/HeroSection";
-import Sponsors from "@/components/pages/about-us/Sponsors";
-import ContactForm from "@/components/pages/contact/ContactForm";
+"use client";
+
+import ContactHero from "@/components/pages/contact/ContactHero";
+import ContactQuickCards from "@/components/pages/contact/ContactQuickCards";
+import ContactFormSection from "@/components/pages/contact/ContactFormSection";
+import ContactWhyChooseUs from "@/components/pages/contact/ContactWhyChooseUs";
+import ContactMapSection from "@/components/pages/contact/ContactMapSection";
 
 export default function Contact() {
   return (
-    <div>
-      <HeroSection banner="/images/banners/contact.webp">
-        <h5 className="text-white text-3xl sm:text-4xl md:text-5xl xl:text-6xl font-bold font-palanquin uppercase">
-          Contact
-        </h5>
-      </HeroSection>
-      <ContactForm />
-      <Sponsors />
+    <div className="bg-white min-h-screen text-primary font-body overflow-x-hidden">
+      {/* 1. Hero section & floating quick contact cards */}
+      <div className="relative">
+        <ContactHero />
+        <ContactQuickCards />
+      </div>
+
+      {/* Spacer for overlapping contact cards */}
+      <div className="h-28 sm:h-32 md:h-36" />
+
+      {/* 2. Contact form & office details */}
+      <ContactFormSection />
+
+      {/* 3. Why choose us summary bar */}
+      <ContactWhyChooseUs />
+
+      {/* 4. Google Maps section */}
+      <ContactMapSection />
     </div>
   );
 }
+

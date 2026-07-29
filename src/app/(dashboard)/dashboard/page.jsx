@@ -1,97 +1,166 @@
 "use client";
 
-import DashboardImage from "@/assets/dashboard.webp";
+import StatCard from "@/components/dashboard/StatCard";
+import ModuleCard from "@/components/dashboard/ModuleCard";
 import { Icon } from "@iconify/react";
-import Image from "next/image";
 import Link from "next/link";
-const DashboardLink = [
+
+const modules = [
   {
-    id: 1,
-    name: "View Profile",
-    icon: "mdi:account-cog-outline",
-    href: "/dashboard/account",
-  },
-  {
-    id: 2,
-    name: "Tour Packages",
-    icon: "carbon:tour",
+    title: "Tour Packages",
+    description: "Manage luxury itineraries, pricing, and package details.",
+    icon: "lucide:package",
     href: "/dashboard/tour-packages",
+    count: "Active",
   },
   {
-    id: 3,
-    name: "Tour Locations",
-    icon: "ep:place",
+    title: "Tour Locations",
+    description: "Manage regional sanctuaries, tea estates, and coastal spots.",
+    icon: "lucide:map-pin",
     href: "/dashboard/tour-locations",
+    count: "Regions",
   },
   {
-    id: 4,
-    name: "Contact Requests",
-    icon: "material-symbols:contact-mail-outline-rounded",
+    title: "Contact Requests",
+    description: "Review incoming expedition inquiries and custom trip plans.",
+    icon: "lucide:mail",
     href: "/dashboard/contact-requests",
+    count: "Inquiries",
   },
   {
-    id: 5,
-    name: "Users",
-    icon: "flowbite:users-outline",
+    title: "User Management",
+    description: "Manage registered users, administrators, and permissions.",
+    icon: "lucide:users",
     href: "/dashboard/users",
+    count: "Users",
   },
   {
-    id: 6,
-    name: "Subscribers",
-    icon: "fluent-mdl2:subscribe",
+    title: "Subscribers",
+    description: "Manage newsletter subscribers and private journal dispatches.",
+    icon: "lucide:bell",
     href: "/dashboard/subscribers",
+    count: "Circle",
   },
   {
-    id: 7,
-    name: "Testimonials",
-    icon: "material-symbols:format-quote-outline-rounded",
+    title: "Testimonials",
+    description: "Review and publish authentic customer reviews and ratings.",
+    icon: "lucide:quote",
     href: "/dashboard/testimonials",
+    count: "Reviews",
   },
   {
-    id: 8,
-    name: "Gallery",
-    icon: "mdi:image-multiple-outline",
+    title: "Photo Gallery",
+    description: "Manage high-resolution expedition imagery and media assets.",
+    icon: "lucide:image",
     href: "/dashboard/gallery",
+    count: "Media",
+  },
+  {
+    title: "Account Settings",
+    description: "Update your profile credentials and security preferences.",
+    icon: "lucide:user-cog",
+    href: "/dashboard/account",
+    count: "Profile",
   },
 ];
+
 export default function Dashboard() {
   return (
-    <div className="bg-green/20 max-w-262.5  min-h-[60vh] p-4 lg:p-8 rounded-lg shadow-md mt-8">
-      <h1 className="text-2xl text-green font-bold">
-        Welcome to the Dashboard
-      </h1>
-      <p className="text-gray-500 mt-1 font-inter">
-        Use the sidebar or the links below to navigate through different sections of the dashboard.
-      </p>
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 sm:mt-8 items-center">
-        <div className="grid grid-cols-2 gap-2 mt-6 xl:mt-0">
-          {DashboardLink.map((link) => (
+    <div className="space-y-8 max-w-7xl mx-auto">
+      
+      {/* Welcome Hero Banner */}
+      <div className="relative rounded-3xl bg-[#0D231E] text-white p-8 sm:p-10 shadow-2xl overflow-hidden">
+        {/* Ambient Gradient Accent */}
+        <div className="absolute top-0 right-0 w-80 h-80 bg-[#2cb775]/20 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="space-y-3 max-w-xl">
+            <span className="inline-flex items-center gap-2 text-xs font-semibold tracking-[0.25em] text-[#DE8D3D] uppercase font-inter">
+              <Icon icon="lucide:sparkles" className="w-4 h-4" />
+              ROYAL SAFARI MANAGEMENT
+            </span>
+            <h1 className="font-playfair text-3xl sm:text-4xl font-bold tracking-tight text-white">
+              Welcome to the Admin Console
+            </h1>
+            <p className="text-sm text-white/80 font-light font-inter leading-relaxed">
+              Monitor key metrics, publish new expeditions, and manage customer inquiries seamlessly.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
             <Link
-              key={link.id}
-              href={link.href}
-              className="flex flex-col justify-center items-center gap-2 h-24 text-green font-medium bg-green/20  px-4 py-2 rounded-md hover:bg-green/30 w-full"
+              href="/dashboard/tour-packages/create"
+              className="inline-flex items-center gap-2 bg-[#2cb775] hover:bg-[#DE8D3D] text-white font-semibold text-xs tracking-wider uppercase px-6 py-3.5 rounded-xl transition-all duration-300 shadow-lg"
             >
-              <Icon
-                icon={link.icon}
-                width="35"
-                height="35"
-                className="size-7 sm:size-8.75"
-              />
-              <span className="sm:text-xl">{link.name}</span>
+              <Icon icon="lucide:plus" className="w-4 h-4" />
+              <span>Create Package</span>
             </Link>
-          ))}
-        </div>
-        <div className="">
-          <Image
-            src={DashboardImage}
-            alt="Dashboard"
-            loading="eager"
-            width={500}
-            height={300}
-            className=" object-cover  "
-          />
+
+            <Link
+              href="/dashboard/tour-locations/create"
+              className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white font-semibold text-xs tracking-wider uppercase px-6 py-3.5 rounded-xl transition-all duration-300 border border-white/20 backdrop-blur-sm"
+            >
+              <Icon icon="lucide:map-pin" className="w-4 h-4" />
+              <span>Add Location</span>
+            </Link>
+          </div>
         </div>
       </div>
+
+      {/* KPI Stat Cards Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <StatCard
+          title="Tour Packages"
+          value="26+"
+          icon="lucide:package"
+          trend="+12% this month"
+          trendType="up"
+          color="green"
+        />
+        <StatCard
+          title="Expedition Regions"
+          value="14"
+          icon="lucide:map-pin"
+          trend="Active"
+          trendType="up"
+          color="gold"
+        />
+        <StatCard
+          title="Contact Requests"
+          value="48"
+          icon="lucide:mail"
+          trend="Inquiries"
+          trendType="up"
+          color="blue"
+        />
+        <StatCard
+          title="Journal Subscribers"
+          value="1,240"
+          icon="lucide:bell"
+          trend="+8% growth"
+          trendType="up"
+          color="purple"
+        />
+      </div>
+
+      {/* Management Modules Section */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-bold text-[#0D231E] font-inter">
+            Management Modules
+          </h2>
+          <span className="text-xs text-gray-500 font-inter">
+            8 Features Available
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {modules.map((mod) => (
+            <ModuleCard key={mod.title} {...mod} />
+          ))}
+        </div>
+      </div>
+
     </div>
   );
 }

@@ -1,4 +1,6 @@
 "use client";
+
+import DashboardPageHeader from "@/components/dashboard/DashboardPageHeader";
 import Rating from "@/components/Rating";
 import { Icon } from "@iconify/react";
 import Image from "next/image";
@@ -6,7 +8,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
-export default function TestimonialsPage({ testimonials, pagination }) {
+export default function TestimonialsPage({ testimonials = [], pagination = { page: 1, totalPages: 1 } }) {
   const router = useRouter();
   const isPrev = Number(pagination.page) === 1;
   const isNext = Number(pagination.page) === pagination.totalPages;
@@ -25,119 +27,158 @@ export default function TestimonialsPage({ testimonials, pagination }) {
   };
 
   return (
-    <div className="md:w-4/5 mx-auto">
-      <div className="flex justify-between mt-8">
-        <h1 className="text-2xl font-bold">Testimonials</h1>
-        <Link
-          className="bg-orange text-white px-4 py-2 rounded-xl"
-          href="/dashboard/testimonials/create"
-        >
-          Add Testimonial
-        </Link>
-      </div>
+    <div className="max-w-7xl mx-auto space-y-6">
+      <DashboardPageHeader
+        title="Testimonials"
+        description="Publish and manage customer reviews, ratings, and traveler spotlight quotes."
+        actionText="Add Testimonial"
+        actionHref="/dashboard/testimonials/create"
+        actionIcon="lucide:quote"
+      />
 
-      <div className="mt-10">
-        {testimonials.length === 0 && (
-          <div className="w-fit mx-auto text-center">
-            <Image
-              src="/images/dashboard/empty.png"
-              width={400}
-              height={400}
-              loading="eager"
-              alt="empty"
-            />
-            <p className="text-gray-500 text-xl mt-8 font-inter">
-              No testimonials yet!
-            </p>
-          </div>
-        )}
+      {testimonials.length === 0 ? (
+        <div className="bg-white rounded-3xl p-12 text-center border border-gray-100 shadow-sm max-w-md mx-auto my-12 space-y-4">
+          <Image
+            src="/images/dashboard/empty.png"
+            width={300}
+            height={300}
+            priority
+            alt="Empty state"
+            className="mx-auto opacity-80"
+          />
+          <p className="text-gray-500 font-medium font-inter text-base">
+            No testimonials yet. Click above to add your first customer review.
+          </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {testimonials.map((item) => {
+            const avatarSrc = item.avatarImage?.startsWith("http") || item.avatarImage?.startsWith("/")
+              ? item.avatarImage
+              : `/api/uploads/testimonials/${item.avatarImage}`;
 
-        <div className="grid gap-4 lg:grid-cols-2">
-          {testimonials.map((item) => (
-            <div key={item._id} className="shadow-md p-4 rounded-md">
-              {/* Header row */}
-              <div className="flex justify-between items-start mb-3">
-                <div className="flex items-center gap-3">
-                  <Image
-                    src={`/api/uploads/testimonials/${item.avatarImage}`}
-                    width={52}
-                    height={52}
-                    alt={item.name}
-                    className="rounded-full object-cover size-13 flex-shrink-0"
-                  />
-                  <div>
-                    <h5 className="font-semibold capitalize">{item.name}</h5>
-                    <p className="text-sm text-gray-500 capitalize">{item.country}</p>
-                    <Rating
-                      rating={item.rating}
-                      className="size-4 text-green mt-0.5"
+            const bgSrc = item.backgroundImage?.startsWith("http") || item.backgroundImage?.startsWith("/")
+              ? item.backgroundImage
+              : `/api/uploads/testimonials/${item.backgroundImage}`;
+
+            return (
+              <div
+                key={item._id}
+                className="bg-white rounded-2xl border border-gray-100 shadow-[0_4px_20px_rgba(13,35,30,0.03)] hover:shadow-[0_12px_35px_rgba(13,35,30,0.08)] p-6 space-y-4 transition-all duration-300 flex flex-col justify-between"
+              >
+                <div className="space-y-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className="relative w-12 h-12 rounded-full overflow-hidden border border-gray-200 shrink-0">
+                        <Image
+                          src={avatarSrc}
+                          fill
+                          sizes="48px"
+                          alt={item.name}
+                          className="object-cover"
+                        />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-base text-[#0D231E] font-inter">
+                          {item.name}
+                        </h4>
+                        <p className="text-xs text-gray-500 font-inter font-medium">
+                          {item.country}
+                        </p>
+                        <div className="flex items-center gap-1 text-[#DE8D3D] mt-0.5">
+                          <Rating rating={item.rating || 5} className="size-3.5" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <Link
+                        href={`/dashboard/testimonials/edit/${item._id}`}
+                        className="p-2 rounded-lg bg-gray-50 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                        title="Edit testimonial"
+                      >
+                        <Icon icon="lucide:pencil" className="w-4 h-4" />
+                      </Link>
+                      <button
+                        onClick={() => handleDelete(item._id)}
+                        className="p-2 rounded-lg bg-gray-50 text-gray-700 hover:bg-rose-50 hover:text-rose-600 transition-colors cursor-pointer"
+                        title="Delete testimonial"
+                      >
+                        <Icon icon="lucide:trash-2" className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-gray-600 font-inter italic leading-relaxed line-clamp-3">
+                    &ldquo;{item.feedback}&rdquo;
+                  </p>
+                </div>
+
+                {bgSrc && (
+                  <div className="relative aspect-[16/7] w-full overflow-hidden rounded-xl bg-gray-50 mt-2">
+                    <Image
+                      src={bgSrc}
+                      fill
+                      sizes="(max-width: 1024px) 100vw, 50vw"
+                      alt="Review background"
+                      className="object-cover opacity-90"
                     />
                   </div>
-                </div>
-                <div className="flex gap-2 items-center flex-shrink-0">
-                  <Link href={`/dashboard/testimonials/edit/${item._id}`}>
-                    <button className="cursor-pointer hover:text-blue-500">
-                      <Icon icon="fluent:edit-24-regular" width="20" height="20" />
-                    </button>
-                  </Link>
-                  <button
-                    onClick={() => handleDelete(item._id)}
-                    className="cursor-pointer hover:text-red-500"
-                  >
-                    <Icon icon="mingcute:delete-2-line" width="20" height="20" />
-                  </button>
-                </div>
+                )}
               </div>
-
-              {/* Background image */}
-              <Image
-                src={`/api/uploads/testimonials/${item.backgroundImage}`}
-                width={500}
-                height={200}
-                alt="destination"
-                loading="eager"
-                className="rounded-md object-cover w-full h-40"
-              />
-
-              {/* Feedback preview */}
-              <p className="text-sm text-gray-600 mt-3 line-clamp-2">{item.feedback}</p>
-            </div>
-          ))}
+            );
+          })}
         </div>
-      </div>
+      )}
 
       {/* Pagination */}
-      <div className="flex justify-center mt-8 gap-2 items-center">
-        <Link
-          href={
-            isPrev
-              ? "/dashboard/testimonials?page=1"
-              : `/dashboard/testimonials?page=${Number(pagination.page) - 1}`
-          }
-          className={`px-3 py-1 border rounded-md ${isPrev ? "cursor-not-allowed opacity-50 border-gray-200" : "hover:bg-gray-200"}`}
-        >
-          Prev
-        </Link>
-        {Array.from({ length: pagination.totalPages }, (_, i) => (
+      {pagination.totalPages > 1 && (
+        <div className="flex justify-center items-center gap-2 pt-4">
           <Link
-            key={i}
-            href={`/dashboard/testimonials?page=${i + 1}`}
-            className={`px-3 py-1 border rounded-md ${pagination.page.toString() === (i + 1).toString() ? "bg-orange border-orange text-white" : "hover:bg-gray-200"}`}
+            href={
+              isPrev
+                ? "/dashboard/testimonials?page=1"
+                : `/dashboard/testimonials?page=${Number(pagination.page) - 1}`
+            }
+            className={`px-4 py-2 border rounded-xl text-xs font-semibold font-inter transition-all ${
+              isPrev
+                ? "cursor-not-allowed opacity-40 border-gray-200 text-gray-400 bg-white"
+                : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50 shadow-xs"
+            }`}
           >
-            {i + 1}
+            Previous
           </Link>
-        ))}
-        <Link
-          href={
-            isNext
-              ? `/dashboard/testimonials?page=${pagination.totalPages}`
-              : `/dashboard/testimonials?page=${Number(pagination.page) + 1}`
-          }
-          className={`px-3 py-1 border rounded-md ${isNext ? "cursor-not-allowed opacity-50 border-gray-200" : "hover:bg-gray-200"}`}
-        >
-          Next
-        </Link>
-      </div>
+
+          {Array.from({ length: pagination.totalPages }, (_, i) => (
+            <Link
+              key={i}
+              href={`/dashboard/testimonials?page=${i + 1}`}
+              className={`px-3.5 py-2 border rounded-xl text-xs font-bold font-inter transition-all ${
+                pagination.page.toString() === (i + 1).toString()
+                  ? "bg-[#0D231E] border-[#0D231E] text-white shadow-sm"
+                  : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"
+              }`}
+            >
+              {i + 1}
+            </Link>
+          ))}
+
+          <Link
+            href={
+              isNext
+                ? `/dashboard/testimonials?page=${pagination.totalPages}`
+                : `/dashboard/testimonials?page=${Number(pagination.page) + 1}`
+            }
+            className={`px-4 py-2 border rounded-xl text-xs font-semibold font-inter transition-all ${
+              isNext
+                ? "cursor-not-allowed opacity-40 border-gray-200 text-gray-400 bg-white"
+                : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50 shadow-xs"
+            }`}
+          >
+            Next
+          </Link>
+        </div>
+      )}
     </div>
   );
 }

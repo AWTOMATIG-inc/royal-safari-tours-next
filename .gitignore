@@ -45,3 +45,4 @@ deploy.sh
 
 # user-uploaded files (persist on server filesystem, not in git)
 /uploads
+.env*
