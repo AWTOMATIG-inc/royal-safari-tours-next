@@ -7,6 +7,7 @@ import { useState } from "react";
 
 const navItems = [
   { name: "Dashboard", href: "/dashboard", icon: "lucide:layout-dashboard" },
+  { name: "Google Analytics", href: "/dashboard/analytics", icon: "lucide:bar-chart-3" },
   { name: "Tour Packages", href: "/dashboard/tour-packages", icon: "lucide:package" },
   { name: "Tour Locations", href: "/dashboard/tour-locations", icon: "lucide:map-pin" },
   { name: "Contact Requests", href: "/dashboard/contact-requests", icon: "lucide:mail" },

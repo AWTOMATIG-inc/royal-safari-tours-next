@@ -40,7 +40,7 @@ export default function StatCard({ title, value, icon, trend, trendType = "up", 
       </div>
 
       <div className="flex items-baseline justify-between font-body">
-        <h3 className="text-3xl font-bold text-primary font-heading">
+        <h3 className="text-3xl font-bold text-primary font-body">
           {value}
         </h3>
         {trend && (
