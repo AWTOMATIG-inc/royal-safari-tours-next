@@ -1,11 +1,13 @@
 import Footer from "@/components/Footer";
 import GTMPageViewTracker from "@/components/GTMPageViewTracker";
+import MetaPixelPageViewTracker from "@/components/MetaPixelPageViewTracker";
 import Header from "@/components/Header";
 import ScrollButton from "@/components/ScrollButton";
 import ToastProvider from "@/components/ToastProvider";
 import { TourContextProvider } from "@/context/TourContextProvider";
 import { GoogleTagManager } from "@next/third-parties/google";
 import { Playfair_Display, Be_Vietnam_Pro, Mansalva } from "next/font/google";
+import Script from "next/script";
 import "swiper/css";
 import "./globals.css";
 
@@ -43,7 +45,31 @@ export default function RootLayout({ children }) {
     >
       <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID} />
       <body className="min-h-full flex flex-col font-body bg-sand text-primary">
+        <Script id="meta-pixel" strategy="afterInteractive">
+          {`!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '245223165348911');
+fbq('track', 'PageView');`}
+        </Script>
+
+        <noscript>
+          <img
+            height="1"
+            width="1"
+            style={{ display: "none" }}
+            src="https://www.facebook.com/tr?id=245223165348911&ev=PageView&noscript=1"
+            alt=""
+          />
+        </noscript>
+
         <GTMPageViewTracker />
+        <MetaPixelPageViewTracker />
         <Header />
         <TourContextProvider>{children}</TourContextProvider>
         <Footer />
