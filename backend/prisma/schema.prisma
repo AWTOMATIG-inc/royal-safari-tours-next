@@ -1,0 +1,119 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// User role classifications for RBAC
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  HR_MANAGER
+  EMPLOYEE
+  USER
+}
+
+// Central User model for credentials & dashboard log-in
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  avatar    String?
+  role      Role     @default(USER)
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Link: A user optionally has an Employee profile if they are part of staff
+  employee  Employee?
+}
+
+// Department Master Model
+model Department {
+  id          String     @id @default(uuid())
+  name        String     @unique
+  description String?
+  employees   Employee[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+// Designation Master Model
+model Designation {
+  id          String     @id @default(uuid())
+  name        String     @unique
+  description String?
+  employees   Employee[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+// Employment Type Master Model (e.g. Full-Time, Part-Time, Contract, Intern)
+model EmploymentType {
+  id          String     @id @default(uuid())
+  name        String     @unique
+  employees   Employee[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+// Employment Status Master Model (e.g. Active, Probation, Inactive, Suspended)
+model EmploymentStatus {
+  id          String     @id @default(uuid())
+  name        String     @unique
+  employees   Employee[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+// Employee Profile model (HRM core data)
+model Employee {
+  id                 String           @id @default(uuid())
+  userId             String?          @unique // Optional connection to User for system access
+  user               User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
+  employeeId         String           @unique // Generated staff ID, e.g. "EMP-2026-0001"
+  photo              String?          // URL to uploaded staff photo
+  name               String
+  email              String           @unique // Work or personal email
+  phone              String?
+  
+  // Master references
+  departmentId       String
+  department         Department       @relation(fields: [departmentId], references: [id])
+  designationId      String
+  designation        Designation      @relation(fields: [designationId], references: [id])
+  employmentTypeId   String
+  employmentType     EmploymentType   @relation(fields: [employmentTypeId], references: [id])
+  employmentStatusId String
+  employmentStatus   EmploymentStatus @relation(fields: [employmentStatusId], references: [id])
+  
+  joiningDate        DateTime         @default(now())
+  
+  // Self-relation: manager assignment
+  managerId          String?
+  manager            Employee?        @relation("EmployeeManager", fields: [managerId], references: [id])
+  subordinates       Employee[]       @relation("EmployeeManager")
+  
+  // HR notes (internal use, hidden from the Employee view)
+  hrNotes            String?
+  
+  // Relationships
+  documents          EmployeeDocument[]
+  
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+}
+
+// Employee Document Library model
+model EmployeeDocument {
+  id           String   @id @default(uuid())
+  employeeId   String
+  employee     Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  documentName String   // e.g. "NID_Copy.pdf", "Passport.pdf"
+  fileUrl      String   // Path/URL to document file
+  fileType     String?  // MIME type
+  uploadedAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
