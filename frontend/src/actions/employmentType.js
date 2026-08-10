@@ -1,18 +1,21 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { revalidatePath } from "next/cache";
+import { getBackendUrl } from "@/config/env";
 
 export const getEmploymentTypes = async () => {
   try {
     const nextCookies = await cookies();
-    const token = nextCookies.get("token")?.value;
+    const token = nextCookies.get("token")?.value || nextCookies.get("accessToken")?.value;
 
-    const backendUrl = process.env.BACKEND_URL || "http://localhost:5000";
+    const backendUrl = getBackendUrl();
 
     const res = await fetch(`${backendUrl}/api/v1/employment-types`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
+      cache: "no-store",
     });
 
     if (!res.ok) {
@@ -41,14 +44,15 @@ export const getEmploymentTypes = async () => {
 export const getEmploymentTypeById = async (id) => {
   try {
     const nextCookies = await cookies();
-    const token = nextCookies.get("token")?.value;
+    const token = nextCookies.get("token")?.value || nextCookies.get("accessToken")?.value;
 
-    const backendUrl = process.env.BACKEND_URL || "http://localhost:5000";
+    const backendUrl = getBackendUrl();
 
     const res = await fetch(`${backendUrl}/api/v1/employment-types/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
+      cache: "no-store",
     });
 
     if (!res.ok) {
@@ -77,15 +81,15 @@ export const getEmploymentTypeById = async (id) => {
 export const createEmploymentType = async (data) => {
   try {
     const nextCookies = await cookies();
-    const token = nextCookies.get("token")?.value;
+    const token = nextCookies.get("token")?.value || nextCookies.get("accessToken")?.value;
 
-    const backendUrl = process.env.BACKEND_URL || "http://localhost:5000";
+    const backendUrl = getBackendUrl();
 
     const res = await fetch(`${backendUrl}/api/v1/employment-types`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(data),
     });
@@ -95,6 +99,9 @@ export const createEmploymentType = async (data) => {
     if (!res.ok) {
       throw new Error(result.error || "Failed to create employment type");
     }
+
+    revalidatePath("/dashboard/employment-types");
+    revalidatePath("/dashboard/hrm");
 
     return {
       success: true,
@@ -112,15 +119,15 @@ export const createEmploymentType = async (data) => {
 export const updateEmploymentType = async (id, data) => {
   try {
     const nextCookies = await cookies();
-    const token = nextCookies.get("token")?.value;
+    const token = nextCookies.get("token")?.value || nextCookies.get("accessToken")?.value;
 
-    const backendUrl = process.env.BACKEND_URL || "http://localhost:5000";
+    const backendUrl = getBackendUrl();
 
     const res = await fetch(`${backendUrl}/api/v1/employment-types/${id}`, {
       method: "PATCH",
       headers: {
-        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(data),
     });
@@ -130,6 +137,9 @@ export const updateEmploymentType = async (id, data) => {
     if (!res.ok) {
       throw new Error(result.error || "Failed to update employment type");
     }
+
+    revalidatePath("/dashboard/employment-types");
+    revalidatePath("/dashboard/hrm");
 
     return {
       success: true,
@@ -147,9 +157,9 @@ export const updateEmploymentType = async (id, data) => {
 export const deleteEmploymentType = async (id) => {
   try {
     const nextCookies = await cookies();
-    const token = nextCookies.get("token")?.value;
+    const token = nextCookies.get("token")?.value || nextCookies.get("accessToken")?.value;
 
-    const backendUrl = process.env.BACKEND_URL || "http://localhost:5000";
+    const backendUrl = getBackendUrl();
 
     const res = await fetch(`${backendUrl}/api/v1/employment-types/${id}`, {
       method: "DELETE",
@@ -163,6 +173,9 @@ export const deleteEmploymentType = async (id) => {
     if (!res.ok) {
       throw new Error(result.error || "Failed to delete employment type");
     }
+
+    revalidatePath("/dashboard/employment-types");
+    revalidatePath("/dashboard/hrm");
 
     return {
       success: true,

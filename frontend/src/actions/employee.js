@@ -2,6 +2,7 @@
 
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { getBackendUrl } from "@/config/env";
 
 export const getEmployees = async (page = 1, filters = {}) => {
   try {
@@ -11,7 +12,7 @@ export const getEmployees = async (page = 1, filters = {}) => {
     const nextCookies = await cookies();
     const token = nextCookies.get("token")?.value || nextCookies.get("accessToken")?.value;
 
-    const backendUrl = process.env.BACKEND_URL || "http://localhost:5000";
+    const backendUrl = getBackendUrl();
 
     const params = new URLSearchParams({
       page: String(currentPage),
@@ -67,7 +68,7 @@ export const getEmployeeById = async (id) => {
     const nextCookies = await cookies();
     const token = nextCookies.get("token")?.value || nextCookies.get("accessToken")?.value;
 
-    const backendUrl = process.env.BACKEND_URL || "http://localhost:5000";
+    const backendUrl = getBackendUrl();
 
     const res = await fetch(`${backendUrl}/api/v1/employees/${id}`, {
       headers: {
@@ -104,7 +105,7 @@ export const createEmployee = async (formData) => {
     const nextCookies = await cookies();
     const token = nextCookies.get("token")?.value || nextCookies.get("accessToken")?.value;
 
-    const backendUrl = process.env.BACKEND_URL || "http://localhost:5000";
+    const backendUrl = getBackendUrl();
 
     const res = await fetch(`${backendUrl}/api/v1/employees`, {
       method: "POST",
@@ -141,7 +142,7 @@ export const updateEmployee = async (id, formData) => {
     const nextCookies = await cookies();
     const token = nextCookies.get("token")?.value || nextCookies.get("accessToken")?.value;
 
-    const backendUrl = process.env.BACKEND_URL || "http://localhost:5000";
+    const backendUrl = getBackendUrl();
 
     const res = await fetch(`${backendUrl}/api/v1/employees/${id}`, {
       method: "PATCH",
@@ -179,7 +180,7 @@ export const deleteEmployee = async (id) => {
     const nextCookies = await cookies();
     const token = nextCookies.get("token")?.value || nextCookies.get("accessToken")?.value;
 
-    const backendUrl = process.env.BACKEND_URL || "http://localhost:5000";
+    const backendUrl = getBackendUrl();
 
     const res = await fetch(`${backendUrl}/api/v1/employees/${id}`, {
       method: "DELETE",
@@ -215,7 +216,7 @@ export const uploadEmployeeDocument = async (employeeId, formData) => {
     const nextCookies = await cookies();
     const token = nextCookies.get("token")?.value || nextCookies.get("accessToken")?.value;
 
-    const backendUrl = process.env.BACKEND_URL || "http://localhost:5000";
+    const backendUrl = getBackendUrl();
 
     const res = await fetch(`${backendUrl}/api/v1/employees/${employeeId}/documents`, {
       method: "POST",
@@ -252,7 +253,7 @@ export const deleteEmployeeDocument = async (docId, employeeId) => {
     const nextCookies = await cookies();
     const token = nextCookies.get("token")?.value || nextCookies.get("accessToken")?.value;
 
-    const backendUrl = process.env.BACKEND_URL || "http://localhost:5000";
+    const backendUrl = getBackendUrl();
 
     const res = await fetch(`${backendUrl}/api/v1/employees/documents/${docId}`, {
       method: "DELETE",

@@ -1,18 +1,21 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { revalidatePath } from "next/cache";
+import { getBackendUrl } from "@/config/env";
 
 export const getDepartments = async () => {
   try {
     const nextCookies = await cookies();
-    const token = nextCookies.get("token")?.value;
+    const token = nextCookies.get("token")?.value || nextCookies.get("accessToken")?.value;
 
-    const backendUrl = process.env.BACKEND_URL || "http://localhost:5000";
+    const backendUrl = getBackendUrl();
 
     const res = await fetch(`${backendUrl}/api/v1/departments`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
+      cache: "no-store",
     });
 
     if (!res.ok) {
@@ -41,14 +44,15 @@ export const getDepartments = async () => {
 export const getDepartmentById = async (id) => {
   try {
     const nextCookies = await cookies();
-    const token = nextCookies.get("token")?.value;
+    const token = nextCookies.get("token")?.value || nextCookies.get("accessToken")?.value;
 
-    const backendUrl = process.env.BACKEND_URL || "http://localhost:5000";
+    const backendUrl = getBackendUrl();
 
     const res = await fetch(`${backendUrl}/api/v1/departments/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
+      cache: "no-store",
     });
 
     if (!res.ok) {
@@ -77,15 +81,15 @@ export const getDepartmentById = async (id) => {
 export const createDepartment = async (data) => {
   try {
     const nextCookies = await cookies();
-    const token = nextCookies.get("token")?.value;
+    const token = nextCookies.get("token")?.value || nextCookies.get("accessToken")?.value;
 
-    const backendUrl = process.env.BACKEND_URL || "http://localhost:5000";
+    const backendUrl = getBackendUrl();
 
     const res = await fetch(`${backendUrl}/api/v1/departments`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(data),
     });
@@ -95,6 +99,9 @@ export const createDepartment = async (data) => {
     if (!res.ok) {
       throw new Error(result.error || "Failed to create department");
     }
+
+    revalidatePath("/dashboard/departments");
+    revalidatePath("/dashboard/hrm");
 
     return {
       success: true,
@@ -112,15 +119,15 @@ export const createDepartment = async (data) => {
 export const updateDepartment = async (id, data) => {
   try {
     const nextCookies = await cookies();
-    const token = nextCookies.get("token")?.value;
+    const token = nextCookies.get("token")?.value || nextCookies.get("accessToken")?.value;
 
-    const backendUrl = process.env.BACKEND_URL || "http://localhost:5000";
+    const backendUrl = getBackendUrl();
 
     const res = await fetch(`${backendUrl}/api/v1/departments/${id}`, {
       method: "PATCH",
       headers: {
-        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(data),
     });
@@ -130,6 +137,9 @@ export const updateDepartment = async (id, data) => {
     if (!res.ok) {
       throw new Error(result.error || "Failed to update department");
     }
+
+    revalidatePath("/dashboard/departments");
+    revalidatePath("/dashboard/hrm");
 
     return {
       success: true,
@@ -147,9 +157,9 @@ export const updateDepartment = async (id, data) => {
 export const deleteDepartment = async (id) => {
   try {
     const nextCookies = await cookies();
-    const token = nextCookies.get("token")?.value;
+    const token = nextCookies.get("token")?.value || nextCookies.get("accessToken")?.value;
 
-    const backendUrl = process.env.BACKEND_URL || "http://localhost:5000";
+    const backendUrl = getBackendUrl();
 
     const res = await fetch(`${backendUrl}/api/v1/departments/${id}`, {
       method: "DELETE",
@@ -163,6 +173,9 @@ export const deleteDepartment = async (id) => {
     if (!res.ok) {
       throw new Error(result.error || "Failed to delete department");
     }
+
+    revalidatePath("/dashboard/departments");
+    revalidatePath("/dashboard/hrm");
 
     return {
       success: true,

@@ -1,18 +1,20 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { getBackendUrl } from "@/config/env";
 
 export const getHrmDashboardStats = async () => {
   try {
     const nextCookies = await cookies();
-    const token = nextCookies.get("token")?.value;
+    const token = nextCookies.get("token")?.value || nextCookies.get("accessToken")?.value;
 
-    const backendUrl = process.env.BACKEND_URL || "http://localhost:5000";
+    const backendUrl = getBackendUrl();
 
     const res = await fetch(`${backendUrl}/api/v1/hrm/dashboard/stats`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
+      cache: "no-store",
     });
 
     if (!res.ok) {

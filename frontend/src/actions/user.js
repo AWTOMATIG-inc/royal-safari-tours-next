@@ -1,6 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { getBackendUrl } from "@/config/env";
 
 export const getUsers = async (page = 1) => {
   try {
@@ -8,14 +9,15 @@ export const getUsers = async (page = 1) => {
     const currentPage = Math.max(1, Number(page) || 1);
 
     const nextCookies = await cookies();
-    const token = nextCookies.get("token")?.value;
+    const token = nextCookies.get("token")?.value || nextCookies.get("accessToken")?.value;
 
-    const backendUrl = process.env.BACKEND_URL || "http://localhost:5000";
+    const backendUrl = getBackendUrl();
 
     const res = await fetch(`${backendUrl}/api/v1/users?page=${currentPage}&limit=${limit}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
+      cache: "no-store",
     });
 
     if (!res.ok) {
@@ -34,8 +36,8 @@ export const getUsers = async (page = 1) => {
       pagination: {
         page: currentPage,
         limit,
-        total: result.pagination.total,
-        totalPages: result.pagination.totalPages,
+        total: result.pagination?.total || 0,
+        totalPages: result.pagination?.totalPages || 1,
       },
     };
   } catch (error) {

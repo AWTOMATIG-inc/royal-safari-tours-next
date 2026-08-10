@@ -1,18 +1,21 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { revalidatePath } from "next/cache";
+import { getBackendUrl } from "@/config/env";
 
 export const getEmploymentStatuses = async () => {
   try {
     const nextCookies = await cookies();
-    const token = nextCookies.get("token")?.value;
+    const token = nextCookies.get("token")?.value || nextCookies.get("accessToken")?.value;
 
-    const backendUrl = process.env.BACKEND_URL || "http://localhost:5000";
+    const backendUrl = getBackendUrl();
 
     const res = await fetch(`${backendUrl}/api/v1/employment-statuses`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
+      cache: "no-store",
     });
 
     if (!res.ok) {
@@ -41,14 +44,15 @@ export const getEmploymentStatuses = async () => {
 export const getEmploymentStatusById = async (id) => {
   try {
     const nextCookies = await cookies();
-    const token = nextCookies.get("token")?.value;
+    const token = nextCookies.get("token")?.value || nextCookies.get("accessToken")?.value;
 
-    const backendUrl = process.env.BACKEND_URL || "http://localhost:5000";
+    const backendUrl = getBackendUrl();
 
     const res = await fetch(`${backendUrl}/api/v1/employment-statuses/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
+      cache: "no-store",
     });
 
     if (!res.ok) {
@@ -77,15 +81,15 @@ export const getEmploymentStatusById = async (id) => {
 export const createEmploymentStatus = async (data) => {
   try {
     const nextCookies = await cookies();
-    const token = nextCookies.get("token")?.value;
+    const token = nextCookies.get("token")?.value || nextCookies.get("accessToken")?.value;
 
-    const backendUrl = process.env.BACKEND_URL || "http://localhost:5000";
+    const backendUrl = getBackendUrl();
 
     const res = await fetch(`${backendUrl}/api/v1/employment-statuses`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(data),
     });
@@ -95,6 +99,9 @@ export const createEmploymentStatus = async (data) => {
     if (!res.ok) {
       throw new Error(result.error || "Failed to create employment status");
     }
+
+    revalidatePath("/dashboard/employment-statuses");
+    revalidatePath("/dashboard/hrm");
 
     return {
       success: true,
@@ -112,15 +119,15 @@ export const createEmploymentStatus = async (data) => {
 export const updateEmploymentStatus = async (id, data) => {
   try {
     const nextCookies = await cookies();
-    const token = nextCookies.get("token")?.value;
+    const token = nextCookies.get("token")?.value || nextCookies.get("accessToken")?.value;
 
-    const backendUrl = process.env.BACKEND_URL || "http://localhost:5000";
+    const backendUrl = getBackendUrl();
 
     const res = await fetch(`${backendUrl}/api/v1/employment-statuses/${id}`, {
       method: "PATCH",
       headers: {
-        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(data),
     });
@@ -130,6 +137,9 @@ export const updateEmploymentStatus = async (id, data) => {
     if (!res.ok) {
       throw new Error(result.error || "Failed to update employment status");
     }
+
+    revalidatePath("/dashboard/employment-statuses");
+    revalidatePath("/dashboard/hrm");
 
     return {
       success: true,
@@ -147,9 +157,9 @@ export const updateEmploymentStatus = async (id, data) => {
 export const deleteEmploymentStatus = async (id) => {
   try {
     const nextCookies = await cookies();
-    const token = nextCookies.get("token")?.value;
+    const token = nextCookies.get("token")?.value || nextCookies.get("accessToken")?.value;
 
-    const backendUrl = process.env.BACKEND_URL || "http://localhost:5000";
+    const backendUrl = getBackendUrl();
 
     const res = await fetch(`${backendUrl}/api/v1/employment-statuses/${id}`, {
       method: "DELETE",
@@ -163,6 +173,9 @@ export const deleteEmploymentStatus = async (id) => {
     if (!res.ok) {
       throw new Error(result.error || "Failed to delete employment status");
     }
+
+    revalidatePath("/dashboard/employment-statuses");
+    revalidatePath("/dashboard/hrm");
 
     return {
       success: true,
