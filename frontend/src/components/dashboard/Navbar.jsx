@@ -7,27 +7,37 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 
-export default function Navbar() {
+export default function Navbar({ onToggleSidebar, isSidebarOpen }) {
   const [showMenu, setShowMenu] = useState(false);
   const { user } = useAuth();
 
   return (
-    <header className="sticky top-0 z-30 bg-white border-b border-gray-200 px-6 sm:px-8 py-4 mb-8 shadow-xs font-body">
-      <div className="flex items-center justify-between gap-4">
-        
-        {/* Left: Greeting */}
-        <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-primary font-heading">
-            Hello, {user?.name || "Admin"} 👋
-          </h2>
-          <p className="text-xs text-gray-500 font-light font-body hidden sm:block">
-            Welcome back to Royal Safari Tours Management Console
-          </p>
+    <header className="sticky top-0 z-30 bg-white border-b border-gray-200 px-4 sm:px-8 py-3.5 mb-8 shadow-xs font-body">
+      <div className="flex items-center justify-between gap-3">
+        {/* Left: Mobile Navigation Button & Greeting */}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={onToggleSidebar}
+            className="lg:hidden p-2 rounded-xl bg-sand hover:bg-gray-200 text-primary transition-colors cursor-pointer focus:outline-none"
+            aria-label="Toggle sidebar navigation"
+          >
+            <Icon
+              icon={isSidebarOpen ? "lucide:x" : "lucide:menu"}
+              className="w-5 h-5 text-primary shrink-0"
+            />
+          </button>
+          <div>
+            <h2 className="text-base sm:text-2xl font-bold text-primary font-heading">
+              Hello, {user?.name || "Admin"} 👋
+            </h2>
+            <p className="text-xs text-gray-500 font-light font-body hidden sm:block">
+              Welcome back to Royal Safari Tours Management Console
+            </p>
+          </div>
         </div>
 
         {/* Right Actions */}
         <div className="flex items-center gap-3 sm:gap-5 font-body">
-          
           {/* Quick Search Input */}
           <div className="relative hidden md:block w-64 font-body">
             <input
@@ -35,7 +45,10 @@ export default function Navbar() {
               placeholder="Search dashboard..."
               className="w-full bg-sand border border-gray-200 rounded-xl pl-9 pr-4 py-2 text-xs font-body text-primary focus:outline-none focus:border-secondary transition-colors"
             />
-            <Icon icon="lucide:search" className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Icon
+              icon="lucide:search"
+              className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"
+            />
           </div>
 
           {/* User Profile & Dropdown */}
@@ -44,7 +57,7 @@ export default function Navbar() {
               onClick={() => setShowMenu((prev) => !prev)}
               className="flex items-center gap-2 p-1 rounded-full hover:bg-gray-100 transition-colors cursor-pointer"
             >
-              <div className="relative w-10 h-10 rounded-full overflow-hidden border border-gray-200">
+              <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden border border-gray-200">
                 <Image
                   src={
                     user?.avatar
@@ -57,7 +70,10 @@ export default function Navbar() {
                   className="object-cover"
                 />
               </div>
-              <Icon icon="lucide:chevron-down" className="w-4 h-4 text-gray-500 hidden sm:block" />
+              <Icon
+                icon="lucide:chevron-down"
+                className="w-4 h-4 text-gray-500 hidden sm:block"
+              />
             </button>
 
             {/* Dropdown Menu */}
@@ -94,11 +110,8 @@ export default function Navbar() {
               </div>
             )}
           </div>
-
         </div>
-
       </div>
     </header>
   );
 }
-

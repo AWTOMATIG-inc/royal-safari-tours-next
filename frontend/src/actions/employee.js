@@ -209,3 +209,78 @@ export const deleteEmployee = async (id) => {
     };
   }
 };
+
+export const uploadEmployeeDocument = async (employeeId, formData) => {
+  try {
+    const nextCookies = await cookies();
+    const token = nextCookies.get("token")?.value || nextCookies.get("accessToken")?.value;
+
+    const backendUrl = process.env.BACKEND_URL || "http://localhost:5000";
+
+    const res = await fetch(`${backendUrl}/api/v1/employees/${employeeId}/documents`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    const result = await res.json();
+
+    if (!res.ok) {
+      throw new Error(result.error || "Failed to upload document");
+    }
+
+    revalidatePath(`/dashboard/employees/${employeeId}`);
+    revalidatePath("/dashboard/employees");
+
+    return {
+      success: true,
+      data: result.data,
+    };
+  } catch (error) {
+    console.error("Upload Employee Document Error:", error);
+    return {
+      success: false,
+      message: error.message || "Failed to upload document",
+    };
+  }
+};
+
+export const deleteEmployeeDocument = async (docId, employeeId) => {
+  try {
+    const nextCookies = await cookies();
+    const token = nextCookies.get("token")?.value || nextCookies.get("accessToken")?.value;
+
+    const backendUrl = process.env.BACKEND_URL || "http://localhost:5000";
+
+    const res = await fetch(`${backendUrl}/api/v1/employees/documents/${docId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const result = await res.json();
+
+    if (!res.ok) {
+      throw new Error(result.error || "Failed to delete document");
+    }
+
+    if (employeeId) {
+      revalidatePath(`/dashboard/employees/${employeeId}`);
+    }
+    revalidatePath("/dashboard/employees");
+
+    return {
+      success: true,
+      data: result.data,
+    };
+  } catch (error) {
+    console.error("Delete Employee Document Error:", error);
+    return {
+      success: false,
+      message: error.message || "Failed to delete document",
+    };
+  }
+};

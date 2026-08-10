@@ -80,8 +80,12 @@ const hrmSubItems = [
 
 const hrmRoles = ["SUPER_ADMIN", "ADMIN", "HR_MANAGER"];
 
-export default function Sidebar() {
-  const [isOpen, setIsOpen] = useState(false);
+export default function Sidebar({ isOpen: propIsOpen, setIsOpen: propSetIsOpen }) {
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
+
+  const isOpen = propIsOpen !== undefined ? propIsOpen : internalIsOpen;
+  const setIsOpen = propSetIsOpen || setInternalIsOpen;
+
   const pathname = usePathname();
   const { user } = useAuth();
 
@@ -107,27 +111,31 @@ export default function Sidebar() {
   const dashboardItem = visibleNavItems.find((i) => i.name === "Dashboard");
   const otherItems = visibleNavItems.filter((i) => i.name !== "Dashboard");
 
+  const handleLinkClick = () => {
+    setIsOpen(false);
+  };
+
   return (
     <>
-      {/* Mobile Drawer Backdrop */}
+      {/* Mobile Drawer Overlay Backdrop */}
       {isOpen && (
         <div
           onClick={() => setIsOpen(false)}
-          className="fixed inset-0 bg-black/60 backdrop-blur-xs z-40 lg:hidden"
+          className="fixed inset-0 bg-black/60 backdrop-blur-xs z-40 lg:hidden transition-opacity duration-300"
         />
       )}
 
-      {/* Sidebar Container */}
+      {/* Sidebar Navigation Drawer */}
       <aside
         className={`fixed lg:sticky top-0 left-0 z-50 h-screen w-64 bg-primary text-white flex flex-col justify-between p-5 transition-transform duration-300 ease-in-out border-r border-white/10 font-body ${
-          isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+          isOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full lg:translate-x-0"
         }`}
       >
         <div className="space-y-6">
-          {/* Header Brand */}
+          {/* Header Brand & Mobile Close Button */}
           <div className="flex items-center justify-between pb-4 border-b border-white/10 px-2">
-            <Link href="/dashboard" className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center text-white font-bold text-lg font-heading">
+            <Link href="/dashboard" onClick={handleLinkClick} className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center text-white font-bold text-lg font-heading shadow-xs">
                 R
               </div>
               <div>
@@ -143,7 +151,8 @@ export default function Sidebar() {
             {/* Mobile Close Button */}
             <button
               onClick={() => setIsOpen(false)}
-              className="lg:hidden p-1.5 rounded-lg bg-white/10 text-white hover:bg-white/20 cursor-pointer"
+              className="lg:hidden p-2 rounded-xl bg-white/10 text-white hover:bg-white/20 transition-colors cursor-pointer focus:outline-none"
+              aria-label="Close Mobile Navigation"
             >
               <Icon icon="lucide:x" className="w-5 h-5" />
             </button>
@@ -155,7 +164,7 @@ export default function Sidebar() {
             {dashboardItem && (
               <Link
                 href={dashboardItem.href}
-                onClick={() => setIsOpen(false)}
+                onClick={handleLinkClick}
                 className={`flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-semibold tracking-wide transition-all duration-200 font-body ${
                   pathname === dashboardItem.href
                     ? "bg-secondary text-white shadow-xs"
@@ -198,7 +207,7 @@ export default function Sidebar() {
                         <Link
                           key={item.href}
                           href={item.href}
-                          onClick={() => setIsOpen(false)}
+                          onClick={handleLinkClick}
                           className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all duration-200 font-body ${
                             isActive
                               ? "bg-secondary/80 text-white"
@@ -222,7 +231,7 @@ export default function Sidebar() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  onClick={() => setIsOpen(false)}
+                  onClick={handleLinkClick}
                   className={`flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-semibold tracking-wide transition-all duration-200 font-body ${
                     isActive
                       ? "bg-secondary text-white shadow-xs"
@@ -266,7 +275,7 @@ export default function Sidebar() {
                         <Link
                           key={item.href}
                           href={item.href}
-                          onClick={() => setIsOpen(false)}
+                          onClick={handleLinkClick}
                           className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all duration-200 font-body ${
                             isActive
                               ? "bg-secondary/80 text-white"
@@ -289,7 +298,7 @@ export default function Sidebar() {
         <div className="pt-4 border-t border-white/10 space-y-2 font-body">
           <Link
             href="/"
-            onClick={() => setIsOpen(false)}
+            onClick={handleLinkClick}
             className="flex items-center gap-2.5 px-3.5 py-3 rounded-xl text-xs font-semibold text-white/80 hover:bg-white/10 hover:text-white transition-all font-body"
           >
             <Icon icon="lucide:globe" className="w-4 h-4 text-accent" />
@@ -297,15 +306,6 @@ export default function Sidebar() {
           </Link>
         </div>
       </aside>
-
-      {/* Mobile Sidebar Toggle Button */}
-      <button
-        onClick={() => setIsOpen(true)}
-        className="lg:hidden fixed bottom-5 right-5 z-40 w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center shadow-xl border border-white/20 cursor-pointer"
-        aria-label="Open Sidebar Menu"
-      >
-        <Icon icon="lucide:menu" className="w-6 h-6" />
-      </button>
     </>
   );
 }

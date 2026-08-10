@@ -20,8 +20,12 @@ import { errorHandler } from "./app/middlewares/errorHandler";
 
 const app = express();
 
-// Security HTTP headers
-app.use(helmet());
+// Security HTTP headers with cross-origin resource policy enabled for static assets
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  })
+);
 
 // Response compression
 app.use(compression());
@@ -40,8 +44,16 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static uploaded files (Photos & Documents)
-app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+// Serve static uploaded files (Photos & Documents) with cross-origin headers
+app.use(
+  "/uploads",
+  express.static(path.join(process.cwd(), "uploads"), {
+    setHeaders: (res) => {
+      res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+      res.setHeader("Access-Control-Allow-Origin", "*");
+    },
+  })
+);
 
 // Auth, User, Master & HRM routes
 app.use("/api/v1/auth", AuthRoutes);
@@ -60,38 +72,35 @@ app.get("/api/v1/health", async (_req: Request, res: Response) => {
     await prisma.$queryRaw`SELECT 1`;
     res.status(StatusCodes.OK).json({
       success: true,
-      status: "UP",
-      database: "CONNECTED",
+      message: "HRM API Backend is healthy and connected to Supabase Database",
       timestamp: new Date().toISOString(),
     });
   } catch (error: any) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       success: false,
-      status: "DOWN",
-      database: "DISCONNECTED",
-      error: error.message || "Database connection error",
-      timestamp: new Date().toISOString(),
+      message: "Database connection failed",
+      error: error.message,
     });
   }
 });
 
-// Home route
+// Root endpoint
 app.get("/", (_req: Request, res: Response) => {
   res.status(StatusCodes.OK).json({
     success: true,
-    message: "Royal Safari Tours backend running",
+    message: "Welcome to Royal Safari Tours HRM Backend API",
   });
 });
 
-// Custom 404 handler
+// 404 Route Handler
 app.use((req: Request, res: Response) => {
   res.status(StatusCodes.NOT_FOUND).json({
     success: false,
-    message: `API Route Not Found: ${req.method} ${req.originalUrl}`,
+    message: `API Route Not Found: [${req.method}] ${req.originalUrl}`,
   });
 });
 
-// Custom Global Error Handler
+// Global Error Handler
 app.use(errorHandler);
 
 export default app;
