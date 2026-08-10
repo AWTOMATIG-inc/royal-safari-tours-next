@@ -22,28 +22,29 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   try {
     const { user, accessToken, refreshToken } = await authService.loginUser(req.body);
 
-    // Set HTTP-only Cookies
+    const accessTokenMaxAge = 24 * 60 * 60 * 1000;
+    const refreshTokenMaxAge = 7 * 24 * 60 * 60 * 1000;
+
     res.cookie("token", accessToken, {
       httpOnly: true,
       path: "/",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      maxAge: accessTokenMaxAge,
       sameSite: "lax",
     });
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       path: "/",
-      maxAge: 30 * 24 * 60 * 60 * 1000,
+      maxAge: refreshTokenMaxAge,
       sameSite: "lax",
     });
 
-    // Return Access Token & Refresh Token explicitly in JSON response body for API / Postman clients
     res.status(StatusCodes.OK).json({
       success: true,
       message: "Login successful",
       accessToken,
       refreshToken,
-      token: accessToken, // Alias for backward compatibility
+      token: accessToken,
       user,
     });
   } catch (error: any) {
@@ -59,10 +60,12 @@ export const refreshToken = async (req: Request, res: Response): Promise<void> =
     const token = req.cookies?.refreshToken || req.body?.refreshToken;
     const result = await authService.refreshTokenService(token);
 
+    const accessTokenMaxAge = 24 * 60 * 60 * 1000;
+
     res.cookie("token", result.accessToken, {
       httpOnly: true,
       path: "/",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      maxAge: accessTokenMaxAge,
       sameSite: "lax",
     });
 
@@ -123,6 +126,35 @@ export const profile = async (req: Request, res: Response): Promise<void> => {
     res.status(StatusCodes.UNAUTHORIZED).json({
       success: false,
       error: error.message || "Profile retrieval failed",
+    });
+  }
+};
+
+export const changePassword = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      res.status(StatusCodes.UNAUTHORIZED).json({ success: false, error: "Unauthorized" });
+      return;
+    }
+
+    const { currentPassword, newPassword } = req.body;
+    const result = await authService.changePassword(userId, currentPassword, newPassword);
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: result.message,
+    });
+  } catch (error: any) {
+    const status = error.message === "Current password is incorrect"
+      ? StatusCodes.BAD_REQUEST
+      : error.message === "User not found"
+      ? StatusCodes.NOT_FOUND
+      : StatusCodes.INTERNAL_SERVER_ERROR;
+
+    res.status(status).json({
+      success: false,
+      error: error.message || "Failed to change password",
     });
   }
 };

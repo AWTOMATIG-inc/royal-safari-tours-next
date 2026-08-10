@@ -4,7 +4,26 @@ import jwt from "jsonwebtoken";
 import config from "../../config";
 import { Role } from "@prisma/client";
 
-export const registerUser = async (payload: any) => {
+interface RegisterPayload {
+  name: string;
+  email: string;
+  password: string;
+}
+
+interface LoginPayload {
+  email: string;
+  password: string;
+}
+
+interface TokenPayload {
+  id: string;
+  email: string;
+  role: Role;
+  name: string;
+  avatar: string | null;
+}
+
+export const registerUser = async (payload: RegisterPayload) => {
   const { name, email, password } = payload;
 
   const isExist = await prisma.user.findUnique({
@@ -22,7 +41,7 @@ export const registerUser = async (payload: any) => {
       name,
       email,
       password: hashedPassword,
-      role: Role.USER, // Default role
+      role: Role.USER,
     },
     select: {
       id: true,
@@ -37,7 +56,7 @@ export const registerUser = async (payload: any) => {
   return newUser;
 };
 
-export const loginUser = async (payload: any) => {
+export const loginUser = async (payload: LoginPayload) => {
   const { email, password } = payload;
 
   const user = await prisma.user.findUnique({
@@ -53,7 +72,7 @@ export const loginUser = async (payload: any) => {
     throw new Error("Invalid credentials");
   }
 
-  const tokenPayload = {
+  const tokenPayload: TokenPayload = {
     id: user.id,
     email: user.email,
     role: user.role,
@@ -61,14 +80,12 @@ export const loginUser = async (payload: any) => {
     avatar: user.avatar,
   };
 
-  // Sign Access Token (1d default)
   const accessToken = jwt.sign(tokenPayload, config.jwtSecret, {
-    expiresIn: config.jwtExpiresIn as any,
+    expiresIn: config.jwtExpiresIn as jwt.SignOptions["expiresIn"],
   });
 
-  // Sign Refresh Token (7d default)
   const refreshToken = jwt.sign({ id: user.id }, config.refreshSecret, {
-    expiresIn: config.refreshExpiresIn as any,
+    expiresIn: config.refreshExpiresIn as jwt.SignOptions["expiresIn"],
   });
 
   return {
@@ -94,7 +111,7 @@ export const refreshTokenService = async (refreshToken: string) => {
       throw new Error("User not found");
     }
 
-    const tokenPayload = {
+    const tokenPayload: TokenPayload = {
       id: user.id,
       email: user.email,
       role: user.role,
@@ -103,14 +120,14 @@ export const refreshTokenService = async (refreshToken: string) => {
     };
 
     const newAccessToken = jwt.sign(tokenPayload, config.jwtSecret, {
-      expiresIn: config.jwtExpiresIn as any,
+      expiresIn: config.jwtExpiresIn as jwt.SignOptions["expiresIn"],
     });
 
     return {
       accessToken: newAccessToken,
       user: tokenPayload,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     throw new Error("Invalid or expired refresh token");
   }
 };
@@ -133,4 +150,32 @@ export const getUserProfile = async (userId: string) => {
   }
 
   return user;
+};
+
+export const changePassword = async (
+  userId: string,
+  currentPassword: string,
+  newPassword: string
+) => {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const isPasswordMatch = await bcrypt.compare(currentPassword, user.password);
+  if (!isPasswordMatch) {
+    throw new Error("Current password is incorrect");
+  }
+
+  const hashedPassword = await bcrypt.hash(newPassword, 12);
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: { password: hashedPassword },
+  });
+
+  return { message: "Password changed successfully" };
 };

@@ -1,11 +1,32 @@
+import { Prisma, Role } from "@prisma/client";
 import { prisma } from "../../utils/prisma";
-import { Role } from "@prisma/client";
 
-export const getAllUsers = async (page: number, limit: number) => {
+interface UpdateUserPayload {
+  name?: string;
+  role?: string;
+  avatar?: string;
+}
+
+export const getAllUsers = async (
+  page: number,
+  limit: number,
+  search?: string
+) => {
   const skip = (page - 1) * limit;
+
+  const where: Prisma.UserWhereInput = {};
+
+  if (search && search.trim()) {
+    const searchTerm = search.trim();
+    where.OR = [
+      { name: { contains: searchTerm, mode: "insensitive" } },
+      { email: { contains: searchTerm, mode: "insensitive" } },
+    ];
+  }
 
   const [users, total] = await Promise.all([
     prisma.user.findMany({
+      where,
       skip,
       take: limit,
       orderBy: { createdAt: "desc" },
@@ -19,7 +40,7 @@ export const getAllUsers = async (page: number, limit: number) => {
         updatedAt: true,
       },
     }),
-    prisma.user.count(),
+    prisma.user.count({ where }),
   ]);
 
   return {
@@ -28,9 +49,30 @@ export const getAllUsers = async (page: number, limit: number) => {
   };
 };
 
-export const updateUser = async (id: string, payload: any) => {
+export const getUserById = async (id: string) => {
+  const user = await prisma.user.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      avatar: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  return user;
+};
+
+export const updateUser = async (id: string, payload: UpdateUserPayload) => {
   const { role, name, avatar } = payload;
-  const updateData: any = {};
+  const updateData: Prisma.UserUpdateInput = {};
 
   if (name !== undefined) updateData.name = name;
   if (avatar !== undefined) updateData.avatar = avatar;
@@ -52,7 +94,6 @@ export const updateUser = async (id: string, payload: any) => {
 
       const isCurrentlyAdmin = currentTarget?.role === Role.ADMIN || currentTarget?.role === Role.SUPER_ADMIN;
 
-      // Limit check for new admins
       if (!isCurrentlyAdmin && adminCount >= 5) {
         throw new Error("Maximum of 5 admin accounts allowed");
       }

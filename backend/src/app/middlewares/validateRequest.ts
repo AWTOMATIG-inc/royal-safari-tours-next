@@ -15,3 +15,18 @@ export const validateRequest = (schema: ZodTypeAny) => {
     }
   };
 };
+
+export const validateQuery = (schema: ZodTypeAny) => {
+  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      await schema.parseAsync(req.query);
+      next();
+    } catch (error: any) {
+      res.status(400).json({
+        success: false,
+        error: error.errors ? error.errors[0]?.message : "Query validation failed",
+        details: error.errors || error.message,
+      });
+    }
+  };
+};

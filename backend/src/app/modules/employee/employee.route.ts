@@ -2,8 +2,10 @@ import express from "express";
 import { Role } from "@prisma/client";
 import { auth } from "../../middlewares/auth";
 import { authorize } from "../../middlewares/authorize";
+import { validateRequest } from "../../middlewares/validateRequest";
 import { uploadPhoto } from "../../middlewares/hrmUpload";
 import * as employeeController from "./employee.controller";
+import { createEmployeeSchema, updateEmployeeSchema } from "./employee.validation";
 
 const router = express.Router();
 
@@ -22,6 +24,7 @@ router.post(
   auth(),
   authorize(Role.SUPER_ADMIN, Role.ADMIN, Role.HR_MANAGER),
   uploadPhoto.single("photo"),
+  validateRequest(createEmployeeSchema),
   employeeController.createEmployee
 );
 
@@ -31,6 +34,7 @@ router.patch(
   auth(),
   authorize(Role.SUPER_ADMIN, Role.ADMIN, Role.HR_MANAGER),
   uploadPhoto.single("photo"),
+  validateRequest(updateEmployeeSchema),
   employeeController.updateEmployee
 );
 

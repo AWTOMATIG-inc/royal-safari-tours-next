@@ -1,5 +1,7 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
+import helmet from "helmet";
+import compression from "compression";
 import cookieParser from "cookie-parser";
 import { StatusCodes } from "http-status-toolkit";
 import path from "path";
@@ -17,6 +19,12 @@ import { requestResponseLogger } from "./app/middlewares/logger";
 import { errorHandler } from "./app/middlewares/errorHandler";
 
 const app = express();
+
+// Security HTTP headers
+app.use(helmet());
+
+// Response compression
+app.use(compression());
 
 // Custom Request/Response Logging Middleware
 app.use(requestResponseLogger);

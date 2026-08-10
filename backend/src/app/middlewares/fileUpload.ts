@@ -4,8 +4,7 @@ import fs from "fs";
 
 const storage = multer.diskStorage({
   destination: function (_req, _file, cb) {
-    // Relative path to frontend sibling folder uploads/user
-    const uploadPath = path.join(process.cwd(), "../frontend/uploads/user");
+    const uploadPath = path.join(process.cwd(), "uploads/avatars");
     if (!fs.existsSync(uploadPath)) {
       fs.mkdirSync(uploadPath, { recursive: true });
     }
@@ -13,8 +12,12 @@ const storage = multer.diskStorage({
   },
   filename: function (_req, file, cb) {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, uniqueSuffix + "-" + file.originalname);
+    const ext = path.extname(file.originalname);
+    cb(null, `avatar-${uniqueSuffix}${ext}`);
   },
 });
 
-export const upload = multer({ storage });
+export const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+});
