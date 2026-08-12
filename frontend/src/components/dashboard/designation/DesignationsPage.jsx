@@ -8,10 +8,14 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { deleteDesignation } from "@/actions/designation";
+import { useAuth } from "@/hooks/useAuth";
 import DesignationModal from "./DesignationModal";
 
 export default function DesignationsPage({ designations = [] }) {
   const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
+  const canManage = !authLoading && user && (user.role === "SUPER_ADMIN" || user.role === "ADMIN" || user.role === "HR_MANAGER");
+
   const [showModal, setShowModal] = useState(false);
   const [editingDesig, setEditingDesig] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -55,8 +59,8 @@ export default function DesignationsPage({ designations = [] }) {
     <div className="max-w-7xl mx-auto space-y-6">
       <DashboardPageHeader
         title="Designations"
-        description="Manage job titles, roles, and position hierarchies."
-        actionText="Add Designation"
+        description="View job titles, roles, and position hierarchies."
+        actionText={canManage ? "Add Designation" : undefined}
         actionHref="/dashboard/designations/create"
       />
 
@@ -72,8 +76,7 @@ export default function DesignationsPage({ designations = [] }) {
               className="mx-auto opacity-80"
             />
             <p className="text-gray-500 font-medium font-inter text-base">
-              No designations found. Click above to create your first
-              designation.
+              No designations found.
             </p>
           </div>
         ) : (
@@ -84,7 +87,7 @@ export default function DesignationsPage({ designations = [] }) {
                   <th className="py-4 px-6">Name</th>
                   <th className="py-4 px-6">Description</th>
                   <th className="py-4 px-6">Employees</th>
-                  <th className="py-4 px-6 text-right">Action</th>
+                  {canManage && <th className="py-4 px-6 text-right">Action</th>}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 text-gray-700">
@@ -100,30 +103,32 @@ export default function DesignationsPage({ designations = [] }) {
                       {desig.description || "—"}
                     </td>
                     <td className="py-4 px-6">
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-[#2cb775]/10 text-[#2cb775] border border-[#2cb775]/20">
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-blue-50 text-blue-700 border border-blue-100">
                         {desig._count?.employees || 0} employees
                       </span>
                     </td>
-                    <td className="py-4 px-6 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => handleEdit(desig)}
-                          className="p-2 rounded-lg bg-gray-50 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors cursor-pointer"
-                          title="Edit designation"
-                        >
-                          <Icon icon="lucide:pencil" className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() =>
-                            setDeleteModal({ open: true, id: desig.id })
-                          }
-                          className="p-2 rounded-lg bg-gray-50 text-gray-500 hover:bg-rose-50 hover:text-rose-600 transition-colors cursor-pointer"
-                          title="Delete designation"
-                        >
-                          <Icon icon="lucide:trash-2" className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
+                    {canManage && (
+                      <td className="py-4 px-6 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => handleEdit(desig)}
+                            className="p-2 rounded-lg bg-gray-50 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors cursor-pointer"
+                            title="Edit designation"
+                          >
+                            <Icon icon="lucide:pencil" className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() =>
+                              setDeleteModal({ open: true, id: desig.id })
+                            }
+                            className="p-2 rounded-lg bg-gray-50 text-gray-500 hover:bg-rose-50 hover:text-rose-600 transition-colors cursor-pointer"
+                            title="Delete designation"
+                          >
+                            <Icon icon="lucide:trash-2" className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>
@@ -132,7 +137,7 @@ export default function DesignationsPage({ designations = [] }) {
         )}
       </div>
 
-      {showModal && (
+      {canManage && showModal && (
         <DesignationModal
           designation={editingDesig}
           onClose={handleModalClose}
@@ -140,17 +145,19 @@ export default function DesignationsPage({ designations = [] }) {
         />
       )}
 
-      <ConfirmModal
-        isOpen={deleteModal.open}
-        onClose={() => setDeleteModal({ open: false, id: null })}
-        onConfirm={handleDelete}
-        title="Delete Designation"
-        message="Are you sure you want to delete this designation? This action cannot be undone."
-        confirmText="Delete"
-        cancelText="Cancel"
-        variant="danger"
-        loading={loading}
-      />
+      {canManage && (
+        <ConfirmModal
+          isOpen={deleteModal.open}
+          onClose={() => setDeleteModal({ open: false, id: null })}
+          onConfirm={handleDelete}
+          title="Delete Designation"
+          message="Are you sure you want to delete this designation? This action cannot be undone."
+          confirmText="Delete"
+          cancelText="Cancel"
+          variant="danger"
+          loading={loading}
+        />
+      )}
     </div>
   );
 }

@@ -25,7 +25,7 @@ export default function EmployeeForm({
     employee?.photo ? getImageUrl(employee.photo) : null
   );
   const [photoFile, setPhotoFile] = useState(null);
-  const [createAccount, setCreateAccount] = useState(false);
+  const [createAccount, setCreateAccount] = useState(true);
   const fileInputRef = useRef(null);
   const path = usePathname();
   const isEdit = path.includes("edit");

@@ -76,6 +76,35 @@ export const getEmployeeSelfProfile = async (req: Request, res: Response): Promi
   }
 };
 
+export const updateEmployeeSelfProfile = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const user = req.user;
+    if (!user) {
+      res.status(StatusCodes.UNAUTHORIZED).json({ success: false, error: "Unauthorized" });
+      return;
+    }
+
+    const photoUrl = req.file ? `/uploads/photos/${req.file.filename}` : undefined;
+    const result = await employeeService.updateEmployeeSelfProfile(
+      user.id,
+      user.email,
+      req.body,
+      photoUrl
+    );
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: "Personal profile updated successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(StatusCodes.BAD_REQUEST).json({
+      success: false,
+      error: error.message || "Failed to update personal profile",
+    });
+  }
+};
+
 export const updateEmployee = async (req: Request, res: Response): Promise<void> => {
   try {
     const id = req.params.id as string;

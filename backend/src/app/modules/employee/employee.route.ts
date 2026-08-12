@@ -12,6 +12,14 @@ const router = express.Router();
 // GET employee self-profile (All Authenticated Employees/Users)
 router.get("/me", auth(), employeeController.getEmployeeSelfProfile);
 
+// PATCH update employee self-profile (Phone number & Profile photo)
+router.patch(
+  "/me",
+  auth(),
+  uploadPhoto.single("photo"),
+  employeeController.updateEmployeeSelfProfile
+);
+
 // GET all employees with search, filter, pagination (Authenticated)
 router.get("/", auth(), employeeController.getAllEmployees);
 

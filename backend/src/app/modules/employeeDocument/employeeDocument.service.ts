@@ -1,8 +1,10 @@
 import fs from "fs";
 import path from "path";
+import { Role } from "@prisma/client";
 import { prisma } from "../../utils/prisma";
 
 export const uploadDocument = async (
+  user: any,
   employeeId: string,
   documentName: string,
   fileUrl: string,
@@ -14,6 +16,15 @@ export const uploadDocument = async (
 
   if (!employee) {
     throw new Error("Employee not found");
+  }
+
+  // RBAC Ownership Check for EMPLOYEE role
+  if (
+    user.role === Role.EMPLOYEE &&
+    employee.userId !== user.id &&
+    employee.email !== user.email
+  ) {
+    throw new Error("Forbidden: You can only upload documents to your own employee profile");
   }
 
   const document = await prisma.employeeDocument.create({
@@ -67,6 +78,7 @@ export const getDocumentById = async (docId: string) => {
 };
 
 export const updateDocument = async (
+  user: any,
   docId: string,
   data: { documentName?: string },
   newFileUrl?: string,
@@ -74,10 +86,20 @@ export const updateDocument = async (
 ) => {
   const existing = await prisma.employeeDocument.findUnique({
     where: { id: docId },
+    include: { employee: true },
   });
 
   if (!existing) {
     throw new Error("Employee document not found");
+  }
+
+  // RBAC Ownership Check for EMPLOYEE role
+  if (
+    user.role === Role.EMPLOYEE &&
+    existing.employee.userId !== user.id &&
+    existing.employee.email !== user.email
+  ) {
+    throw new Error("Forbidden: You can only update documents on your own employee profile");
   }
 
   const updateData: Record<string, unknown> = {};
@@ -111,13 +133,23 @@ export const updateDocument = async (
   return updated;
 };
 
-export const deleteDocument = async (docId: string) => {
+export const deleteDocument = async (user: any, docId: string) => {
   const document = await prisma.employeeDocument.findUnique({
     where: { id: docId },
+    include: { employee: true },
   });
 
   if (!document) {
     throw new Error("Employee document not found");
+  }
+
+  // RBAC Ownership Check for EMPLOYEE role
+  if (
+    user.role === Role.EMPLOYEE &&
+    document.employee.userId !== user.id &&
+    document.employee.email !== user.email
+  ) {
+    throw new Error("Forbidden: You can only delete documents from your own employee profile");
   }
 
   if (document.fileUrl && document.fileUrl.startsWith("/uploads/documents/")) {

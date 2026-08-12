@@ -4,6 +4,12 @@ import * as documentService from "./employeeDocument.service";
 
 export const uploadDocument = async (req: Request, res: Response): Promise<void> => {
   try {
+    const user = req.user;
+    if (!user) {
+      res.status(StatusCodes.UNAUTHORIZED).json({ success: false, error: "Unauthorized" });
+      return;
+    }
+
     const employeeId = (req.params.id || req.body.employeeId) as string;
     if (!employeeId) {
       res.status(StatusCodes.BAD_REQUEST).json({ success: false, error: "Employee ID is required" });
@@ -20,6 +26,7 @@ export const uploadDocument = async (req: Request, res: Response): Promise<void>
     const fileType = req.file.mimetype;
 
     const result = await documentService.uploadDocument(
+      user,
       employeeId,
       documentName,
       fileUrl,
@@ -32,7 +39,13 @@ export const uploadDocument = async (req: Request, res: Response): Promise<void>
       data: result,
     });
   } catch (error: any) {
-    res.status(error.message === "Employee not found" ? StatusCodes.NOT_FOUND : StatusCodes.BAD_REQUEST).json({
+    const status = error.message.includes("Forbidden")
+      ? StatusCodes.FORBIDDEN
+      : error.message === "Employee not found"
+      ? StatusCodes.NOT_FOUND
+      : StatusCodes.BAD_REQUEST;
+
+    res.status(status).json({
       success: false,
       error: error.message || "Failed to upload document",
     });
@@ -77,12 +90,18 @@ export const getDocumentById = async (req: Request, res: Response): Promise<void
 
 export const updateDocument = async (req: Request, res: Response): Promise<void> => {
   try {
-    const docId = req.params.docId as string;
+    const user = req.user;
+    if (!user) {
+      res.status(StatusCodes.UNAUTHORIZED).json({ success: false, error: "Unauthorized" });
+      return;
+    }
 
+    const docId = req.params.docId as string;
     const newFileUrl = req.file ? `/uploads/documents/${req.file.filename}` : undefined;
     const newFileType = req.file?.mimetype;
 
     const result = await documentService.updateDocument(
+      user,
       docId,
       { documentName: req.body.documentName },
       newFileUrl,
@@ -95,7 +114,13 @@ export const updateDocument = async (req: Request, res: Response): Promise<void>
       data: result,
     });
   } catch (error: any) {
-    res.status(error.message.includes("not found") ? StatusCodes.NOT_FOUND : StatusCodes.BAD_REQUEST).json({
+    const status = error.message.includes("Forbidden")
+      ? StatusCodes.FORBIDDEN
+      : error.message.includes("not found")
+      ? StatusCodes.NOT_FOUND
+      : StatusCodes.BAD_REQUEST;
+
+    res.status(status).json({
       success: false,
       error: error.message || "Failed to update document",
     });
@@ -104,15 +129,28 @@ export const updateDocument = async (req: Request, res: Response): Promise<void>
 
 export const deleteDocument = async (req: Request, res: Response): Promise<void> => {
   try {
+    const user = req.user;
+    if (!user) {
+      res.status(StatusCodes.UNAUTHORIZED).json({ success: false, error: "Unauthorized" });
+      return;
+    }
+
     const docId = req.params.docId as string;
-    const result = await documentService.deleteDocument(docId);
+    const result = await documentService.deleteDocument(user, docId);
+
     res.status(StatusCodes.OK).json({
       success: true,
       message: "Employee document deleted successfully",
       data: result,
     });
   } catch (error: any) {
-    res.status(error.message.includes("not found") ? StatusCodes.NOT_FOUND : StatusCodes.BAD_REQUEST).json({
+    const status = error.message.includes("Forbidden")
+      ? StatusCodes.FORBIDDEN
+      : error.message.includes("not found")
+      ? StatusCodes.NOT_FOUND
+      : StatusCodes.BAD_REQUEST;
+
+    res.status(status).json({
       success: false,
       error: error.message || "Failed to delete document",
     });

@@ -63,6 +63,80 @@ export const getEmployees = async (page = 1, filters = {}) => {
   }
 };
 
+export const getEmployeeSelfProfile = async () => {
+  try {
+    const nextCookies = await cookies();
+    const token = nextCookies.get("token")?.value || nextCookies.get("accessToken")?.value;
+
+    const backendUrl = getBackendUrl();
+
+    const res = await fetch(`${backendUrl}/api/v1/employees/me`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      throw new Error("Failed to fetch employee self-profile");
+    }
+
+    const result = await res.json();
+
+    if (!result.success) {
+      throw new Error(result.error || "Failed to fetch employee self-profile");
+    }
+
+    return {
+      success: true,
+      data: result.data,
+    };
+  } catch (error) {
+    console.error("Get Employee Self Profile Error:", error);
+    return {
+      success: false,
+      message: error.message || "Failed to fetch employee self-profile",
+    };
+  }
+};
+
+export const updateEmployeeSelfProfile = async (formData) => {
+  try {
+    const nextCookies = await cookies();
+    const token = nextCookies.get("token")?.value || nextCookies.get("accessToken")?.value;
+
+    const backendUrl = getBackendUrl();
+
+    const res = await fetch(`${backendUrl}/api/v1/employees/me`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    const result = await res.json();
+
+    if (!res.ok) {
+      throw new Error(result.error || "Failed to update personal profile");
+    }
+
+    revalidatePath("/dashboard/my-profile");
+    revalidatePath("/dashboard/employees");
+
+    return {
+      success: true,
+      data: result.data,
+    };
+  } catch (error) {
+    console.error("Update Employee Self Profile Error:", error);
+    return {
+      success: false,
+      message: error.message || "Failed to update personal profile",
+    };
+  }
+};
+
 export const getEmployeeById = async (id) => {
   try {
     const nextCookies = await cookies();

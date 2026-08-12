@@ -8,10 +8,14 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { deleteEmploymentType } from "@/actions/employmentType";
+import { useAuth } from "@/hooks/useAuth";
 import EmploymentTypeModal from "./EmploymentTypeModal";
 
 export default function EmploymentTypesPage({ employmentTypes = [] }) {
   const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
+  const canManage = !authLoading && user && (user.role === "SUPER_ADMIN" || user.role === "ADMIN" || user.role === "HR_MANAGER");
+
   const [showModal, setShowModal] = useState(false);
   const [editingType, setEditingType] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -55,8 +59,8 @@ export default function EmploymentTypesPage({ employmentTypes = [] }) {
     <div className="max-w-7xl mx-auto space-y-6">
       <DashboardPageHeader
         title="Employment Types"
-        description="Manage employment classifications and contract types."
-        actionText="Add Employment Type"
+        description="View employment classifications and contract types."
+        actionText={canManage ? "Add Employment Type" : undefined}
         actionHref="/dashboard/employment-types/create"
       />
 
@@ -72,8 +76,7 @@ export default function EmploymentTypesPage({ employmentTypes = [] }) {
               className="mx-auto opacity-80"
             />
             <p className="text-gray-500 font-medium font-inter text-base">
-              No employment types found. Click above to create your first
-              employment type.
+              No employment types found.
             </p>
           </div>
         ) : (
@@ -82,8 +85,9 @@ export default function EmploymentTypesPage({ employmentTypes = [] }) {
               <thead>
                 <tr className="bg-gray-50/80 border-b border-gray-100 text-gray-500 uppercase tracking-wider text-[11px] font-semibold">
                   <th className="py-4 px-6">Name</th>
+                  <th className="py-4 px-6">Description</th>
                   <th className="py-4 px-6">Employees</th>
-                  <th className="py-4 px-6 text-right">Action</th>
+                  {canManage && <th className="py-4 px-6 text-right">Action</th>}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 text-gray-700">
@@ -95,31 +99,36 @@ export default function EmploymentTypesPage({ employmentTypes = [] }) {
                     <td className="py-4 px-6 font-bold text-[#0D231E]">
                       {type.name}
                     </td>
+                    <td className="py-4 px-6 text-gray-600 max-w-xs truncate">
+                      {type.description || "—"}
+                    </td>
                     <td className="py-4 px-6">
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-[#2cb775]/10 text-[#2cb775] border border-[#2cb775]/20">
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-purple-50 text-purple-700 border border-purple-100">
                         {type._count?.employees || 0} employees
                       </span>
                     </td>
-                    <td className="py-4 px-6 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => handleEdit(type)}
-                          className="p-2 rounded-lg bg-gray-50 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors cursor-pointer"
-                          title="Edit employment type"
-                        >
-                          <Icon icon="lucide:pencil" className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() =>
-                            setDeleteModal({ open: true, id: type.id })
-                          }
-                          className="p-2 rounded-lg bg-gray-50 text-gray-500 hover:bg-rose-50 hover:text-rose-600 transition-colors cursor-pointer"
-                          title="Delete employment type"
-                        >
-                          <Icon icon="lucide:trash-2" className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
+                    {canManage && (
+                      <td className="py-4 px-6 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => handleEdit(type)}
+                            className="p-2 rounded-lg bg-gray-50 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors cursor-pointer"
+                            title="Edit employment type"
+                          >
+                            <Icon icon="lucide:pencil" className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() =>
+                              setDeleteModal({ open: true, id: type.id })
+                            }
+                            className="p-2 rounded-lg bg-gray-50 text-gray-500 hover:bg-rose-50 hover:text-rose-600 transition-colors cursor-pointer"
+                            title="Delete employment type"
+                          >
+                            <Icon icon="lucide:trash-2" className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>
@@ -128,7 +137,7 @@ export default function EmploymentTypesPage({ employmentTypes = [] }) {
         )}
       </div>
 
-      {showModal && (
+      {canManage && showModal && (
         <EmploymentTypeModal
           employmentType={editingType}
           onClose={handleModalClose}
@@ -136,17 +145,19 @@ export default function EmploymentTypesPage({ employmentTypes = [] }) {
         />
       )}
 
-      <ConfirmModal
-        isOpen={deleteModal.open}
-        onClose={() => setDeleteModal({ open: false, id: null })}
-        onConfirm={handleDelete}
-        title="Delete Employment Type"
-        message="Are you sure you want to delete this employment type? This action cannot be undone."
-        confirmText="Delete"
-        cancelText="Cancel"
-        variant="danger"
-        loading={loading}
-      />
+      {canManage && (
+        <ConfirmModal
+          isOpen={deleteModal.open}
+          onClose={() => setDeleteModal({ open: false, id: null })}
+          onConfirm={handleDelete}
+          title="Delete Employment Type"
+          message="Are you sure you want to delete this employment type? This action cannot be undone."
+          confirmText="Delete"
+          cancelText="Cancel"
+          variant="danger"
+          loading={loading}
+        />
+      )}
     </div>
   );
 }

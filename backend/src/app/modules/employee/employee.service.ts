@@ -1,6 +1,7 @@
 import { Prisma, Role } from "@prisma/client";
 import bcrypt from "bcrypt";
 import { prisma } from "../../utils/prisma";
+import { ensureEmployeeLeaveBalances } from "../leaveApplication/leaveApplication.service";
 
 interface CreateEmployeePayload {
   name: string;
@@ -332,6 +333,8 @@ export const getEmployeeById = async (id: string) => {
   const cleanId = sanitizeInput(id);
   if (!cleanId) throw new Error("Employee ID is required");
 
+  await ensureEmployeeLeaveBalances(cleanId);
+
   const employee = await prisma.employee.findUnique({
     where: { id: cleanId },
     include: {
@@ -367,6 +370,15 @@ export const getEmployeeById = async (id: string) => {
       },
       documents: {
         orderBy: { uploadedAt: "desc" },
+      },
+      leaveBalances: {
+        where: { year: new Date().getFullYear() },
+        include: { leaveType: true },
+        orderBy: { createdAt: "asc" },
+      },
+      leaveApplications: {
+        include: { leaveType: true },
+        orderBy: { appliedAt: "desc" },
       },
     },
   });
@@ -409,6 +421,92 @@ export const getEmployeeSelfProfile = async (userId: string, userEmail: string) 
 
   // Hide internal HR notes for staff self-view
   const { hrNotes, ...employeeProfile } = employee;
+  return employeeProfile;
+};
+
+export const updateEmployeeSelfProfile = async (
+  userId: string,
+  userEmail: string,
+  payload: { name?: string; email?: string; phone?: string },
+  photoUrl?: string
+) => {
+  const employee = await prisma.employee.findFirst({
+    where: {
+      OR: [{ userId }, { email: userEmail }],
+    },
+  });
+
+  if (!employee) {
+    throw new Error("Employee profile not found");
+  }
+
+  const updateData: Prisma.EmployeeUpdateInput = {};
+
+  const cleanName = sanitizeInput(payload.name);
+  if (cleanName) {
+    updateData.name = cleanName;
+  }
+
+  const cleanEmail = sanitizeInput(payload.email);
+  if (cleanEmail && cleanEmail.toLowerCase() !== employee.email.toLowerCase()) {
+    const duplicate = await prisma.employee.findUnique({
+      where: { email: cleanEmail.toLowerCase() },
+    });
+    if (duplicate) {
+      throw new Error("An employee with this email already exists");
+    }
+    updateData.email = cleanEmail.toLowerCase();
+  }
+
+  if (payload.phone !== undefined) {
+    updateData.phone = sanitizeInput(payload.phone);
+  }
+
+  if (photoUrl) {
+    updateData.photo = photoUrl;
+  }
+
+  const updated = await prisma.employee.update({
+    where: { id: employee.id },
+    data: updateData,
+    include: {
+      department: true,
+      designation: true,
+      employmentType: true,
+      employmentStatus: true,
+      manager: {
+        select: {
+          id: true,
+          employeeId: true,
+          name: true,
+          email: true,
+          photo: true,
+        },
+      },
+      documents: {
+        orderBy: { uploadedAt: "desc" },
+      },
+    },
+  });
+
+  // Sync linked User account name/email if user account exists
+  if (cleanName || (cleanEmail && cleanEmail.toLowerCase() !== employee.email.toLowerCase())) {
+    const userUpdate: Record<string, unknown> = {};
+    if (cleanName) userUpdate.name = cleanName;
+    if (cleanEmail) userUpdate.email = cleanEmail.toLowerCase();
+
+    await prisma.user.updateMany({
+      where: {
+        OR: [
+          ...(employee.userId ? [{ id: employee.userId }] : []),
+          { email: employee.email },
+        ],
+      },
+      data: userUpdate,
+    });
+  }
+
+  const { hrNotes, ...employeeProfile } = updated;
   return employeeProfile;
 };
 

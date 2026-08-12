@@ -6,11 +6,11 @@ import * as hrmDashboardController from "./hrmDashboard.controller";
 
 const router = express.Router();
 
-// GET /api/v1/hrm/dashboard/stats (Super Admin, Admin, HR Manager)
+// GET /api/v1/hrm/dashboard/stats (All Authenticated Roles)
 router.get(
   "/dashboard/stats",
   auth(),
-  authorize(Role.SUPER_ADMIN, Role.ADMIN, Role.HR_MANAGER),
+  authorize(Role.SUPER_ADMIN, Role.ADMIN, Role.HR_MANAGER, Role.EMPLOYEE),
   hrmDashboardController.getHrmDashboardStats
 );
 

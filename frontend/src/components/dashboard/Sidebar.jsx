@@ -56,10 +56,16 @@ const navItems = [
     roles: ["SUPER_ADMIN", "ADMIN"] 
   },
   { 
-    name: "My Account", 
+    name: "My Profile", 
+    href: "/dashboard/my-profile", 
+    icon: "lucide:user-circle", 
+    roles: ["EMPLOYEE"] 
+  },
+  { 
+    name: "Account Settings", 
     href: "/dashboard/account", 
     icon: "lucide:user-cog", 
-    roles: ["SUPER_ADMIN", "ADMIN", "HR_MANAGER", "EMPLOYEE"] 
+    roles: ["SUPER_ADMIN", "ADMIN", "HR_MANAGER"] 
   },
 ];
 
@@ -72,13 +78,15 @@ const analyticsRoles = ["SUPER_ADMIN", "ADMIN"];
 
 const hrmSubItems = [
   { name: "Employees", href: "/dashboard/employees", icon: "lucide:briefcase" },
+  { name: "Leave Applications", href: "/dashboard/leave-applications", icon: "lucide:calendar-check" },
+  { name: "Leave Policies", href: "/dashboard/leave-types", icon: "lucide:calendar-range" },
   { name: "Departments", href: "/dashboard/departments", icon: "lucide:building-2" },
   { name: "Designations", href: "/dashboard/designations", icon: "lucide:badge" },
   { name: "Employment Types", href: "/dashboard/employment-types", icon: "lucide:clock" },
   { name: "Employment Status", href: "/dashboard/employment-statuses", icon: "lucide:shield-check" },
 ];
 
-const hrmRoles = ["SUPER_ADMIN", "ADMIN", "HR_MANAGER"];
+const hrmRoles = ["SUPER_ADMIN", "ADMIN", "HR_MANAGER", "EMPLOYEE"];
 
 export default function Sidebar({ isOpen: propIsOpen, setIsOpen: propSetIsOpen }) {
   const [internalIsOpen, setInternalIsOpen] = useState(false);
@@ -95,6 +103,8 @@ export default function Sidebar({ isOpen: propIsOpen, setIsOpen: propSetIsOpen }
 
   const isHrmActive =
     pathname.startsWith("/dashboard/employees") ||
+    pathname.startsWith("/dashboard/leave-applications") ||
+    pathname.startsWith("/dashboard/leave-types") ||
     pathname.startsWith("/dashboard/departments") ||
     pathname.startsWith("/dashboard/designations") ||
     pathname.startsWith("/dashboard/employment-types") ||
@@ -143,7 +153,7 @@ export default function Sidebar({ isOpen: propIsOpen, setIsOpen: propSetIsOpen }
                   Royal Safari
                 </h2>
                 <p className="text-[10px] text-white/60 uppercase font-semibold font-body tracking-widest">
-                  Admin Console
+                  {userRole === "EMPLOYEE" ? "Employee Portal" : "Admin Console"}
                 </p>
               </div>
             </Link>

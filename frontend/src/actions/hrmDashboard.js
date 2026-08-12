@@ -18,13 +18,19 @@ export const getHrmDashboardStats = async () => {
     });
 
     if (!res.ok) {
-      throw new Error("Failed to fetch HRM dashboard stats from backend");
+      return {
+        success: false,
+        message: "Failed to fetch HRM dashboard stats from backend",
+      };
     }
 
     const result = await res.json();
 
     if (!result.success) {
-      throw new Error(result.error || "Failed to fetch HRM dashboard stats");
+      return {
+        success: false,
+        message: result.error || "Failed to fetch HRM dashboard stats",
+      };
     }
 
     return {

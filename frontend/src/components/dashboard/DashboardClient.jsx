@@ -2,6 +2,7 @@
 
 import StatCard from "@/components/dashboard/StatCard";
 import ModuleCard from "@/components/dashboard/ModuleCard";
+import { useAuth } from "@/hooks/useAuth";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
 
@@ -103,7 +104,8 @@ const hrmModules = [
 ];
 
 export default function DashboardClient({ hrmStats }) {
-  const totalModules = tourismModules.length + hrmModules.length;
+  const { user, loading } = useAuth();
+  const isEmployee = !loading && user?.role === "EMPLOYEE";
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
@@ -120,68 +122,94 @@ export default function DashboardClient({ hrmStats }) {
               ROYAL SAFARI MANAGEMENT
             </span>
             <h1 className="font-playfair text-3xl sm:text-4xl font-bold tracking-tight text-white">
-              Welcome to the Admin Console
+              {isEmployee ? "Welcome to Employee Portal" : "Welcome to the Admin Console"}
             </h1>
             <p className="text-sm text-white/80 font-light font-inter leading-relaxed">
-              Monitor key metrics, publish new expeditions, and manage customer inquiries seamlessly.
+              {isEmployee
+                ? "View your personal staff profile, department directory, and organizational information."
+                : "Monitor key metrics, publish new expeditions, and manage customer inquiries seamlessly."}
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            <Link
-              href="/dashboard/tour-packages/create"
-              className="inline-flex items-center gap-2 bg-[#2cb775] hover:bg-[#DE8D3D] text-white font-semibold text-xs tracking-wider uppercase px-6 py-3.5 rounded-xl transition-all duration-300 shadow-lg"
-            >
-              <Icon icon="lucide:plus" className="w-4 h-4" />
-              <span>Create Package</span>
-            </Link>
+            {isEmployee ? (
+              <>
+                <Link
+                  href="/dashboard/my-profile"
+                  className="inline-flex items-center gap-2 bg-[#2cb775] hover:bg-[#DE8D3D] text-white font-semibold text-xs tracking-wider uppercase px-6 py-3.5 rounded-xl transition-all duration-300 shadow-lg"
+                >
+                  <Icon icon="lucide:user-circle" className="w-4 h-4" />
+                  <span>My Profile</span>
+                </Link>
 
-            <Link
-              href="/dashboard/employees"
-              className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white font-semibold text-xs tracking-wider uppercase px-6 py-3.5 rounded-xl transition-all duration-300 border border-white/20 backdrop-blur-sm"
-            >
-              <Icon icon="lucide:briefcase" className="w-4 h-4" />
-              <span>Manage Employees</span>
-            </Link>
+                <Link
+                  href="/dashboard/employees"
+                  className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white font-semibold text-xs tracking-wider uppercase px-6 py-3.5 rounded-xl transition-all duration-300 border border-white/20 backdrop-blur-sm"
+                >
+                  <Icon icon="lucide:briefcase" className="w-4 h-4" />
+                  <span>Employee Directory</span>
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/dashboard/tour-packages/create"
+                  className="inline-flex items-center gap-2 bg-[#2cb775] hover:bg-[#DE8D3D] text-white font-semibold text-xs tracking-wider uppercase px-6 py-3.5 rounded-xl transition-all duration-300 shadow-lg"
+                >
+                  <Icon icon="lucide:plus" className="w-4 h-4" />
+                  <span>Create Package</span>
+                </Link>
+
+                <Link
+                  href="/dashboard/employees"
+                  className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white font-semibold text-xs tracking-wider uppercase px-6 py-3.5 rounded-xl transition-all duration-300 border border-white/20 backdrop-blur-sm"
+                >
+                  <Icon icon="lucide:briefcase" className="w-4 h-4" />
+                  <span>Manage Employees</span>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>
 
-      {/* KPI Stat Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <StatCard
-          title="Tour Packages"
-          value="26+"
-          icon="lucide:package"
-          trend="+12% this month"
-          trendType="up"
-          color="green"
-        />
-        <StatCard
-          title="Expedition Regions"
-          value="14"
-          icon="lucide:map-pin"
-          trend="Active"
-          trendType="up"
-          color="gold"
-        />
-        <StatCard
-          title="Contact Requests"
-          value="48"
-          icon="lucide:mail"
-          trend="Inquiries"
-          trendType="up"
-          color="blue"
-        />
-        <StatCard
-          title="Journal Subscribers"
-          value="1,240"
-          icon="lucide:bell"
-          trend="+8% growth"
-          trendType="up"
-          color="purple"
-        />
-      </div>
+      {/* KPI Stat Cards Grid (Admin Only) */}
+      {!isEmployee && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <StatCard
+            title="Tour Packages"
+            value="26+"
+            icon="lucide:package"
+            trend="+12% this month"
+            trendType="up"
+            color="green"
+          />
+          <StatCard
+            title="Expedition Regions"
+            value="14"
+            icon="lucide:map-pin"
+            trend="Active"
+            trendType="up"
+            color="gold"
+          />
+          <StatCard
+            title="Contact Requests"
+            value="48"
+            icon="lucide:mail"
+            trend="Inquiries"
+            trendType="up"
+            color="blue"
+          />
+          <StatCard
+            title="Journal Subscribers"
+            value="1,240"
+            icon="lucide:bell"
+            trend="+8% growth"
+            trendType="up"
+            color="purple"
+          />
+        </div>
+      )}
 
       {/* HRM Stat Cards */}
       {hrmStats && (
@@ -250,23 +278,25 @@ export default function DashboardClient({ hrmStats }) {
         </div>
       </div>
 
-      {/* Tourism Management Modules */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold text-[#0D231E] font-inter">
-            Management Modules
-          </h2>
-          <span className="text-xs text-gray-500 font-inter">
-            {tourismModules.length} Features Available
-          </span>
-        </div>
+      {/* Tourism Management Modules (Admin Only) */}
+      {!isEmployee && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-bold text-[#0D231E] font-inter">
+              Management Modules
+            </h2>
+            <span className="text-xs text-gray-500 font-inter">
+              {tourismModules.length} Features Available
+            </span>
+          </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {tourismModules.map((mod) => (
-            <ModuleCard key={mod.title} {...mod} />
-          ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {tourismModules.map((mod) => (
+              <ModuleCard key={mod.title} {...mod} />
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
     </div>
   );

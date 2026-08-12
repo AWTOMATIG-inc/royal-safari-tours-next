@@ -2,14 +2,25 @@
 
 import { useAuth } from "@/hooks/useAuth";
 import { logout } from "@/lib/auth";
+import { getImageUrl } from "@/lib/getImageUrl";
 import { Icon } from "@iconify/react";
-import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+
+const getInitials = (name) => {
+  if (!name) return "U";
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[1][0]).toUpperCase();
+};
 
 export default function Navbar({ onToggleSidebar, isSidebarOpen }) {
   const [showMenu, setShowMenu] = useState(false);
   const { user } = useAuth();
+
+  const isEmployee = user?.role === "EMPLOYEE";
+  const profileHref = isEmployee ? "/dashboard/my-profile" : "/dashboard/account";
+  const avatarUrl = user?.avatar || user?.photo ? getImageUrl(user.avatar || user.photo) : null;
 
   return (
     <header className="sticky top-0 z-30 bg-white border-b border-gray-200 px-4 sm:px-8 py-3.5 mb-8 shadow-xs font-body">
@@ -28,7 +39,7 @@ export default function Navbar({ onToggleSidebar, isSidebarOpen }) {
           </button>
           <div>
             <h2 className="text-base sm:text-2xl font-bold text-primary font-heading">
-              Hello, {user?.name || "Admin"} 👋
+              Hello, {user?.name || "User"} 👋
             </h2>
             <p className="text-xs text-gray-500 font-light font-body hidden sm:block">
               Welcome back to Royal Safari Tours Management Console
@@ -57,19 +68,19 @@ export default function Navbar({ onToggleSidebar, isSidebarOpen }) {
               onClick={() => setShowMenu((prev) => !prev)}
               className="flex items-center gap-2 p-1 rounded-full hover:bg-gray-100 transition-colors cursor-pointer"
             >
-              <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden border border-gray-200">
-                <Image
-                  src={
-                    user?.avatar
-                      ? `/api/uploads/user/${user?.avatar}`
-                      : "/avatar.png"
-                  }
-                  alt={user?.name || "Avatar"}
-                  fill
-                  sizes="40px"
-                  className="object-cover"
-                />
-              </div>
+              {avatarUrl ? (
+                <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden border border-gray-200 shrink-0">
+                  <img
+                    src={avatarUrl}
+                    alt={user?.name || "Avatar"}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#2cb775]/10 border border-[#2cb775]/20 flex items-center justify-center text-[#2cb775] font-bold text-xs sm:text-sm shrink-0">
+                  {getInitials(user?.name)}
+                </div>
+              )}
               <Icon
                 icon="lucide:chevron-down"
                 className="w-4 h-4 text-gray-500 hidden sm:block"
@@ -81,20 +92,20 @@ export default function Navbar({ onToggleSidebar, isSidebarOpen }) {
               <div className="absolute right-0 top-12 w-52 bg-white rounded-2xl border border-gray-200 shadow-xl p-2 z-50 space-y-1 font-body">
                 <div className="px-3 py-2 border-b border-gray-100 font-body">
                   <p className="text-xs font-bold text-primary font-heading">
-                    {user?.name || "Admin User"}
+                    {user?.name || "User"}
                   </p>
                   <p className="text-[10px] text-gray-500 font-body truncate">
-                    {user?.email || "admin@royalsafari.com"}
+                    {user?.email || ""}
                   </p>
                 </div>
 
                 <Link
-                  href="/dashboard/account"
+                  href={profileHref}
                   onClick={() => setShowMenu(false)}
                   className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-gray-700 hover:bg-sand hover:text-secondary font-body transition-colors"
                 >
-                  <Icon icon="lucide:user-cog" className="w-4 h-4" />
-                  <span>Account Settings</span>
+                  <Icon icon={isEmployee ? "lucide:user-circle" : "lucide:user-cog"} className="w-4 h-4" />
+                  <span>{isEmployee ? "My Profile" : "Account Settings"}</span>
                 </Link>
 
                 <button

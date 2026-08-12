@@ -15,6 +15,13 @@ enum Role {
   USER
 }
 
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
 // Central User model for credentials & dashboard log-in
 model User {
   id        String   @id @default(uuid())
@@ -70,40 +77,42 @@ model EmploymentStatus {
 
 // Employee Profile model (HRM core data)
 model Employee {
-  id                 String           @id @default(uuid())
-  userId             String?          @unique // Optional connection to User for system access
-  user               User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
-  employeeId         String           @unique // Generated staff ID, e.g. "EMP-2026-0001"
-  photo              String?          // URL to uploaded staff photo
+  id                 String                 @id @default(uuid())
+  userId             String?                @unique // Optional connection to User for system access
+  user               User?                  @relation(fields: [userId], references: [id], onDelete: SetNull)
+  employeeId         String                 @unique // Generated staff ID, e.g. "EMP-2026-0001"
+  photo              String?                // URL to uploaded staff photo
   name               String
-  email              String           @unique // Work or personal email
+  email              String                 @unique // Work or personal email
   phone              String?
   
   // Master references
   departmentId       String
-  department         Department       @relation(fields: [departmentId], references: [id])
+  department         Department             @relation(fields: [departmentId], references: [id])
   designationId      String
-  designation        Designation      @relation(fields: [designationId], references: [id])
+  designation        Designation            @relation(fields: [designationId], references: [id])
   employmentTypeId   String
-  employmentType     EmploymentType   @relation(fields: [employmentTypeId], references: [id])
+  employmentType     EmploymentType         @relation(fields: [employmentTypeId], references: [id])
   employmentStatusId String
-  employmentStatus   EmploymentStatus @relation(fields: [employmentStatusId], references: [id])
+  employmentStatus   EmploymentStatus       @relation(fields: [employmentStatusId], references: [id])
   
-  joiningDate        DateTime         @default(now())
+  joiningDate        DateTime               @default(now())
   
   // Self-relation: manager assignment
   managerId          String?
-  manager            Employee?        @relation("EmployeeManager", fields: [managerId], references: [id])
-  subordinates       Employee[]       @relation("EmployeeManager")
+  manager            Employee?              @relation("EmployeeManager", fields: [managerId], references: [id])
+  subordinates       Employee[]             @relation("EmployeeManager")
   
   // HR notes (internal use, hidden from the Employee view)
   hrNotes            String?
   
   // Relationships
   documents          EmployeeDocument[]
+  leaveBalances      EmployeeLeaveBalance[]
+  leaveApplications  LeaveApplication[]
   
-  createdAt          DateTime         @default(now())
-  updatedAt          DateTime         @updatedAt
+  createdAt          DateTime               @default(now())
+  updatedAt          DateTime               @updatedAt
 }
 
 // Employee Document Library model
@@ -116,4 +125,50 @@ model EmployeeDocument {
   fileType     String?  // MIME type
   uploadedAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+// Leave Policy / Type Master Model (Casual Leave, Sick Leave, Paid Leave, etc.)
+model LeaveType {
+  id                 String                 @id @default(uuid())
+  name               String                 @unique
+  description        String?
+  defaultDaysPerYear Int                    @default(10)
+  balances           EmployeeLeaveBalance[]
+  applications       LeaveApplication[]
+  createdAt          DateTime               @default(now())
+  updatedAt          DateTime               @updatedAt
+}
+
+// Employee Yearly Leave Balance Allocation Model
+model EmployeeLeaveBalance {
+  id          String    @id @default(uuid())
+  employeeId  String
+  employee    Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  leaveTypeId String
+  leaveType   LeaveType @relation(fields: [leaveTypeId], references: [id], onDelete: Cascade)
+  year        Int
+  totalDays   Int
+  usedDays    Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([employeeId, leaveTypeId, year])
+}
+
+// Leave Application / Request Model
+model LeaveApplication {
+  id              String      @id @default(uuid())
+  employeeId      String
+  employee        Employee    @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  leaveTypeId     String
+  leaveType       LeaveType   @relation(fields: [leaveTypeId], references: [id], onDelete: Cascade)
+  startDate       DateTime
+  endDate         DateTime
+  totalDays       Int
+  reason          String
+  status          LeaveStatus @default(PENDING)
+  approvedById    String?
+  rejectionReason String?
+  appliedAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
 }
