@@ -114,7 +114,7 @@ export const updateLeaveType = async (
     }
   }
 
-  return await prisma.leaveType.update({
+  const updatedLeaveType = await prisma.leaveType.update({
     where: { id },
     data: {
       ...(payload.name && { name: payload.name.trim() }),
@@ -126,6 +126,21 @@ export const updateLeaveType = async (
       }),
     },
   });
+
+  if (payload.defaultDaysPerYear !== undefined) {
+    const currentYear = new Date().getFullYear();
+    await prisma.employeeLeaveBalance.updateMany({
+      where: {
+        leaveTypeId: id,
+        year: currentYear,
+      },
+      data: {
+        totalDays: payload.defaultDaysPerYear,
+      },
+    });
+  }
+
+  return updatedLeaveType;
 };
 
 export const deleteLeaveType = async (id: string) => {

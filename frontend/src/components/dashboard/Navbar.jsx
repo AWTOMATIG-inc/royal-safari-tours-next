@@ -5,22 +5,29 @@ import { logout } from "@/lib/auth";
 import { getImageUrl } from "@/lib/getImageUrl";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const getInitials = (name) => {
   if (!name) return "U";
-  const parts = name.trim().split(/\s+/);
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "U";
   if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
   return (parts[0][0] + parts[1][0]).toUpperCase();
 };
 
 export default function Navbar({ onToggleSidebar, isSidebarOpen }) {
   const [showMenu, setShowMenu] = useState(false);
+  const [imageError, setImageError] = useState(false);
   const { user } = useAuth();
 
   const isEmployee = user?.role === "EMPLOYEE";
   const profileHref = isEmployee ? "/dashboard/my-profile" : "/dashboard/account";
-  const avatarUrl = user?.avatar || user?.photo ? getImageUrl(user.avatar || user.photo) : null;
+  const rawPhoto = user?.avatar || user?.photo;
+  const avatarUrl = rawPhoto ? getImageUrl(rawPhoto) : null;
+
+  useEffect(() => {
+    setImageError(false);
+  }, [rawPhoto]);
 
   return (
     <header className="sticky top-0 z-30 bg-white border-b border-gray-200 px-4 sm:px-8 py-3.5 mb-8 shadow-xs font-body">
@@ -68,16 +75,17 @@ export default function Navbar({ onToggleSidebar, isSidebarOpen }) {
               onClick={() => setShowMenu((prev) => !prev)}
               className="flex items-center gap-2 p-1 rounded-full hover:bg-gray-100 transition-colors cursor-pointer"
             >
-              {avatarUrl ? (
-                <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden border border-gray-200 shrink-0">
+              {avatarUrl && !imageError ? (
+                <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden border border-gray-200 shrink-0 bg-gray-100">
                   <img
                     src={avatarUrl}
-                    alt={user?.name || "Avatar"}
+                    alt=""
+                    onError={() => setImageError(true)}
                     className="w-full h-full object-cover"
                   />
                 </div>
               ) : (
-                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#2cb775]/10 border border-[#2cb775]/20 flex items-center justify-center text-[#2cb775] font-bold text-xs sm:text-sm shrink-0">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#2cb775]/10 border border-[#2cb775]/20 flex items-center justify-center text-[#2cb775] font-bold text-xs sm:text-sm shrink-0 uppercase">
                   {getInitials(user?.name)}
                 </div>
               )}

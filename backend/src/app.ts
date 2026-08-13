@@ -16,6 +16,7 @@ import { EmployeeDocumentRoutes } from "./app/modules/employeeDocument/employeeD
 import { HrmDashboardRoutes } from "./app/modules/hrmDashboard/hrmDashboard.route";
 import { LeaveTypeRoutes } from "./app/modules/leaveType/leaveType.route";
 import { LeaveApplicationRoutes } from "./app/modules/leaveApplication/leaveApplication.route";
+import { AttendanceRoutes } from "./app/modules/attendance/attendance.route";
 import { prisma } from "./app/utils/prisma";
 import { requestResponseLogger } from "./app/middlewares/logger";
 import { errorHandler } from "./app/middlewares/errorHandler";
@@ -69,6 +70,7 @@ app.use("/api/v1/employees", EmployeeDocumentRoutes);
 app.use("/api/v1/hrm", HrmDashboardRoutes);
 app.use("/api/v1/leave-types", LeaveTypeRoutes);
 app.use("/api/v1/leaves", LeaveApplicationRoutes);
+app.use("/api/v1/attendance", AttendanceRoutes);
 
 // Health check endpoint
 app.get("/api/v1/health", async (_req: Request, res: Response) => {

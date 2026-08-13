@@ -22,6 +22,14 @@ enum LeaveStatus {
   CANCELLED
 }
 
+enum AttendanceStatus {
+  PRESENT
+  LATE
+  HALF_DAY
+  ABSENT
+  ON_LEAVE
+}
+
 // Central User model for credentials & dashboard log-in
 model User {
   id        String   @id @default(uuid())
@@ -110,6 +118,7 @@ model Employee {
   documents          EmployeeDocument[]
   leaveBalances      EmployeeLeaveBalance[]
   leaveApplications  LeaveApplication[]
+  attendances        Attendance[]
   
   createdAt          DateTime               @default(now())
   updatedAt          DateTime               @updatedAt
@@ -171,4 +180,41 @@ model LeaveApplication {
   rejectionReason String?
   appliedAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
+}
+
+// Attendance Policy / Shift Work Hours Configuration Model
+model AttendancePolicy {
+  id                   String   @id @default(uuid())
+  workStartTime        String   @default("09:00") // 24-hr HH:mm
+  workEndTime          String   @default("18:00") // 24-hr HH:mm
+  lateGraceMinutes     Int      @default(15)
+  earlyOutGraceMinutes Int      @default(15)
+  halfDayHours         Float    @default(4.0)
+  updatedAt            DateTime @updatedAt
+}
+
+// Attendance Check-In / Check-Out Log Model
+model Attendance {
+  id                   String           @id @default(uuid())
+  employeeId           String
+  employee             Employee         @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  date                 DateTime         // Normalized date (00:00:00)
+  checkInTime          DateTime
+  checkOutTime         DateTime?
+  status               AttendanceStatus @default(PRESENT)
+  isLate               Boolean          @default(false)
+  isEarlyOut           Boolean          @default(false)
+  workHours            Float?
+  ipAddress            String?
+  checkInLatitude      Float?
+  checkInLongitude     Float?
+  checkInLocationName  String?
+  checkOutLatitude     Float?
+  checkOutLongitude    Float?
+  checkOutLocationName String?
+  remarks              String?
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+
+  @@unique([employeeId, date])
 }

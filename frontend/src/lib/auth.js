@@ -14,3 +14,33 @@ export const logout = async (redirectTo = "/login") => {
     window.location.href = redirectTo;
   }
 };
+
+export const changePassword = async ({ currentPassword, newPassword }) => {
+  try {
+    const res = await fetch("/api/v1/auth/change-password", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ currentPassword, newPassword }),
+    });
+
+    const result = await res.json();
+    if (!res.ok || !result.success) {
+      return {
+        success: false,
+        message: result.error || result.message || "Failed to change password",
+      };
+    }
+
+    return {
+      success: true,
+      message: result.message || "Password changed successfully",
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: error.message || "Failed to change password",
+    };
+  }
+};

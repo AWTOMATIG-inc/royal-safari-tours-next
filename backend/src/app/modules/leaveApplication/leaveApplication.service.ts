@@ -19,7 +19,9 @@ export const ensureEmployeeLeaveBalances = async (
           year,
         },
       },
-      update: {},
+      update: {
+        totalDays: leaveType.defaultDaysPerYear,
+      },
       create: {
         employeeId,
         leaveTypeId: leaveType.id,

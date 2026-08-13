@@ -142,6 +142,11 @@ export const getUserProfile = async (userId: string) => {
       role: true,
       avatar: true,
       createdAt: true,
+      employee: {
+        select: {
+          photo: true,
+        },
+      },
     },
   });
 
@@ -149,7 +154,13 @@ export const getUserProfile = async (userId: string) => {
     throw new Error("User profile not found");
   }
 
-  return user;
+  const resolvedPhoto = user.avatar || user.employee?.photo || null;
+
+  return {
+    ...user,
+    avatar: resolvedPhoto,
+    photo: resolvedPhoto,
+  };
 };
 
 export const changePassword = async (

@@ -78,6 +78,7 @@ const analyticsRoles = ["SUPER_ADMIN", "ADMIN"];
 
 const hrmSubItems = [
   { name: "Employees", href: "/dashboard/employees", icon: "lucide:briefcase" },
+  { name: "Attendance", href: "/dashboard/attendance", icon: "lucide:clock-4" },
   { name: "Leave Applications", href: "/dashboard/leave-applications", icon: "lucide:calendar-check" },
   { name: "Leave Policies", href: "/dashboard/leave-types", icon: "lucide:calendar-range" },
   { name: "Departments", href: "/dashboard/departments", icon: "lucide:building-2" },
@@ -103,6 +104,7 @@ export default function Sidebar({ isOpen: propIsOpen, setIsOpen: propSetIsOpen }
 
   const isHrmActive =
     pathname.startsWith("/dashboard/employees") ||
+    pathname.startsWith("/dashboard/attendance") ||
     pathname.startsWith("/dashboard/leave-applications") ||
     pathname.startsWith("/dashboard/leave-types") ||
     pathname.startsWith("/dashboard/departments") ||

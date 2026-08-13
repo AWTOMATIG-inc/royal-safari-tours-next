@@ -14,7 +14,9 @@ import {
   applyLeave,
 } from "@/actions/leave";
 import { getImageUrl } from "@/lib/getImageUrl";
+import { changePassword } from "@/lib/auth";
 import ConfirmModal from "@/components/dashboard/ConfirmModal";
+import AttendanceWidget from "@/components/dashboard/attendance/AttendanceWidget";
 
 const DOCUMENT_PRESETS = [
   "National ID (NID)",
@@ -70,8 +72,50 @@ export default function MyProfilePage({ employee, error }) {
     reason: "",
   });
 
+  // Password Change Modal States
+  const [passwordModal, setPasswordModal] = useState(false);
+  const [passwords, setPasswords] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [passwordSubmitting, setPasswordSubmitting] = useState(false);
+
   const fileInputRef = useRef(null);
   const docFileInputRef = useRef(null);
+
+  const handlePasswordSubmit = async (e) => {
+    e.preventDefault();
+    if (!passwords.currentPassword) {
+      toast.error("Please enter your current password");
+      return;
+    }
+    if (passwords.newPassword.length < 6) {
+      toast.error("New password must be at least 6 characters long");
+      return;
+    }
+    if (passwords.newPassword !== passwords.confirmPassword) {
+      toast.error("New password and confirmation do not match");
+      return;
+    }
+
+    setPasswordSubmitting(true);
+    const result = await changePassword({
+      currentPassword: passwords.currentPassword,
+      newPassword: passwords.newPassword,
+    });
+    setPasswordSubmitting(false);
+
+    if (!result.success) {
+      toast.error(result.message || "Current password is incorrect");
+      return;
+    }
+
+    toast.success("Password updated successfully!");
+    setPasswords({ currentPassword: "", newPassword: "", confirmPassword: "" });
+    setPasswordModal(false);
+  };
 
   const formatDate = (date) => {
     if (!date) return "—";
@@ -247,10 +291,17 @@ export default function MyProfilePage({ employee, error }) {
             View and manage your personal employee details, leave balances, and official documents.
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            onClick={() => setPasswordModal(true)}
+            className="inline-flex items-center gap-2 bg-[#0D231E] hover:bg-[#163a32] text-white px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-xs cursor-pointer"
+          >
+            <Icon icon="lucide:key-round" className="w-4 h-4 text-[#2cb775]" />
+            Change Password
+          </button>
           <button
             onClick={() => setEditModal(true)}
-            className="inline-flex items-center gap-2 bg-[#2cb775] hover:bg-[#259b63] text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-xs cursor-pointer"
+            className="inline-flex items-center gap-2 bg-[#2cb775] hover:bg-[#259b63] text-white px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-xs cursor-pointer"
           >
             <Icon icon="lucide:pencil" className="w-4 h-4" />
             Edit Info
@@ -310,6 +361,9 @@ export default function MyProfilePage({ employee, error }) {
           </div>
         </div>
       </div>
+
+      {/* Attendance Check-In / Check-Out Widget */}
+      <AttendanceWidget />
 
       {/* Leave Balances & Apply Section */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_4px_20px_rgba(13,35,30,0.03)] p-6 space-y-6">
@@ -968,6 +1022,104 @@ export default function MyProfilePage({ employee, error }) {
                   ) : (
                     "Submit Application"
                   )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Change Password Modal */}
+      {passwordModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-200 font-body">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+              <h3 className="text-base font-bold text-[#0D231E] font-heading flex items-center gap-2">
+                <Icon icon="lucide:key-round" className="w-5 h-5 text-[#2cb775]" />
+                Change Account Password
+              </h3>
+              <button
+                onClick={() => setPasswordModal(false)}
+                className="p-1 rounded-lg text-gray-400 hover:bg-gray-100 transition-colors"
+              >
+                <Icon icon="lucide:x" className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handlePasswordSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  Current Password *
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    required
+                    value={passwords.currentPassword}
+                    onChange={(e) =>
+                      setPasswords({ ...passwords, currentPassword: e.target.value })
+                    }
+                    placeholder="Enter your current password"
+                    className="w-full border border-gray-300 p-3 pr-10 rounded-xl text-xs focus:outline-none focus:border-[#2cb775] transition-colors"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    <Icon icon={showPassword ? "lucide:eye-off" : "lucide:eye"} className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  New Password (Min 6 characters) *
+                </label>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  required
+                  min={6}
+                  value={passwords.newPassword}
+                  onChange={(e) =>
+                    setPasswords({ ...passwords, newPassword: e.target.value })
+                  }
+                  placeholder="Enter new password"
+                  className="w-full border border-gray-300 p-3 rounded-xl text-xs focus:outline-none focus:border-[#2cb775] transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  Confirm New Password *
+                </label>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  required
+                  min={6}
+                  value={passwords.confirmPassword}
+                  onChange={(e) =>
+                    setPasswords({ ...passwords, confirmPassword: e.target.value })
+                  }
+                  placeholder="Re-enter new password"
+                  className="w-full border border-gray-300 p-3 rounded-xl text-xs focus:outline-none focus:border-[#2cb775] transition-colors"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-gray-100">
+                <button
+                  type="button"
+                  onClick={() => setPasswordModal(false)}
+                  className="px-4 py-2.5 text-xs font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={passwordSubmitting}
+                  className="inline-flex items-center gap-2 bg-[#0D231E] hover:bg-[#2cb775] text-white px-5 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all shadow-xs cursor-pointer"
+                >
+                  {passwordSubmitting ? "Updating..." : "Update Password"}
                 </button>
               </div>
             </form>
