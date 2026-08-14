@@ -30,6 +30,14 @@ enum AttendanceStatus {
   ON_LEAVE
 }
 
+enum JobApplicationStatus {
+  SUBMITTED
+  SHORTLISTED
+  INTERVIEW_SCHEDULED
+  HIRED
+  REJECTED
+}
+
 // Central User model for credentials & dashboard log-in
 model User {
   id        String   @id @default(uuid())
@@ -217,4 +225,45 @@ model Attendance {
   updatedAt            DateTime         @updatedAt
 
   @@unique([employeeId, date])
+}
+
+// Recruitment Job Post Model
+model JobPost {
+  id               String           @id @default(uuid())
+  title            String
+  slug             String           @unique
+  vacancies        Int              @default(1)
+  officeTime       String?          // e.g. "09:00 AM - 06:00 PM"
+  location         String           // e.g. "Dhaka, Bangladesh"
+  jobType          String           // e.g. "Full-time", "Part-time", "Contract"
+  workMode         String           // e.g. "On-site", "Hybrid", "Remote"
+  deadline         DateTime         // Expiration date
+  description      String           // Rich HTML overview
+  responsibilities String           // Rich HTML content
+  benefits         String?          // Rich HTML perks & benefits
+  isPublished      Boolean          @default(true)
+  applications     JobApplication[]
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+}
+
+// Job Application Model
+model JobApplication {
+  id              String               @id @default(uuid())
+  jobPostId       String
+  jobPost         JobPost              @relation(fields: [jobPostId], references: [id], onDelete: Cascade)
+  applicantName   String
+  applicantEmail  String
+  applicantPhone  String
+  experienceYears String?              // e.g. "3 Years"
+  currentCompany  String?
+  expectedSalary  String?
+  resumeUrl       String               // Path/URL to uploaded resume file
+  coverLetter     String?
+  status          JobApplicationStatus @default(SUBMITTED)
+  hrNotes         String?
+  appliedAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+
+  @@unique([jobPostId, applicantEmail])
 }

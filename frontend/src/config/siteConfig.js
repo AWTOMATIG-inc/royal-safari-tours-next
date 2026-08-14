@@ -6,7 +6,7 @@ export const siteConfig = {
     "Royal Safari Tours is a Khilgaon-based travel agency dedicated to delivering premium yet affordable tour experiences across South Asia and beyond.",
   fullDescription:
     "Crafting premium regional expeditions and heartfelt hospitality across South Asia and beyond. Founded by passionate travelers to inspire, excite, and rejuvenate.",
-  url: process.env.NEXT_PUBLIC_SITE_URL || "https://royalsafaritours.com",
+  url: process.env.BASE_URL,
 
   contact: {
     phone: {

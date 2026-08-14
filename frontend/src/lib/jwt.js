@@ -1,7 +1,7 @@
 import { SignJWT, jwtVerify } from "jose";
 
 const SECRET_KEY = process.env.JWT_SECRET;
-const EXPIRES_IN = parseInt(process.env.JWT_TOKEN_EXPIRED || "86400");
+const EXPIRES_IN = parseInt(process.env.JWT_TOKEN_EXPIRED);
 
 const encoder = new TextEncoder();
 const secret = encoder.encode(SECRET_KEY);

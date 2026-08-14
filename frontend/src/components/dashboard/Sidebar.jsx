@@ -81,6 +81,7 @@ const hrmSubItems = [
   { name: "Attendance", href: "/dashboard/attendance", icon: "lucide:clock-4" },
   { name: "Leave Applications", href: "/dashboard/leave-applications", icon: "lucide:calendar-check" },
   { name: "Leave Policies", href: "/dashboard/leave-types", icon: "lucide:calendar-range" },
+  { name: "Recruitment (ATS)", href: "/dashboard/recruitment", icon: "lucide:user-plus" },
   { name: "Departments", href: "/dashboard/departments", icon: "lucide:building-2" },
   { name: "Designations", href: "/dashboard/designations", icon: "lucide:badge" },
   { name: "Employment Types", href: "/dashboard/employment-types", icon: "lucide:clock" },
@@ -107,6 +108,7 @@ export default function Sidebar({ isOpen: propIsOpen, setIsOpen: propSetIsOpen }
     pathname.startsWith("/dashboard/attendance") ||
     pathname.startsWith("/dashboard/leave-applications") ||
     pathname.startsWith("/dashboard/leave-types") ||
+    pathname.startsWith("/dashboard/recruitment") ||
     pathname.startsWith("/dashboard/departments") ||
     pathname.startsWith("/dashboard/designations") ||
     pathname.startsWith("/dashboard/employment-types") ||

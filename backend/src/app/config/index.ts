@@ -1,6 +1,6 @@
 interface Config {
   port: number;
-  dbUrl?: string;
+  dbUrl: string;
   jwtSecret: string;
   jwtExpiresIn: string;
   refreshSecret: string;
@@ -9,16 +9,13 @@ interface Config {
 }
 
 const config: Config = {
-  port: Number(process.env.PORT) || 5000,
-  dbUrl: process.env.DATABASE_URL || process.env.DB_URI,
-  jwtSecret: process.env.JWT_SECRET || "dsfsadf211sdfsad",
-  jwtExpiresIn: process.env.JWT_EXPIRES_IN || "1d",
-  refreshSecret:
-    process.env.JWT_REFRESH_SECRET ||
-    process.env.JWT_SECRET ||
-    "dsfsadf211sdfsad_refresh_key",
-  refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || "7d",
-  nodeEnv: process.env.NODE_ENV || "development",
+  port: Number(process.env.PORT),
+  dbUrl: process.env.DB_URI as string,
+  jwtSecret: process.env.JWT_SECRET as string,
+  jwtExpiresIn: process.env.JWT_EXPIRES_IN as string,
+  refreshSecret: process.env.JWT_REFRESH_SECRET as string,
+  refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN as string,
+  nodeEnv: process.env.NODE_ENV as string,
 };
 
 export default config;
