@@ -8,14 +8,14 @@ git pull origin main
 
 echo "📦 Building frontend..."
 cd frontend
-npm install
+npm ci
 rm -rf .next
 npm run build
 cd ..
 
 echo "📦 Building backend..."
 cd backend
-npm install
+npm ci
 rm -rf .next
 npm run build
 cd ..
