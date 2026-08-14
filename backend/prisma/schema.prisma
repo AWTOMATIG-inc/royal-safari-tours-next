@@ -1,0 +1,269 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// User role classifications for RBAC
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  HR_MANAGER
+  EMPLOYEE
+  USER
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum AttendanceStatus {
+  PRESENT
+  LATE
+  HALF_DAY
+  ABSENT
+  ON_LEAVE
+}
+
+enum JobApplicationStatus {
+  SUBMITTED
+  SHORTLISTED
+  INTERVIEW_SCHEDULED
+  HIRED
+  REJECTED
+}
+
+// Central User model for credentials & dashboard log-in
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  avatar    String?
+  role      Role     @default(USER)
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Link: A user optionally has an Employee profile if they are part of staff
+  employee  Employee?
+}
+
+// Department Master Model
+model Department {
+  id          String     @id @default(uuid())
+  name        String     @unique
+  description String?
+  employees   Employee[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+// Designation Master Model
+model Designation {
+  id          String     @id @default(uuid())
+  name        String     @unique
+  description String?
+  employees   Employee[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+// Employment Type Master Model (e.g. Full-Time, Part-Time, Contract, Intern)
+model EmploymentType {
+  id          String     @id @default(uuid())
+  name        String     @unique
+  employees   Employee[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+// Employment Status Master Model (e.g. Active, Probation, Inactive, Suspended)
+model EmploymentStatus {
+  id          String     @id @default(uuid())
+  name        String     @unique
+  employees   Employee[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+// Employee Profile model (HRM core data)
+model Employee {
+  id                 String                 @id @default(uuid())
+  userId             String?                @unique // Optional connection to User for system access
+  user               User?                  @relation(fields: [userId], references: [id], onDelete: SetNull)
+  employeeId         String                 @unique // Generated staff ID, e.g. "EMP-2026-0001"
+  photo              String?                // URL to uploaded staff photo
+  name               String
+  email              String                 @unique // Work or personal email
+  phone              String?
+  
+  // Master references
+  departmentId       String
+  department         Department             @relation(fields: [departmentId], references: [id])
+  designationId      String
+  designation        Designation            @relation(fields: [designationId], references: [id])
+  employmentTypeId   String
+  employmentType     EmploymentType         @relation(fields: [employmentTypeId], references: [id])
+  employmentStatusId String
+  employmentStatus   EmploymentStatus       @relation(fields: [employmentStatusId], references: [id])
+  
+  joiningDate        DateTime               @default(now())
+  
+  // Self-relation: manager assignment
+  managerId          String?
+  manager            Employee?              @relation("EmployeeManager", fields: [managerId], references: [id])
+  subordinates       Employee[]             @relation("EmployeeManager")
+  
+  // HR notes (internal use, hidden from the Employee view)
+  hrNotes            String?
+  
+  // Relationships
+  documents          EmployeeDocument[]
+  leaveBalances      EmployeeLeaveBalance[]
+  leaveApplications  LeaveApplication[]
+  attendances        Attendance[]
+  
+  createdAt          DateTime               @default(now())
+  updatedAt          DateTime               @updatedAt
+}
+
+// Employee Document Library model
+model EmployeeDocument {
+  id           String   @id @default(uuid())
+  employeeId   String
+  employee     Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  documentName String   // e.g. "NID_Copy.pdf", "Passport.pdf"
+  fileUrl      String   // Path/URL to document file
+  fileType     String?  // MIME type
+  uploadedAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Leave Policy / Type Master Model (Casual Leave, Sick Leave, Paid Leave, etc.)
+model LeaveType {
+  id                 String                 @id @default(uuid())
+  name               String                 @unique
+  description        String?
+  defaultDaysPerYear Int                    @default(10)
+  balances           EmployeeLeaveBalance[]
+  applications       LeaveApplication[]
+  createdAt          DateTime               @default(now())
+  updatedAt          DateTime               @updatedAt
+}
+
+// Employee Yearly Leave Balance Allocation Model
+model EmployeeLeaveBalance {
+  id          String    @id @default(uuid())
+  employeeId  String
+  employee    Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  leaveTypeId String
+  leaveType   LeaveType @relation(fields: [leaveTypeId], references: [id], onDelete: Cascade)
+  year        Int
+  totalDays   Int
+  usedDays    Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([employeeId, leaveTypeId, year])
+}
+
+// Leave Application / Request Model
+model LeaveApplication {
+  id              String      @id @default(uuid())
+  employeeId      String
+  employee        Employee    @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  leaveTypeId     String
+  leaveType       LeaveType   @relation(fields: [leaveTypeId], references: [id], onDelete: Cascade)
+  startDate       DateTime
+  endDate         DateTime
+  totalDays       Int
+  reason          String
+  status          LeaveStatus @default(PENDING)
+  approvedById    String?
+  rejectionReason String?
+  appliedAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
+
+// Attendance Policy / Shift Work Hours Configuration Model
+model AttendancePolicy {
+  id                   String   @id @default(uuid())
+  workStartTime        String   @default("09:00") // 24-hr HH:mm
+  workEndTime          String   @default("18:00") // 24-hr HH:mm
+  lateGraceMinutes     Int      @default(15)
+  earlyOutGraceMinutes Int      @default(15)
+  halfDayHours         Float    @default(4.0)
+  updatedAt            DateTime @updatedAt
+}
+
+// Attendance Check-In / Check-Out Log Model
+model Attendance {
+  id                   String           @id @default(uuid())
+  employeeId           String
+  employee             Employee         @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  date                 DateTime         // Normalized date (00:00:00)
+  checkInTime          DateTime
+  checkOutTime         DateTime?
+  status               AttendanceStatus @default(PRESENT)
+  isLate               Boolean          @default(false)
+  isEarlyOut           Boolean          @default(false)
+  workHours            Float?
+  ipAddress            String?
+  checkInLatitude      Float?
+  checkInLongitude     Float?
+  checkInLocationName  String?
+  checkOutLatitude     Float?
+  checkOutLongitude    Float?
+  checkOutLocationName String?
+  remarks              String?
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+
+  @@unique([employeeId, date])
+}
+
+// Recruitment Job Post Model
+model JobPost {
+  id               String           @id @default(uuid())
+  title            String
+  slug             String           @unique
+  vacancies        Int              @default(1)
+  officeTime       String?          // e.g. "09:00 AM - 06:00 PM"
+  location         String           // e.g. "Dhaka, Bangladesh"
+  jobType          String           // e.g. "Full-time", "Part-time", "Contract"
+  workMode         String           // e.g. "On-site", "Hybrid", "Remote"
+  deadline         DateTime         // Expiration date
+  description      String           // Rich HTML overview
+  responsibilities String           // Rich HTML content
+  benefits         String?          // Rich HTML perks & benefits
+  isPublished      Boolean          @default(true)
+  applications     JobApplication[]
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+}
+
+// Job Application Model
+model JobApplication {
+  id              String               @id @default(uuid())
+  jobPostId       String
+  jobPost         JobPost              @relation(fields: [jobPostId], references: [id], onDelete: Cascade)
+  applicantName   String
+  applicantEmail  String
+  applicantPhone  String
+  experienceYears String?              // e.g. "3 Years"
+  currentCompany  String?
+  expectedSalary  String?
+  resumeUrl       String               // Path/URL to uploaded resume file
+  coverLetter     String?
+  status          JobApplicationStatus @default(SUBMITTED)
+  hrNotes         String?
+  appliedAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+
+  @@unique([jobPostId, applicantEmail])
+}
