@@ -41,7 +41,7 @@ export default function Hero() {
               title={
                 <>
                   Where Wilderness Meets <br />
-                  <span className="italic font-normal text-accent font-heading">Unmatched Luxury!</span>
+                  <span className="italic font-normal text-accent font-heading">Unmatched Luxury</span>
                 </>
               }
               description="Experience hand-crafted, low-impact luxury expeditions through Bangladesh's pristine mangroves, tea valleys, and coastal sanctuaries."
