@@ -33,7 +33,7 @@ export default function Hero() {
       {/* Main Container */}
       <div className="relative z-10 container mx-auto w-full">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-          
+
           {/* Left Column: Headline Copy */}
           <div className="lg:col-span-7 flex flex-col items-start text-left max-w-xl">
             <SectionHeading
@@ -41,7 +41,7 @@ export default function Hero() {
               title={
                 <>
                   Where Wilderness Meets <br />
-                  <span className="italic font-normal text-accent font-heading">Unmatched Luxury</span>
+                  <span className="italic font-normal text-accent font-heading">Unmatched Luxury!</span>
                 </>
               }
               description="Experience hand-crafted, low-impact luxury expeditions through Bangladesh's pristine mangroves, tea valleys, and coastal sanctuaries."
@@ -74,7 +74,7 @@ export default function Hero() {
             <Reveal variant="fadeLeft" delay={0.2} className="w-full max-w-md">
               <div className="relative w-full rounded-3xl p-[1px] bg-gradient-to-tr from-accent/30 to-secondary/30 shadow-xl backdrop-blur-xl">
                 <div className="bg-sand rounded-[23px] border border-primary/10 p-6 sm:p-8 space-y-6 shadow-md">
-                  
+
                   <div className="flex items-center justify-between border-b border-primary/10 pb-4">
                     <div>
                       <p className="text-[10px] tracking-[0.2em] font-bold text-accent uppercase font-accent">
