@@ -87,7 +87,12 @@ export default function TourCard({
           {/* Package Description snippet */}
           {tour_package.description && (
             <p className="text-xs text-primary/70 font-body font-light line-clamp-2 leading-relaxed">
-              {tour_package.description.replace(/<[^>]*>?/gm, "")}
+              {tour_package.description
+                .replace(/&nbsp;/g, " ")
+                .replace(/&amp;/g, "&")
+                .replace(/&lt;/g, "<")
+                .replace(/&gt;/g, ">")
+                .replace(/<[^>]*>?/gm, "")}
             </p>
           )}
         </div>

@@ -3,8 +3,9 @@
 import SectionHeading from "@/components/SectionHeading";
 import TourCard from "@/components/TourCard";
 import { Icon } from "@iconify/react";
-import { useMemo, useState } from "react";
-import { RevealGroup } from "@/components/animations";
+import { useEffect, useMemo, useState } from "react";
+
+const ITEMS_PER_PAGE = 6;
 
 export default function ToursCatalog({
   initialTourPackages = [],
@@ -18,6 +19,7 @@ export default function ToursCatalog({
   const [minRating, setMinRating] = useState(0);
   const [sortBy, setSortBy] = useState("newest");
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Extract all unique destination names dynamically from locations & tour packages
   const destinationList = useMemo(() => {
@@ -25,7 +27,7 @@ export default function ToursCatalog({
 
     // 1. From database tour locations
     locations.forEach((loc) => {
-      const name = loc.country || loc.title || loc.name;
+      const name = loc.title || loc.country || loc.name;
       if (name && typeof name === "string") {
         const trimmed = name.trim();
         if (trimmed && !locMap.has(trimmed.toLowerCase())) {
@@ -36,8 +38,14 @@ export default function ToursCatalog({
 
     // 2. From actual tour package locations in database
     initialTourPackages.forEach((tour) => {
-      if (tour.location && typeof tour.location === "string") {
-        const trimmed = tour.location.trim();
+      let locStr = "";
+      if (typeof tour.location === "string") {
+        locStr = tour.location;
+      } else if (tour.location && typeof tour.location === "object") {
+        locStr = tour.location.name || tour.location.country || tour.location.title || "";
+      }
+      if (locStr) {
+        const trimmed = locStr.trim();
         if (trimmed && !locMap.has(trimmed.toLowerCase())) {
           locMap.set(trimmed.toLowerCase(), trimmed);
         }
@@ -47,6 +55,37 @@ export default function ToursCatalog({
     return Array.from(locMap.values());
   }, [locations, initialTourPackages]);
 
+  // Helper for matching tour location against target query/location string
+  const isLocationMatch = (tourLocation, targetLocationStr) => {
+    if (!targetLocationStr || targetLocationStr === "all") return true;
+    if (!tourLocation) return false;
+
+    let tourLocStr = "";
+    if (typeof tourLocation === "string") {
+      tourLocStr = tourLocation;
+    } else if (typeof tourLocation === "object") {
+      tourLocStr = tourLocation.name || tourLocation.country || tourLocation.title || "";
+    }
+
+    if (!tourLocStr) return false;
+
+    const tourLoc = tourLocStr.toLowerCase().trim();
+    const targetLoc = targetLocationStr.toLowerCase().trim();
+
+    if (tourLoc === targetLoc || tourLoc.includes(targetLoc) || targetLoc.includes(tourLoc)) {
+      return true;
+    }
+
+    // Multi-word token overlap check (e.g. "Cox's Bazar" matching "Cox's Bazar Beach")
+    const targetTokens = targetLoc.split(/[\s,]+/).filter((w) => w.length > 2);
+    const tourTokens = tourLoc.split(/[\s,]+/).filter((w) => w.length > 2);
+
+    return (
+      targetTokens.some((t) => tourLoc.includes(t)) ||
+      tourTokens.some((t) => targetLoc.includes(t))
+    );
+  };
+
   // Filter & Sort Logic
   const filteredTours = useMemo(() => {
     let result = [...initialTourPackages];
@@ -54,22 +93,25 @@ export default function ToursCatalog({
     // 1. Search Query Filter
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
-      result = result.filter(
-        (tour) =>
+      result = result.filter((tour) => {
+        let locStr = "";
+        if (typeof tour.location === "string") {
+          locStr = tour.location;
+        } else if (tour.location && typeof tour.location === "object") {
+          locStr = tour.location.name || tour.location.country || tour.location.title || "";
+        }
+
+        return (
           tour.title?.toLowerCase().includes(q) ||
-          tour.location?.toLowerCase().includes(q) ||
+          locStr.toLowerCase().includes(q) ||
           tour.description?.toLowerCase().includes(q)
-      );
+        );
+      });
     }
 
     // 2. Location Filter
     if (selectedLocation && selectedLocation !== "all") {
-      const targetLoc = selectedLocation.toLowerCase().trim();
-      result = result.filter((tour) => {
-        if (!tour.location) return false;
-        const tourLoc = tour.location.toLowerCase().trim();
-        return tourLoc === targetLoc || tourLoc.includes(targetLoc) || targetLoc.includes(tourLoc);
-      });
+      result = result.filter((tour) => isLocationMatch(tour.location, selectedLocation));
     }
 
     // 3. Price Filter
@@ -100,6 +142,34 @@ export default function ToursCatalog({
     return result;
   }, [initialTourPackages, searchQuery, selectedLocation, priceRange, minRating, sortBy]);
 
+  // Reset page number to 1 whenever filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedLocation, priceRange, minRating, sortBy]);
+
+  // Calculate pagination data
+  const totalPages = Math.ceil(filteredTours.length / ITEMS_PER_PAGE);
+  const paginatedTours = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredTours.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [filteredTours, currentPage]);
+
+  const handlePageChange = (newPage) => {
+    if (newPage < 1 || newPage > totalPages) return;
+    setCurrentPage(newPage);
+    const catalogEl = document.getElementById("tours-catalog");
+    if (catalogEl) {
+      catalogEl.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  // Handle Location Selection
+  const handleLocationSelect = (locName) => {
+    if (setSelectedLocation) {
+      setSelectedLocation(locName);
+    }
+  };
+
   // Reset Filters
   const handleReset = () => {
     if (setSearchQuery) setSearchQuery("");
@@ -107,6 +177,7 @@ export default function ToursCatalog({
     setPriceRange("all");
     setMinRating(0);
     setSortBy("newest");
+    setCurrentPage(1);
   };
 
   const hasActiveFilters =
@@ -115,7 +186,7 @@ export default function ToursCatalog({
     priceRange !== "all" ||
     minRating > 0;
 
-  // Reusable Filter Sidebar Content
+  // Reusable Filter Sidebar Content (Fixed height without internal scrollbars)
   const FilterContent = (
     <div className="space-y-6 font-body">
       <div className="flex items-center justify-between pb-4 border-b border-gray-200/80">
@@ -159,14 +230,14 @@ export default function ToursCatalog({
         </div>
       </div>
 
-      {/* 2. Destination / Location Filter */}
+      {/* 2. Destination / Location Filter (Full height sit-in without internal scrollbars) */}
       <div className="space-y-2 border-t border-gray-200/80 pt-5 font-body">
         <label className="text-[11px] font-bold text-primary/70 uppercase tracking-widest block font-body">
           Destinations
         </label>
-        <div className="flex flex-col gap-1.5 max-h-64 overflow-y-auto pr-1">
+        <div className="flex flex-col gap-1.5">
           <button
-            onClick={() => setSelectedLocation && setSelectedLocation("all")}
+            onClick={() => handleLocationSelect("all")}
             className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-body transition-all duration-300 cursor-pointer border ${
               selectedLocation === "all"
                 ? "bg-primary text-white border-primary font-semibold shadow-xs"
@@ -183,19 +254,13 @@ export default function ToursCatalog({
           </button>
 
           {destinationList.map((locName) => {
-            const count = initialTourPackages.filter((t) => {
-              if (!t.location) return false;
-              const tourLoc = t.location.toLowerCase().trim();
-              const targetLoc = locName.toLowerCase().trim();
-              return tourLoc === targetLoc || tourLoc.includes(targetLoc) || targetLoc.includes(tourLoc);
-            }).length;
-
+            const count = initialTourPackages.filter((t) => isLocationMatch(t.location, locName)).length;
             const isSelected = selectedLocation?.toLowerCase() === locName.toLowerCase();
 
             return (
               <button
                 key={locName}
-                onClick={() => setSelectedLocation && setSelectedLocation(locName)}
+                onClick={() => handleLocationSelect(locName)}
                 className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-body transition-all duration-300 cursor-pointer border ${
                   isSelected
                     ? "bg-primary text-white border-primary font-semibold shadow-xs"
@@ -384,8 +449,8 @@ export default function ToursCatalog({
       {/* Main Grid Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pt-8 font-body">
 
-        {/* DESKTOP LEFT SIDEBAR */}
-        <aside className="hidden lg:block lg:col-span-3 sticky top-28 bg-sand border border-gray-200/90 rounded-3xl p-6 shadow-xs">
+        {/* DESKTOP LEFT SIDEBAR (No internal scrollbars - whole page scrolls together!) */}
+        <aside className="hidden lg:block lg:col-span-3 bg-sand border border-gray-200/90 rounded-3xl p-6 shadow-xs h-fit">
           {FilterContent}
         </aside>
 
@@ -428,16 +493,58 @@ export default function ToursCatalog({
           </div>
         )}
 
-        {/* RIGHT MAIN: TOUR CARDS GRID */}
-        <main className="lg:col-span-9 w-full font-body">
-          {filteredTours.length > 0 ? (
-            <RevealGroup className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-              {filteredTours.map((tour) => (
-                <RevealGroup.Item key={tour._id || tour.slug}>
-                  <TourCard tour_package={tour} />
-                </RevealGroup.Item>
-              ))}
-            </RevealGroup>
+        {/* RIGHT MAIN: PAGINATED TOUR CARDS GRID */}
+        <main className="lg:col-span-9 w-full font-body space-y-8">
+          {paginatedTours.length > 0 ? (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                {paginatedTours.map((tour) => (
+                  <div key={tour._id || tour.id || tour.slug}>
+                    <TourCard tour_package={tour} />
+                  </div>
+                ))}
+              </div>
+
+              {/* PAGINATION CONTROLS */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-2 pt-6 border-t border-gray-200/80 font-body">
+                  {/* Previous Page */}
+                  <button
+                    disabled={currentPage === 1}
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    className="px-4 py-2 rounded-xl text-xs font-semibold border border-gray-200 bg-white text-primary hover:border-secondary disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer flex items-center gap-1"
+                  >
+                    <Icon icon="lucide:chevron-left" className="w-4 h-4" />
+                    <span>Prev</span>
+                  </button>
+
+                  {/* Numeric Page Buttons */}
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                    <button
+                      key={pageNum}
+                      onClick={() => handlePageChange(pageNum)}
+                      className={`w-9 h-9 rounded-xl text-xs font-bold font-body transition-all cursor-pointer border ${
+                        currentPage === pageNum
+                          ? "bg-primary text-white border-primary shadow-xs"
+                          : "bg-white border-gray-200 text-gray-700 hover:border-secondary"
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  ))}
+
+                  {/* Next Page */}
+                  <button
+                    disabled={currentPage === totalPages}
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    className="px-4 py-2 rounded-xl text-xs font-semibold border border-gray-200 bg-white text-primary hover:border-secondary disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer flex items-center gap-1"
+                  >
+                    <span>Next</span>
+                    <Icon icon="lucide:chevron-right" className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+            </>
           ) : (
             <div className="bg-sand border border-gray-200/90 rounded-3xl p-12 text-center space-y-4 max-w-lg mx-auto my-8 shadow-xs font-body">
               <div className="w-16 h-16 rounded-full bg-primary/5 text-accent flex items-center justify-center mx-auto">
@@ -465,4 +572,3 @@ export default function ToursCatalog({
     </section>
   );
 }
-

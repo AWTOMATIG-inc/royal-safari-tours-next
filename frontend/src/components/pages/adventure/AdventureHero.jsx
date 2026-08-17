@@ -2,7 +2,6 @@
 
 import SectionHeading from "@/components/SectionHeading";
 import { Icon } from "@iconify/react";
-import { Reveal } from "@/components/animations";
 
 export default function AdventureHero({
   locations = [],
@@ -44,8 +43,8 @@ export default function AdventureHero({
         />
       </div>
 
-      {/* FLOATING SEARCH BAR */}
-      <Reveal variant="scaleUp" delay={0.25} className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 z-20 w-full max-w-5xl px-4 sm:px-6 font-body">
+      {/* FLOATING SEARCH BAR (Static wrapper without scroll reveal delay) */}
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 z-20 w-full max-w-5xl px-4 sm:px-6 font-body">
         <div className="bg-sand border border-gray-200/90 rounded-3xl shadow-xl p-4 sm:p-5">
           <form
             onSubmit={handleSearchSubmit}
@@ -101,8 +100,7 @@ export default function AdventureHero({
             </div>
           </form>
         </div>
-      </Reveal>
+      </div>
     </section>
   );
 }
-
