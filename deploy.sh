@@ -16,7 +16,8 @@ cd ..
 echo "📦 Building backend..."
 cd backend
 npm ci
-rm -rf .next
+npx prisma generate
+npx prisma migrate deploy
 npm run build
 cd ..
 
