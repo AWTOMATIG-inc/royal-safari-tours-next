@@ -15,7 +15,12 @@ const getInitials = (name) => {
   return (parts[0][0] + parts[1][0]).toUpperCase();
 };
 
-export default function Navbar({ onToggleSidebar, isSidebarOpen }) {
+export default function Navbar({
+  onToggleMobile,
+  isMobileOpen,
+  onToggleCollapse,
+  isCollapsed,
+}) {
   const [showMenu, setShowMenu] = useState(false);
   const [imageError, setImageError] = useState(false);
   const { user } = useAuth();
@@ -32,18 +37,33 @@ export default function Navbar({ onToggleSidebar, isSidebarOpen }) {
   return (
     <header className="sticky top-0 z-30 bg-white border-b border-gray-200 px-4 sm:px-8 py-3.5 mb-8 shadow-xs font-body">
       <div className="flex items-center justify-between gap-3">
-        {/* Left: Mobile Navigation Button & Greeting */}
+        {/* Left: Sidebar Toggle Button & Greeting */}
         <div className="flex items-center gap-3">
+          {/* Mobile Sidebar Menu Button */}
           <button
-            onClick={onToggleSidebar}
-            className="lg:hidden p-2 rounded-xl bg-sand hover:bg-gray-200 text-primary transition-colors cursor-pointer focus:outline-none"
-            aria-label="Toggle sidebar navigation"
+            onClick={onToggleMobile}
+            className="lg:hidden p-2.5 rounded-xl bg-sand hover:bg-gray-200 text-primary transition-colors cursor-pointer focus:outline-none"
+            aria-label="Toggle mobile sidebar navigation"
           >
             <Icon
-              icon={isSidebarOpen ? "lucide:x" : "lucide:menu"}
+              icon={isMobileOpen ? "lucide:x" : "lucide:menu"}
               className="w-5 h-5 text-primary shrink-0"
             />
           </button>
+
+          {/* Single Desktop Sidebar Collapse/Expand Button */}
+          <button
+            onClick={onToggleCollapse}
+            className="hidden lg:flex items-center justify-center p-2.5 rounded-xl bg-sand hover:bg-secondary hover:text-white border border-gray-200/90 text-primary transition-all duration-200 cursor-pointer shadow-xs focus:outline-none"
+            title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+            aria-label="Toggle desktop sidebar collapse"
+          >
+            <Icon
+              icon={isCollapsed ? "lucide:panel-left-open" : "lucide:panel-left-close"}
+              className="w-5 h-5 shrink-0"
+            />
+          </button>
+
           <div>
             <h2 className="text-base sm:text-2xl font-bold text-primary font-heading">
               Hello, {user?.name || "User"} 👋
