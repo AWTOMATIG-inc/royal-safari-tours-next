@@ -51,6 +51,7 @@ model User {
 
   // Link: A user optionally has an Employee profile if they are part of staff
   employee  Employee?
+  invoices  Invoice[]
 }
 
 // Department Master Model
@@ -267,3 +268,45 @@ model JobApplication {
 
   @@unique([jobPostId, applicantEmail])
 }
+
+// Invoice / Money Receipt Master Model
+model Invoice {
+  id            String        @id @default(uuid())
+  invoiceNumber String        @unique // e.g. "RSTMYTG-979066" or "RST-2026-0001"
+  clientName    String
+  clientPhone   String
+  clientEmail   String?
+  clientAddress String?
+  invoiceDate   DateTime      @default(now())
+  dueDate       DateTime?
+  paymentTerms  String        @default("Advanced") // e.g. "Advanced", "Full Payment", "Partial", "Due"
+  subTotal      Float
+  discount      Float         @default(0)
+  totalAmount   Float
+  amountPaid    Float         @default(0)
+  balanceDue    Float
+  notes         String?       @default("Booking Money are not Re-fundable")
+  
+  // Creator relation
+  createdById   String
+  createdBy     User          @relation(fields: [createdById], references: [id])
+  creatorName   String?       // Cached employee/creator name for signature block
+  items         InvoiceItem[]
+  
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+// Invoice Line Item Model
+model InvoiceItem {
+  id              String   @id @default(uuid())
+  invoiceId       String
+  invoice         Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  itemDescription String   // e.g. "Malaysia & Thailand Tour - 7Nights & 8Days..."
+  subDescription  String?  // e.g. "Room - (Single Occupancy)"
+  quantity        Int      @default(1)
+  rate            Float    // Unit Price in BDT
+  amount          Float    // quantity * rate
+  createdAt       DateTime @default(now())
+}
+

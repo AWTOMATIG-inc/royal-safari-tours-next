@@ -18,6 +18,7 @@ import { LeaveTypeRoutes } from "./app/modules/leaveType/leaveType.route";
 import { LeaveApplicationRoutes } from "./app/modules/leaveApplication/leaveApplication.route";
 import { AttendanceRoutes } from "./app/modules/attendance/attendance.route";
 import { JobPostRoutes } from "./app/modules/jobPost/jobPost.route";
+import { InvoiceRoutes } from "./app/modules/invoice/invoice.route";
 import { prisma } from "./app/utils/prisma";
 import { requestResponseLogger } from "./app/middlewares/logger";
 import { errorHandler } from "./app/middlewares/errorHandler";
@@ -73,6 +74,7 @@ app.use("/api/v1/leave-types", LeaveTypeRoutes);
 app.use("/api/v1/leaves", LeaveApplicationRoutes);
 app.use("/api/v1/attendance", AttendanceRoutes);
 app.use("/api/v1/jobs", JobPostRoutes);
+app.use("/api/v1/invoices", InvoiceRoutes);
 
 // Health check endpoint
 app.get("/api/v1/health", async (_req: Request, res: Response) => {

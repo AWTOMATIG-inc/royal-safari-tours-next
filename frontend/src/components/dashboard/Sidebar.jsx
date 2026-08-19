@@ -69,11 +69,15 @@ const navItems = [
   },
 ];
 
+const bookingSubItems = [
+  { name: "Invoices & Receipts", href: "/dashboard/invoices", icon: "lucide:receipt" },
+];
+const bookingRoles = ["SUPER_ADMIN", "ADMIN", "HR_MANAGER", "EMPLOYEE"];
+
 const analyticsSubItems = [
   { name: "Google Analytics", href: "/dashboard/analytics", icon: "lucide:bar-chart-3" },
   { name: "Meta Analytics", href: "/dashboard/meta-analytics", icon: "lucide:facebook" },
 ];
-
 const analyticsRoles = ["SUPER_ADMIN", "ADMIN"];
 
 const hrmSubItems = [
@@ -87,10 +91,13 @@ const hrmSubItems = [
   { name: "Employment Types", href: "/dashboard/employment-types", icon: "lucide:clock" },
   { name: "Employment Status", href: "/dashboard/employment-statuses", icon: "lucide:shield-check" },
 ];
-
 const hrmRoles = ["SUPER_ADMIN", "ADMIN", "HR_MANAGER", "EMPLOYEE"];
 
-export default function Sidebar({ isOpen: propIsOpen, setIsOpen: propSetIsOpen }) {
+export default function Sidebar({
+  isOpen: propIsOpen,
+  setIsOpen: propSetIsOpen,
+  isCollapsed = false,
+}) {
   const [internalIsOpen, setInternalIsOpen] = useState(false);
 
   const isOpen = propIsOpen !== undefined ? propIsOpen : internalIsOpen;
@@ -99,10 +106,10 @@ export default function Sidebar({ isOpen: propIsOpen, setIsOpen: propSetIsOpen }
   const pathname = usePathname();
   const { user } = useAuth();
 
+  const isBookingActive = pathname.startsWith("/dashboard/invoices");
   const isAnalyticsActive =
     pathname.startsWith("/dashboard/analytics") ||
     pathname.startsWith("/dashboard/meta-analytics");
-
   const isHrmActive =
     pathname.startsWith("/dashboard/employees") ||
     pathname.startsWith("/dashboard/attendance") ||
@@ -114,11 +121,13 @@ export default function Sidebar({ isOpen: propIsOpen, setIsOpen: propSetIsOpen }
     pathname.startsWith("/dashboard/employment-types") ||
     pathname.startsWith("/dashboard/employment-statuses");
 
+  const [bookingOpen, setBookingOpen] = useState(isBookingActive);
   const [analyticsOpen, setAnalyticsOpen] = useState(isAnalyticsActive);
   const [hrmOpen, setHrmOpen] = useState(isHrmActive);
 
   const userRole = user?.role || "USER";
   const visibleNavItems = navItems.filter((item) => item.roles.includes(userRole));
+  const showBooking = bookingRoles.includes(userRole);
   const showAnalytics = analyticsRoles.includes(userRole);
   const showHrm = hrmRoles.includes(userRole);
 
@@ -126,37 +135,58 @@ export default function Sidebar({ isOpen: propIsOpen, setIsOpen: propSetIsOpen }
   const otherItems = visibleNavItems.filter((i) => i.name !== "Dashboard");
 
   const handleLinkClick = () => {
-    setIsOpen(false);
+    if (propSetIsOpen) {
+      propSetIsOpen(false);
+    } else {
+      setInternalIsOpen(false);
+    }
   };
 
   return (
     <>
-      {/* Mobile Drawer Overlay Backdrop */}
+      {/* Mobile Backdrop Overlay */}
       {isOpen && (
         <div
           onClick={() => setIsOpen(false)}
-          className="fixed inset-0 bg-black/60 backdrop-blur-xs z-40 lg:hidden transition-opacity duration-300"
+          className="fixed inset-0 bg-black/60 backdrop-blur-xs z-[990] lg:hidden transition-opacity"
         />
       )}
 
-      {/* Sidebar Navigation Drawer */}
+      {/* Sidebar Container */}
       <aside
-        className={`fixed lg:sticky top-0 left-0 z-50 h-screen w-64 bg-primary text-white flex flex-col justify-between p-5 transition-transform duration-300 ease-in-out border-r border-white/10 font-body ${
-          isOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full lg:translate-x-0"
-        }`}
+        className={`fixed top-0 left-0 bottom-0 z-[995] bg-[#0D231E] border-r border-white/10 transition-all duration-300 ease-in-out flex flex-col justify-between ${
+          isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        } ${isCollapsed ? "lg:w-20 p-3" : "lg:w-64 p-5"}`}
       >
-        <div className="space-y-6">
-          {/* Header Brand & Mobile Close Button */}
-          <div className="flex items-center justify-between pb-4 border-b border-white/10 px-2">
-            <Link href="/dashboard" onClick={handleLinkClick} className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center text-white font-bold text-lg font-heading shadow-xs">
+        <div className="space-y-6 min-w-0">
+          {/* Brand Header (Clean single brand layout) */}
+          <div className="flex items-center justify-between pb-4 border-b border-white/10 px-1">
+            <Link
+              href="/dashboard"
+              onClick={handleLinkClick}
+              className={`flex items-center gap-2.5 min-w-0 ${
+                isCollapsed ? "lg:mx-auto lg:justify-center" : ""
+              }`}
+              title="Royal Safari Tours Dashboard"
+            >
+              <div className="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center text-white font-bold text-lg font-heading shadow-xs shrink-0">
                 R
               </div>
-              <div>
-                <h2 className="font-heading text-lg font-bold text-white tracking-wide">
+              {!isCollapsed && (
+                <div className="min-w-0 hidden lg:block">
+                  <h2 className="font-heading text-base font-bold text-white tracking-wide truncate">
+                    Royal Safari
+                  </h2>
+                  <p className="text-[10px] text-white/60 uppercase font-semibold font-body tracking-widest truncate">
+                    {userRole === "EMPLOYEE" ? "Employee Portal" : "Admin Console"}
+                  </p>
+                </div>
+              )}
+              <div className="min-w-0 lg:hidden">
+                <h2 className="font-heading text-base font-bold text-white tracking-wide truncate">
                   Royal Safari
                 </h2>
-                <p className="text-[10px] text-white/60 uppercase font-semibold font-body tracking-widest">
+                <p className="text-[10px] text-white/60 uppercase font-semibold font-body tracking-widest truncate">
                   {userRole === "EMPLOYEE" ? "Employee Portal" : "Admin Console"}
                 </p>
               </div>
@@ -165,7 +195,7 @@ export default function Sidebar({ isOpen: propIsOpen, setIsOpen: propSetIsOpen }
             {/* Mobile Close Button */}
             <button
               onClick={() => setIsOpen(false)}
-              className="lg:hidden p-2 rounded-xl bg-white/10 text-white hover:bg-white/20 transition-colors cursor-pointer focus:outline-none"
+              className="lg:hidden p-2 rounded-xl bg-white/10 text-white hover:bg-white/20 transition-colors cursor-pointer focus:outline-none shrink-0"
               aria-label="Close Mobile Navigation"
             >
               <Icon icon="lucide:x" className="w-5 h-5" />
@@ -173,21 +203,80 @@ export default function Sidebar({ isOpen: propIsOpen, setIsOpen: propSetIsOpen }
           </div>
 
           {/* Navigation Links */}
-          <nav className="space-y-1 overflow-y-auto max-h-[calc(100vh-220px)] scrollbar-none pr-1 font-body">
+          <nav className="space-y-1.5 overflow-y-auto max-h-[calc(100vh-210px)] scrollbar-none pr-0.5 font-body">
             {/* Dashboard Link */}
             {dashboardItem && (
               <Link
                 href={dashboardItem.href}
                 onClick={handleLinkClick}
-                className={`flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-semibold tracking-wide transition-all duration-200 font-body ${
+                title={isCollapsed ? dashboardItem.name : undefined}
+                className={`flex items-center gap-3 rounded-xl text-xs font-semibold tracking-wide transition-all duration-200 font-body ${
+                  isCollapsed ? "justify-center p-3" : "px-3.5 py-3"
+                } ${
                   pathname === dashboardItem.href
                     ? "bg-secondary text-white shadow-xs"
                     : "text-white/70 hover:bg-white/10 hover:text-white"
                 }`}
               >
                 <Icon icon={dashboardItem.icon} className="w-4 h-4 shrink-0" />
-                <span>{dashboardItem.name}</span>
+                {!isCollapsed && <span className="truncate">{dashboardItem.name}</span>}
               </Link>
+            )}
+
+            {/* BOOKING SECTION DROPDOWN */}
+            {showBooking && (
+              <div>
+                <button
+                  onClick={() => setBookingOpen(!bookingOpen)}
+                  title={isCollapsed ? "Booking" : undefined}
+                  className={`w-full flex items-center justify-between rounded-xl text-xs font-semibold tracking-wide transition-all duration-200 font-body cursor-pointer ${
+                    isCollapsed ? "justify-center p-3" : "px-3.5 py-3"
+                  } ${
+                    isBookingActive || bookingOpen
+                      ? "bg-secondary text-white shadow-xs"
+                      : "text-white/70 hover:bg-white/10 hover:text-white"
+                  }`}
+                >
+                  <span className="flex items-center gap-3">
+                    <Icon icon="lucide:calendar-range" className="w-4 h-4 shrink-0" />
+                    {!isCollapsed && <span className="truncate">Booking</span>}
+                  </span>
+                  {!isCollapsed && (
+                    <Icon
+                      icon="lucide:chevron-down"
+                      className={`w-4 h-4 transition-transform duration-200 ${
+                        bookingOpen ? "rotate-180" : ""
+                      }`}
+                    />
+                  )}
+                </button>
+
+                {bookingOpen && (
+                  <div className={`mt-1 space-y-0.5 ${isCollapsed ? "pl-0" : "ml-4 border-l border-white/10 pl-3"}`}>
+                    {bookingSubItems.map((item) => {
+                      const isActive = pathname === item.href;
+                      return (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          onClick={handleLinkClick}
+                          title={isCollapsed ? item.name : undefined}
+                          className={`flex items-center gap-3 rounded-xl text-xs font-semibold tracking-wide transition-all duration-200 font-body ${
+                            isCollapsed ? "justify-center p-2.5" : "px-3 py-2.5"
+                          } ${
+                            isActive
+                              ? "bg-secondary/80 text-white"
+                              : "text-white/60 hover:bg-white/10 hover:text-white"
+                          }`}
+                        >
+                          <Icon icon={item.icon} className="w-3.5 h-3.5 shrink-0" />
+                          {!isCollapsed && <span className="truncate">{item.name}</span>}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             )}
 
             {/* Analytics Dropdown */}
@@ -195,7 +284,10 @@ export default function Sidebar({ isOpen: propIsOpen, setIsOpen: propSetIsOpen }
               <div>
                 <button
                   onClick={() => setAnalyticsOpen(!analyticsOpen)}
-                  className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-semibold tracking-wide transition-all duration-200 font-body cursor-pointer ${
+                  title={isCollapsed ? "Analytics" : undefined}
+                  className={`w-full flex items-center justify-between rounded-xl text-xs font-semibold tracking-wide transition-all duration-200 font-body cursor-pointer ${
+                    isCollapsed ? "justify-center p-3" : "px-3.5 py-3"
+                  } ${
                     isAnalyticsActive || analyticsOpen
                       ? "bg-secondary text-white shadow-xs"
                       : "text-white/70 hover:bg-white/10 hover:text-white"
@@ -203,18 +295,20 @@ export default function Sidebar({ isOpen: propIsOpen, setIsOpen: propSetIsOpen }
                 >
                   <span className="flex items-center gap-3">
                     <Icon icon="lucide:line-chart" className="w-4 h-4 shrink-0" />
-                    <span>Analytics</span>
+                    {!isCollapsed && <span className="truncate">Analytics</span>}
                   </span>
-                  <Icon
-                    icon="lucide:chevron-down"
-                    className={`w-4 h-4 transition-transform duration-200 ${
-                      analyticsOpen ? "rotate-180" : ""
-                    }`}
-                  />
+                  {!isCollapsed && (
+                    <Icon
+                      icon="lucide:chevron-down"
+                      className={`w-4 h-4 transition-transform duration-200 ${
+                        analyticsOpen ? "rotate-180" : ""
+                      }`}
+                    />
+                  )}
                 </button>
 
                 {analyticsOpen && (
-                  <div className="ml-4 mt-1 space-y-0.5 border-l border-white/10 pl-3">
+                  <div className={`mt-1 space-y-0.5 ${isCollapsed ? "pl-0" : "ml-4 border-l border-white/10 pl-3"}`}>
                     {analyticsSubItems.map((item) => {
                       const isActive = pathname === item.href;
                       return (
@@ -222,14 +316,17 @@ export default function Sidebar({ isOpen: propIsOpen, setIsOpen: propSetIsOpen }
                           key={item.href}
                           href={item.href}
                           onClick={handleLinkClick}
-                          className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all duration-200 font-body ${
+                          title={isCollapsed ? item.name : undefined}
+                          className={`flex items-center gap-3 rounded-xl text-xs font-semibold tracking-wide transition-all duration-200 font-body ${
+                            isCollapsed ? "justify-center p-2.5" : "px-3 py-2.5"
+                          } ${
                             isActive
                               ? "bg-secondary/80 text-white"
                               : "text-white/60 hover:bg-white/10 hover:text-white"
                           }`}
                         >
                           <Icon icon={item.icon} className="w-3.5 h-3.5 shrink-0" />
-                          <span>{item.name}</span>
+                          {!isCollapsed && <span className="truncate">{item.name}</span>}
                         </Link>
                       );
                     })}
@@ -246,14 +343,17 @@ export default function Sidebar({ isOpen: propIsOpen, setIsOpen: propSetIsOpen }
                   key={item.href}
                   href={item.href}
                   onClick={handleLinkClick}
-                  className={`flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-semibold tracking-wide transition-all duration-200 font-body ${
+                  title={isCollapsed ? item.name : undefined}
+                  className={`flex items-center gap-3 rounded-xl text-xs font-semibold tracking-wide transition-all duration-200 font-body ${
+                    isCollapsed ? "justify-center p-3" : "px-3.5 py-3"
+                  } ${
                     isActive
                       ? "bg-secondary text-white shadow-xs"
                       : "text-white/70 hover:bg-white/10 hover:text-white"
                   }`}
                 >
                   <Icon icon={item.icon} className="w-4 h-4 shrink-0" />
-                  <span>{item.name}</span>
+                  {!isCollapsed && <span className="truncate">{item.name}</span>}
                 </Link>
               );
             })}
@@ -263,26 +363,31 @@ export default function Sidebar({ isOpen: propIsOpen, setIsOpen: propSetIsOpen }
               <div>
                 <button
                   onClick={() => setHrmOpen(!hrmOpen)}
-                  className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-semibold tracking-wide transition-all duration-200 font-body cursor-pointer ${
+                  title={isCollapsed ? "HRM" : undefined}
+                  className={`w-full flex items-center justify-between rounded-xl text-xs font-semibold tracking-wide transition-all duration-200 font-body cursor-pointer ${
+                    isCollapsed ? "justify-center p-3" : "px-3.5 py-3"
+                  } ${
                     isHrmActive || hrmOpen
-                      ? "bg-secondary text-white shadow-xs"
+                      ? "bg-[#2cb775] text-white shadow-xs"
                       : "text-white/70 hover:bg-white/10 hover:text-white"
                   }`}
                 >
                   <span className="flex items-center gap-3">
                     <Icon icon="lucide:briefcase" className="w-4 h-4 shrink-0" />
-                    <span>HRM</span>
+                    {!isCollapsed && <span className="truncate">HRM</span>}
                   </span>
-                  <Icon
-                    icon="lucide:chevron-down"
-                    className={`w-4 h-4 transition-transform duration-200 ${
-                      hrmOpen ? "rotate-180" : ""
-                    }`}
-                  />
+                  {!isCollapsed && (
+                    <Icon
+                      icon="lucide:chevron-down"
+                      className={`w-4 h-4 transition-transform duration-200 ${
+                        hrmOpen ? "rotate-180" : ""
+                      }`}
+                    />
+                  )}
                 </button>
 
                 {hrmOpen && (
-                  <div className="ml-4 mt-1 space-y-0.5 border-l border-white/10 pl-3">
+                  <div className={`mt-1 space-y-0.5 ${isCollapsed ? "pl-0" : "ml-4 border-l border-white/10 pl-3"}`}>
                     {hrmSubItems.map((item) => {
                       const isActive = pathname === item.href;
                       return (
@@ -290,14 +395,17 @@ export default function Sidebar({ isOpen: propIsOpen, setIsOpen: propSetIsOpen }
                           key={item.href}
                           href={item.href}
                           onClick={handleLinkClick}
-                          className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all duration-200 font-body ${
+                          title={isCollapsed ? item.name : undefined}
+                          className={`flex items-center gap-3 rounded-xl text-xs font-semibold tracking-wide transition-all duration-200 font-body ${
+                            isCollapsed ? "justify-center p-2.5" : "px-3 py-2.5"
+                          } ${
                             isActive
                               ? "bg-secondary/80 text-white"
                               : "text-white/60 hover:bg-white/10 hover:text-white"
                           }`}
                         >
                           <Icon icon={item.icon} className="w-3.5 h-3.5 shrink-0" />
-                          <span>{item.name}</span>
+                          {!isCollapsed && <span className="truncate">{item.name}</span>}
                         </Link>
                       );
                     })}
@@ -309,14 +417,17 @@ export default function Sidebar({ isOpen: propIsOpen, setIsOpen: propSetIsOpen }
         </div>
 
         {/* Footer Actions */}
-        <div className="pt-4 border-t border-white/10 space-y-2 font-body">
+        <div className="pt-4 border-t border-white/10 font-body">
           <Link
             href="/"
             onClick={handleLinkClick}
-            className="flex items-center gap-2.5 px-3.5 py-3 rounded-xl text-xs font-semibold text-white/80 hover:bg-white/10 hover:text-white transition-all font-body"
+            title={isCollapsed ? "Back to Main Site" : undefined}
+            className={`flex items-center gap-2.5 rounded-xl text-xs font-semibold text-white/80 hover:bg-white/10 hover:text-white transition-all font-body ${
+              isCollapsed ? "justify-center p-3" : "px-3.5 py-3"
+            }`}
           >
-            <Icon icon="lucide:globe" className="w-4 h-4 text-accent" />
-            <span>Back to Main Site</span>
+            <Icon icon="lucide:globe" className="w-4 h-4 text-accent shrink-0" />
+            {!isCollapsed && <span className="truncate">Back to Main Site</span>}
           </Link>
         </div>
       </aside>
