@@ -371,7 +371,8 @@ export default function InvoicePrintModal({ isOpen, onClose, invoice }) {
                   <p className="font-bold text-[#595FAE] text-base leading-tight">
                     Royal Safari Tours
                   </p>
-                  <p className="text-[11px] text-[#595FAE] font-semibold tracking-wide">
+                  <br></br>
+                  <p className="text-[11px] text-[#595FAE] font-semibold tracking-wide text-right">
                     Proprietor
                   </p>
                 </div>
