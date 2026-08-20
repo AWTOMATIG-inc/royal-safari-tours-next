@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 cd /home/khalidh/royal-safari-tours-next || exit
 
