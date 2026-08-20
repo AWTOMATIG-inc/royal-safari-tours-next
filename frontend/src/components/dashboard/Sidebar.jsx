@@ -26,7 +26,7 @@ const navItems = [
     roles: ["SUPER_ADMIN", "ADMIN"] 
   },
   { 
-    name: "Contact Requests", 
+    name: "Contact Inquiries", 
     href: "/dashboard/contact-requests", 
     icon: "lucide:mail", 
     roles: ["SUPER_ADMIN", "ADMIN"] 
