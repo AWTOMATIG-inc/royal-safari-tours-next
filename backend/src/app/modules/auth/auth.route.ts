@@ -1,14 +1,24 @@
 import express from "express";
 import * as authController from "./auth.controller";
 import { validateRequest } from "../../middlewares/validateRequest";
-import { registerSchema, loginSchema, refreshTokenSchema, changePasswordSchema } from "./auth.validation";
+import {
+  registerSchema,
+  loginSchema,
+  verifyOtpSchema,
+  resendOtpSchema,
+  refreshTokenSchema,
+  changePasswordSchema,
+} from "./auth.validation";
 import { auth } from "../../middlewares/auth";
+import { loginLimiter, otpLimiter, resendLimiter } from "./rateLimiter";
 import { authRateLimiter, strictRateLimiter } from "../../middlewares/rateLimiter";
 
 const router = express.Router();
 
 router.post("/register", authRateLimiter, validateRequest(registerSchema), authController.register);
-router.post("/login", authRateLimiter, validateRequest(loginSchema), authController.login);
+router.post("/login", loginLimiter, validateRequest(loginSchema), authController.login);
+router.post("/verify-otp", otpLimiter, validateRequest(verifyOtpSchema), authController.verifyOtp);
+router.post("/resend-otp", resendLimiter, validateRequest(resendOtpSchema), authController.resendOtp);
 router.post("/refresh-token", strictRateLimiter, validateRequest(refreshTokenSchema), authController.refreshToken);
 router.post("/logout", authController.logout);
 router.post("/change-password", auth(), validateRequest(changePasswordSchema), authController.changePassword);
