@@ -5,6 +5,15 @@ export const loginSchema = z.object({
   password: z.string().min(1, "Password is required").max(128, "Password must be at most 128 characters"),
 });
 
+export const verifyOtpSchema = z.object({
+  email: z.string().trim().min(1, "Email is required").email("Invalid email format"),
+  otp: z.string().trim().length(6, "Verification code must be 6 digits"),
+});
+
+export const resendOtpSchema = z.object({
+  email: z.string().trim().min(1, "Email is required").email("Invalid email format"),
+});
+
 export const registerSchema = z.object({
   name: z
     .string()
