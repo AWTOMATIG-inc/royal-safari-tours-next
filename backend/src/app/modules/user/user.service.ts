@@ -77,7 +77,21 @@ export const updateUser = async (id: string, payload: UpdateUserPayload) => {
   if (name !== undefined) updateData.name = name;
   if (avatar !== undefined) updateData.avatar = avatar;
 
+  const currentTarget = await prisma.user.findUnique({
+    where: { id },
+  });
+
+  if (!currentTarget) {
+    throw new Error("User not found");
+  }
+
   if (role !== undefined) {
+    const isCurrentlyAdmin = currentTarget.role === Role.ADMIN || currentTarget.role === Role.SUPER_ADMIN;
+
+    if (isCurrentlyAdmin) {
+      throw new Error("Admin account access levels cannot be modified");
+    }
+
     const uppercaseRole = role.toUpperCase() as Role;
     if (uppercaseRole === Role.ADMIN || uppercaseRole === Role.SUPER_ADMIN) {
       const adminCount = await prisma.user.count({
@@ -87,12 +101,6 @@ export const updateUser = async (id: string, payload: UpdateUserPayload) => {
           },
         },
       });
-      
-      const currentTarget = await prisma.user.findUnique({
-        where: { id },
-      });
-
-      const isCurrentlyAdmin = currentTarget?.role === Role.ADMIN || currentTarget?.role === Role.SUPER_ADMIN;
 
       if (!isCurrentlyAdmin && adminCount >= 5) {
         throw new Error("Maximum of 5 admin accounts allowed");
@@ -116,13 +124,21 @@ export const updateUser = async (id: string, payload: UpdateUserPayload) => {
   return updated;
 };
 
-export const deleteUser = async (id: string) => {
+export const deleteUser = async (id: string, currentUserId?: string) => {
   const user = await prisma.user.findUnique({
     where: { id },
   });
 
   if (!user) {
     throw new Error("User not found");
+  }
+
+  if (currentUserId && (id === currentUserId || user.id === currentUserId)) {
+    throw new Error("You cannot delete your own account");
+  }
+
+  if (user.role === Role.ADMIN || user.role === Role.SUPER_ADMIN) {
+    throw new Error("Admin accounts cannot be deleted");
   }
 
   await prisma.user.delete({

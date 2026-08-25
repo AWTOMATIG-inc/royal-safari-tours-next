@@ -1,32 +1,44 @@
 "use client";
 
 import DashboardPageHeader from "@/components/dashboard/DashboardPageHeader";
+import ConfirmModal from "@/components/dashboard/ConfirmModal";
 import { Icon } from "@iconify/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import toast from "react-hot-toast";
 
 export default function SubscribersPage({ subscribers = [], pagination = { page: 1, totalPages: 1 } }) {
   const router = useRouter();
+  const [deleteModal, setDeleteModal] = useState({ open: false, id: null, email: "" });
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const isPrev = Number(pagination.page) === 1;
   const isNext = Number(pagination.page) === pagination.totalPages;
 
-  const handleDelete = async (id) => {
-    const userConfirmed = confirm("Are you sure you want to delete this subscriber?");
-    if (!userConfirmed) return;
+  const handleOpenDeleteModal = (id, email) => {
+    setDeleteModal({ open: true, id, email });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteModal.id) return;
+    setIsDeleting(true);
     try {
-      const response = await fetch(`/api/subscriber/${id}`, {
+      const response = await fetch(`/api/subscriber/${deleteModal.id}`, {
         method: "DELETE",
       });
       if (!response.ok) {
-        throw new Error("Network response was not ok");
+        throw new Error("Failed to delete subscriber");
       }
       toast.success("Subscriber deleted successfully!");
+      setDeleteModal({ open: false, id: null, email: "" });
       router.refresh();
     } catch (error) {
-      toast.error(error.message);
+      toast.error(error.message || "Failed to delete subscriber");
       console.error("Delete subscriber error:", error);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -58,34 +70,43 @@ export default function SubscribersPage({ subscribers = [], pagination = { page:
               <thead>
                 <tr className="bg-gray-50/80 border-b border-gray-100 text-gray-500 uppercase tracking-wider text-[11px] font-semibold">
                   <th className="py-4 px-6">SL</th>
-                  <th className="py-4 px-6">Subscriber Name</th>
                   <th className="py-4 px-6">Subscribed Email</th>
+                  <th className="py-4 px-6">Subscription Date</th>
                   <th className="py-4 px-6 text-right">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 text-gray-700">
-                {subscribers.map((item, index) => (
-                  <tr key={item._id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="py-4 px-6 text-gray-400 font-mono font-bold">
-                      #{index + 1}
-                    </td>
-                    <td className="py-4 px-6 font-bold text-[#0D231E]">
-                      {item.name || "Subscriber"}
-                    </td>
-                    <td className="py-4 px-6 font-mono text-gray-600">
-                      {item.email}
-                    </td>
-                    <td className="py-4 px-6 text-right">
-                      <button
-                        onClick={() => handleDelete(item._id)}
-                        className="p-2 rounded-lg bg-gray-50 text-gray-500 hover:bg-rose-50 hover:text-rose-600 transition-colors cursor-pointer"
-                        title="Delete subscriber"
-                      >
-                        <Icon icon="lucide:trash-2" className="w-4 h-4" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                {subscribers.map((item, idx) => {
+                  const subId = item._id || item.id;
+                  const sl = (pagination.page - 1) * 10 + idx + 1;
+
+                  return (
+                    <tr key={subId} className="hover:bg-gray-50/50 transition-colors">
+                      <td className="py-4 px-6 font-semibold text-gray-400">
+                        #{sl}
+                      </td>
+                      <td className="py-4 px-6 font-bold text-[#0D231E]">
+                        {item.email}
+                      </td>
+                      <td className="py-4 px-6 text-gray-500 font-mono">
+                        {new Date(item.createdAt).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
+                      </td>
+                      <td className="py-4 px-6 text-right">
+                        <button
+                          onClick={() => handleOpenDeleteModal(subId, item.email)}
+                          className="p-2 rounded-lg bg-gray-50 text-gray-500 hover:bg-rose-50 hover:text-rose-600 transition-colors cursor-pointer"
+                          title="Delete subscriber"
+                        >
+                          <Icon icon="lucide:trash-2" className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -140,6 +161,18 @@ export default function SubscribersPage({ subscribers = [], pagination = { page:
           </Link>
         </div>
       )}
+
+      {/* Custom Confirmation Modal */}
+      <ConfirmModal
+        isOpen={deleteModal.open}
+        onClose={() => setDeleteModal({ open: false, id: null, email: "" })}
+        onConfirm={handleConfirmDelete}
+        title="Delete Subscriber"
+        message={`Are you sure you want to remove ${deleteModal.email ? `"${deleteModal.email}"` : "this subscriber"} from the journal dispatch list?`}
+        confirmText="Delete Subscriber"
+        variant="danger"
+        loading={isDeleting}
+      />
     </div>
   );
 }

@@ -92,7 +92,7 @@ export const update = async (req: Request, res: Response): Promise<void> => {
 export const remove = async (req: Request, res: Response): Promise<void> => {
   try {
     const id = req.params.id as string;
-    await userService.deleteUser(id);
+    await userService.deleteUser(id, req.user?.id);
 
     res.status(StatusCodes.OK).json({
       success: true,
