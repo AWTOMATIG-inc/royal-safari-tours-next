@@ -1,36 +1,60 @@
 "use client";
 
 import DashboardPageHeader from "@/components/dashboard/DashboardPageHeader";
+import ConfirmModal from "@/components/dashboard/ConfirmModal";
+import { useAuth } from "@/hooks/useAuth";
 import { Icon } from "@iconify/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import toast from "react-hot-toast";
 
 export default function UsersPage({ users = [], pagination = { page: 1, totalPages: 1 } }) {
   const router = useRouter();
+  const { user: currentUser } = useAuth();
+  const [deleteModal, setDeleteModal] = useState({ open: false, id: null, name: "" });
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const isPrev = Number(pagination.page) === 1;
   const isNext = Number(pagination.page) === pagination.totalPages;
 
-  const handleDelete = async (id) => {
-    const userConfirmed = confirm("Are you sure you want to delete this user?");
-    if (!userConfirmed) return;
+  const handleOpenDeleteModal = (id, name, isSelf, isAdmin) => {
+    if (isSelf) {
+      return toast.error("You cannot delete your own account.");
+    }
+    if (isAdmin) {
+      return toast.error("Admin accounts cannot be deleted.");
+    }
+    setDeleteModal({ open: true, id, name });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteModal.id) return;
+    setIsDeleting(true);
     try {
-      const response = await fetch(`/api/v1/users/${id}`, {
+      const response = await fetch(`/api/v1/users/${deleteModal.id}`, {
         method: "DELETE",
       });
+      const data = await response.json().catch(() => ({}));
       if (!response.ok) {
-        throw new Error("Network response was not ok");
+        throw new Error(data.error || data.message || "Failed to delete user account");
       }
       toast.success("User deleted successfully!");
+      setDeleteModal({ open: false, id: null, name: "" });
       router.refresh();
     } catch (error) {
-      toast.error(error.message);
+      toast.error(error.message || "Delete user error");
       console.error("Delete user error:", error);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
-  const handleRole = async (id, role) => {
+  const handleRole = async (id, role, currentRole) => {
+    if (currentRole === "ADMIN" || currentRole === "SUPER_ADMIN") {
+      return toast.error("Admin account access levels cannot be changed.");
+    }
     try {
       const formData = new FormData();
       formData.append("role", role);
@@ -39,11 +63,13 @@ export default function UsersPage({ users = [], pagination = { page: 1, totalPag
         body: formData,
       });
 
+      const data = await response.json().catch(() => ({}));
+
       if (response.status === 400) {
-        return toast.error("Maximum of 5 admin accounts allowed");
+        return toast.error(data.error || data.message || "Maximum of 5 admin accounts allowed");
       }
       if (!response.ok) {
-        return toast.error("Network response was not ok");
+        return toast.error(data.error || data.message || "Failed to update user role");
       }
       toast.success("Role updated successfully!");
       router.refresh();
@@ -54,7 +80,7 @@ export default function UsersPage({ users = [], pagination = { page: 1, totalPag
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6 font-body">
       <DashboardPageHeader
         title="User Management"
         description="Manage user accounts, assign admin privileges, and monitor account accesses."
@@ -88,44 +114,101 @@ export default function UsersPage({ users = [], pagination = { page: 1, totalPag
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 text-gray-700">
-                {users.map((userItem) => (
-                  <tr key={userItem._id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="py-4 px-6 font-bold text-[#0D231E]">
-                      {userItem.name}
-                    </td>
-                    <td className="py-4 px-6 text-gray-600">
-                      {userItem.email}
-                    </td>
-                    <td className="py-4 px-6">
-                      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider ${
-                        userItem.role === "admin"
-                          ? "bg-[#2cb775]/10 text-[#2cb775] border border-[#2cb775]/20"
-                          : "bg-gray-100 text-gray-600 border border-gray-200"
-                      }`}>
-                        {userItem.role || "User"}
-                      </span>
-                    </td>
-                    <td className="py-4 px-6">
-                      <select
-                        onChange={(e) => handleRole(userItem._id, e.target.value)}
-                        defaultValue={userItem.role || "user"}
-                        className="bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1 text-xs font-semibold text-[#0D231E] focus:outline-none focus:border-[#2cb775] cursor-pointer"
-                      >
-                        <option value="user">User</option>
-                        <option value="admin">Admin</option>
-                      </select>
-                    </td>
-                    <td className="py-4 px-6 text-right">
-                      <button
-                        onClick={() => handleDelete(userItem._id)}
-                        className="p-2 rounded-lg bg-gray-50 text-gray-500 hover:bg-rose-50 hover:text-rose-600 transition-colors cursor-pointer"
-                        title="Delete user"
-                      >
-                        <Icon icon="lucide:trash-2" className="w-4 h-4" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                {users.map((userItem) => {
+                  const userId = userItem._id || userItem.id;
+                  const roleUpper = (userItem.role || "USER").toUpperCase();
+                  const isAdminAccount = roleUpper === "SUPER_ADMIN" || roleUpper === "ADMIN";
+
+                  const isSelf =
+                    Boolean(currentUser) &&
+                    ((currentUser?.id && (userId === currentUser.id || userId === currentUser._id)) ||
+                      (currentUser?._id && (userId === currentUser._id || userId === currentUser.id)) ||
+                      (currentUser?.email && userItem.email?.toLowerCase() === currentUser.email?.toLowerCase()));
+
+                  return (
+                    <tr key={userId} className="hover:bg-gray-50/50 transition-colors">
+                      <td className="py-4 px-6 font-bold text-[#0D231E]">
+                        <div className="flex items-center gap-2">
+                          <span>{userItem.name}</span>
+                          {isSelf && (
+                            <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+                              You
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="py-4 px-6 text-gray-600">
+                        {userItem.email}
+                      </td>
+                      <td className="py-4 px-6">
+                        <span
+                          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${
+                            roleUpper === "SUPER_ADMIN"
+                              ? "bg-purple-100 text-purple-700 border border-purple-200"
+                              : roleUpper === "ADMIN"
+                              ? "bg-emerald-100 text-emerald-700 border border-emerald-200"
+                              : roleUpper === "EMPLOYEE" || roleUpper === "HR_MANAGER"
+                              ? "bg-blue-100 text-blue-700 border border-blue-200"
+                              : "bg-gray-100 text-gray-600 border border-gray-200"
+                          }`}
+                        >
+                          <span>{userItem.role || "USER"}</span>
+                          {isAdminAccount && (
+                            <Icon icon="lucide:shield-check" className="w-3 h-3 text-emerald-600" />
+                          )}
+                        </span>
+                      </td>
+                      <td className="py-4 px-6">
+                        <div className="flex items-center gap-1.5">
+                          <select
+                            value={roleUpper}
+                            disabled={isAdminAccount}
+                            onChange={(e) => handleRole(userId, e.target.value, roleUpper)}
+                            title={isAdminAccount ? "Admin account access levels cannot be changed" : "Change user access level"}
+                            className={`border rounded-lg px-2.5 py-1 text-xs font-semibold text-[#0D231E] focus:outline-none ${
+                              isAdminAccount
+                                ? "bg-gray-100/90 border-gray-200 text-gray-500 cursor-not-allowed opacity-80"
+                                : "bg-gray-50 border-gray-200 focus:border-[#2cb775] cursor-pointer"
+                            }`}
+                          >
+                            <option value="USER">User</option>
+                            <option value="EMPLOYEE">Employee</option>
+                            <option value="HR_MANAGER">HR Manager</option>
+                            <option value="ADMIN">Admin</option>
+                            <option value="SUPER_ADMIN">Super Admin</option>
+                          </select>
+                          {isAdminAccount && (
+                            <Icon
+                              icon="lucide:lock"
+                              className="w-3.5 h-3.5 text-amber-600 shrink-0"
+                              title="Protected Admin Access Level"
+                            />
+                          )}
+                        </div>
+                      </td>
+                      <td className="py-4 px-6 text-right">
+                        <button
+                          disabled={isSelf || isAdminAccount}
+                          onClick={() => handleOpenDeleteModal(userId, userItem.name, isSelf, isAdminAccount)}
+                          className={`p-2 rounded-lg transition-colors ${
+                            isSelf || isAdminAccount
+                              ? "bg-gray-100 text-gray-300 border border-gray-200 cursor-not-allowed"
+                              : "bg-gray-50 text-gray-500 hover:bg-rose-50 hover:text-rose-600 cursor-pointer"
+                          }`}
+                          title={
+                            isSelf
+                              ? "You cannot delete your own account"
+                              : isAdminAccount
+                              ? "Admin accounts cannot be deleted"
+                              : "Delete user"
+                          }
+                        >
+                          <Icon icon="lucide:trash-2" className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -180,6 +263,18 @@ export default function UsersPage({ users = [], pagination = { page: 1, totalPag
           </Link>
         </div>
       )}
+
+      {/* Custom Confirmation Modal for User Deletion */}
+      <ConfirmModal
+        isOpen={deleteModal.open}
+        onClose={() => setDeleteModal({ open: false, id: null, name: "" })}
+        onConfirm={handleConfirmDelete}
+        title="Delete User Account"
+        message={`Are you sure you want to delete ${deleteModal.name ? `"${deleteModal.name}"` : "this user"}? This action cannot be undone.`}
+        confirmText="Delete User"
+        variant="danger"
+        loading={isDeleting}
+      />
     </div>
   );
 }
