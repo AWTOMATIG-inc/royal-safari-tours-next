@@ -23,6 +23,37 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   try {
     const result = await authService.loginUser(req.body);
 
+    if (!result.requires2FA && result.accessToken && result.refreshToken) {
+      const isPersistent = Boolean(req.body.rememberMe || result.rememberMe);
+      const accessTokenMaxAge = isPersistent ? 365 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
+      const refreshTokenMaxAge = isPersistent ? 365 * 24 * 60 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000;
+
+      res.cookie("token", result.accessToken, {
+        httpOnly: true,
+        path: "/",
+        maxAge: accessTokenMaxAge,
+        sameSite: "lax",
+      });
+
+      res.cookie("refreshToken", result.refreshToken, {
+        httpOnly: true,
+        path: "/",
+        maxAge: refreshTokenMaxAge,
+        sameSite: "lax",
+      });
+
+      res.status(StatusCodes.OK).json({
+        success: true,
+        message: "Login successful",
+        requires2FA: false,
+        accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
+        token: result.accessToken,
+        user: result.user,
+      });
+      return;
+    }
+
     res.status(StatusCodes.OK).json({
       success: true,
       message: "Verification code sent to your email",
@@ -57,11 +88,12 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
 export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { email, otp } = req.body;
-    const { user, accessToken, refreshToken } = await authService.verifyOtpService(email, otp);
+    const { email, otp, rememberMe } = req.body;
+    const isPersistent = Boolean(rememberMe);
+    const { user, accessToken, refreshToken } = await authService.verifyOtpService(email, otp, isPersistent);
 
-    const accessTokenMaxAge = 24 * 60 * 60 * 1000;
-    const refreshTokenMaxAge = 7 * 24 * 60 * 60 * 1000;
+    const accessTokenMaxAge = isPersistent ? 365 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
+    const refreshTokenMaxAge = isPersistent ? 365 * 24 * 60 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000;
 
     res.cookie("token", accessToken, {
       httpOnly: true,

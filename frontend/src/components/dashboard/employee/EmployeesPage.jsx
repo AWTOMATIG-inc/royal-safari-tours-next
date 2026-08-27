@@ -330,19 +330,10 @@ export default function EmployeesPage({
                           <Link
                             href={`/dashboard/employees/edit/${emp.id}`}
                             className="p-2 rounded-lg bg-gray-50 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
-                            title="Edit employee"
+                            title="Edit employee & status"
                           >
                             <Icon icon="lucide:pencil" className="w-4 h-4" />
                           </Link>
-                          <button
-                            onClick={() =>
-                              setDeleteModal({ open: true, id: emp.id })
-                            }
-                            className="p-2 rounded-lg bg-gray-50 text-gray-500 hover:bg-rose-50 hover:text-rose-600 transition-colors cursor-pointer"
-                            title="Delete employee"
-                          >
-                            <Icon icon="lucide:trash-2" className="w-4 h-4" />
-                          </button>
                         </div>
                       </td>
                     )}

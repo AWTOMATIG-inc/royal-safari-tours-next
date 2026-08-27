@@ -16,6 +16,7 @@ interface RegisterPayload {
 interface LoginPayload {
   email: string;
   password: string;
+  rememberMe?: boolean;
 }
 
 interface TokenPayload {
@@ -77,9 +78,61 @@ export const loginUser = async (payload: LoginPayload) => {
     throw new Error("INVALID_CREDENTIALS: Invalid email or password");
   }
 
+  if (user.status !== "ACTIVE") {
+    throw new Error("ACCOUNT_DEACTIVATED: Your account status is Inactive. Access to the dashboard is disabled.");
+  }
+
+  // Check linked Employee employment status
+  const linkedEmployee = await prisma.employee.findFirst({
+    where: {
+      OR: [
+        { userId: user.id },
+        { email: user.email.toLowerCase() },
+      ],
+    },
+    include: {
+      employmentStatus: true,
+    },
+  });
+
+  if (linkedEmployee && linkedEmployee.employmentStatus?.name?.toLowerCase() === "inactive") {
+    throw new Error("ACCOUNT_DEACTIVATED: Your employee account status is Inactive. Access to the dashboard is disabled.");
+  }
+
   const isPasswordMatch = await bcrypt.compare(payload.password, user.password);
   if (!isPasswordMatch) {
     throw new Error("INVALID_CREDENTIALS: Invalid email or password");
+  }
+
+  // Super Admin OTP Bypass: Issue tokens directly without 2FA step
+  if (user.role === Role.SUPER_ADMIN) {
+    const tokenPayload: TokenPayload = {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      name: user.name,
+      avatar: user.avatar,
+    };
+
+    const rememberMe = Boolean(payload.rememberMe);
+    const jwtExpiry = rememberMe ? "365d" : (config.jwtExpiresIn || "1d");
+    const refreshExpiry = rememberMe ? "365d" : (config.refreshExpiresIn || "7d");
+
+    const accessToken = jwt.sign(tokenPayload, config.jwtSecret, {
+      expiresIn: jwtExpiry as jwt.SignOptions["expiresIn"],
+    });
+
+    const refreshToken = jwt.sign({ id: user.id }, config.refreshSecret, {
+      expiresIn: refreshExpiry as jwt.SignOptions["expiresIn"],
+    });
+
+    return {
+      requires2FA: false,
+      user: tokenPayload,
+      accessToken,
+      refreshToken,
+      rememberMe,
+    };
   }
 
   const existingRecord = await otpStore.get(normalizedEmail);
@@ -107,7 +160,7 @@ export const loginUser = async (payload: LoginPayload) => {
   };
 };
 
-export const verifyOtpService = async (email: string, plainOtp: string) => {
+export const verifyOtpService = async (email: string, plainOtp: string, rememberMe: boolean = false) => {
   const normalizedEmail = email.toLowerCase().trim();
 
   const record = await otpStore.get(normalizedEmail);
@@ -158,12 +211,15 @@ export const verifyOtpService = async (email: string, plainOtp: string) => {
     avatar: user.avatar,
   };
 
+  const jwtExpiry = rememberMe ? "365d" : (config.jwtExpiresIn || "1d");
+  const refreshExpiry = rememberMe ? "365d" : (config.refreshExpiresIn || "7d");
+
   const accessToken = jwt.sign(tokenPayload, config.jwtSecret, {
-    expiresIn: config.jwtExpiresIn as jwt.SignOptions["expiresIn"],
+    expiresIn: jwtExpiry as jwt.SignOptions["expiresIn"],
   });
 
   const refreshToken = jwt.sign({ id: user.id }, config.refreshSecret, {
-    expiresIn: config.refreshExpiresIn as jwt.SignOptions["expiresIn"],
+    expiresIn: refreshExpiry as jwt.SignOptions["expiresIn"],
   });
 
   return {

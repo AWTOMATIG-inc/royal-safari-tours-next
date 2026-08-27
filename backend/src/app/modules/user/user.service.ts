@@ -1,20 +1,29 @@
-import { Prisma, Role } from "@prisma/client";
+import { Prisma, Role, UserStatus } from "@prisma/client";
 import { prisma } from "../../utils/prisma";
 
 interface UpdateUserPayload {
   name?: string;
   role?: string;
   avatar?: string;
+  status?: UserStatus;
 }
 
 export const getAllUsers = async (
   page: number,
   limit: number,
-  search?: string
+  search?: string,
+  role?: string
 ) => {
   const skip = (page - 1) * limit;
 
   const where: Prisma.UserWhereInput = {};
+
+  // Filter by role (default to USER to keep regular Users separate from Employees/Staff)
+  if (role && role.trim() && role.trim().toUpperCase() !== "ALL") {
+    where.role = role.trim().toUpperCase() as Role;
+  } else if (!role) {
+    where.role = Role.USER;
+  }
 
   if (search && search.trim()) {
     const searchTerm = search.trim();
@@ -35,6 +44,7 @@ export const getAllUsers = async (
         name: true,
         email: true,
         role: true,
+        status: true,
         avatar: true,
         createdAt: true,
         updatedAt: true,
@@ -57,6 +67,7 @@ export const getUserById = async (id: string) => {
       name: true,
       email: true,
       role: true,
+      status: true,
       avatar: true,
       createdAt: true,
       updatedAt: true,
@@ -71,11 +82,12 @@ export const getUserById = async (id: string) => {
 };
 
 export const updateUser = async (id: string, payload: UpdateUserPayload) => {
-  const { role, name, avatar } = payload;
+  const { role, name, avatar, status } = payload;
   const updateData: Prisma.UserUpdateInput = {};
 
   if (name !== undefined) updateData.name = name;
   if (avatar !== undefined) updateData.avatar = avatar;
+  if (status !== undefined) updateData.status = status;
 
   const currentTarget = await prisma.user.findUnique({
     where: { id },
@@ -117,6 +129,7 @@ export const updateUser = async (id: string, payload: UpdateUserPayload) => {
       name: true,
       email: true,
       role: true,
+      status: true,
       avatar: true,
     },
   });
@@ -141,9 +154,46 @@ export const deleteUser = async (id: string, currentUserId?: string) => {
     throw new Error("Admin accounts cannot be deleted");
   }
 
+  // Check if this user has created invoice records in the system
+  const invoiceCount = await prisma.invoice.count({
+    where: { createdById: id },
+  });
+
+  // 1. Unlink associated Employee profile if present
+  await prisma.employee.updateMany({
+    where: { userId: id },
+    data: { userId: null },
+  });
+
+  // If user has created invoices, set status to INACTIVE to preserve audit trails without altering invoices
+  if (invoiceCount > 0) {
+    const deactivatedUser = await prisma.user.update({
+      where: { id },
+      data: { status: UserStatus.INACTIVE },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        status: true,
+      },
+    });
+
+    return {
+      deactivated: true,
+      message: `Account for ${user.name} has invoice records and was safely DEACTIVATED (INACTIVE) to preserve financial audit history.`,
+      user: deactivatedUser,
+    };
+  }
+
+  // If zero invoice records exist, perform hard deletion
   await prisma.user.delete({
     where: { id },
   });
 
-  return user;
+  return {
+    deactivated: false,
+    message: `User ${user.name} deleted successfully.`,
+    user,
+  };
 };

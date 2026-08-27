@@ -6,27 +6,25 @@ import { EyeCloseIcon, EyeOpenIcon } from "@/components/SvgIcons";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useRef, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 
-export default function Login() {
-  const [step, setStep] = useState(1); // 1 = Credentials, 2 = 2FA OTP
-  const [formdata, setFormData] = useState({
-    email: "",
-    password: "",
-  });
-  const [loading, setLoading] = useState(false);
-  const [isShowPassword, setIsShowPassword] = useState(false);
+export default function LoginPage() {
   const router = useRouter();
 
-  // 2FA OTP state
+  // Form & View State
+  const [formdata, setFormData] = useState({ email: "", password: "" });
+  const [rememberMe, setRememberMe] = useState(false);
+  const [step, setStep] = useState(1); // 1: Login Form, 2: OTP Screen
   const [maskedEmail, setMaskedEmail] = useState("");
-  const [otpDigits, setOtpDigits] = useState(["", "", "", "", "", ""]);
+  const [loading, setLoading] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [resending, setResending] = useState(false);
+  const [isShowPassword, setIsShowPassword] = useState(false);
 
-  // Timers
-  const [cooldown, setCooldown] = useState(60); // 60s resend cooldown
+  // OTP Input & Timer State
+  const [otpDigits, setOtpDigits] = useState(["", "", "", "", "", ""]);
+  const [cooldown, setCooldown] = useState(60);
   const [expirySeconds, setExpirySeconds] = useState(300); // 5 mins = 300s
   const otpInputRefs = [
     useRef(null),
@@ -85,13 +83,14 @@ export default function Login() {
         setStep(2);
         setCooldown(60);
         setExpirySeconds(300);
-        toast.success(data.message || "Verification code sent to your email!");
+        setOtpDigits(["", "", "", "", "", ""]);
+        toast.success("Security verification code sent to your email.");
       } else {
-        toast.success("Login successful!");
+        toast.success("Login successfully!");
         router.push("/dashboard");
       }
     } catch (error) {
-      toast.error(error.message || "Invalid credentials");
+      toast.error(error.message || "Invalid credentials.");
     } finally {
       setLoading(false);
     }
@@ -145,6 +144,7 @@ export default function Login() {
         body: JSON.stringify({
           email: formdata.email,
           otp: fullOtp,
+          rememberMe,
         }),
         headers: {
           "Content-Type": "application/json",
@@ -250,6 +250,18 @@ export default function Login() {
                   </button>
                 </div>
 
+                <div className="flex items-center justify-between text-xs font-medium text-gray-600 pt-1">
+                  <label className="flex items-center gap-2 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                      className="w-4 h-4 rounded border-gray-300 text-[#0D231E] focus:ring-[#0D231E] accent-[#0D231E] cursor-pointer"
+                    />
+                    <span>Keep me logged in</span>
+                  </label>
+                </div>
+
                 <Button
                   className="w-full bg-[#0D231E] hover:bg-[#163831] text-white py-3 rounded-xl font-bold transition-all shadow-md cursor-pointer"
                   name={loading ? "Logging in..." : "Login"}
@@ -301,7 +313,7 @@ export default function Login() {
                       value={digit}
                       onChange={(e) => handleOtpChange(idx, e.target.value)}
                       onKeyDown={(e) => handleOtpKeyDown(idx, e)}
-                      className="w-11 h-13 text-center text-xl font-mono font-bold text-[#0D231E] bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-[#2cb775] focus:ring-2 focus:ring-[#2cb775]/20 focus:outline-none transition-all"
+                      className="w-11 h-13 sm:w-12 sm:h-14 text-center text-xl font-bold text-[#0D231E] bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-[#DE8D3D] focus:ring-2 focus:ring-[#DE8D3D]/20 outline-none transition-all"
                     />
                   ))}
                 </div>
