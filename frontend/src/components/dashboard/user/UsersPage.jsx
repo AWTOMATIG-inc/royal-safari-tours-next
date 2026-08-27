@@ -19,12 +19,9 @@ export default function UsersPage({ users = [], pagination = { page: 1, totalPag
   const isPrev = Number(pagination.page) === 1;
   const isNext = Number(pagination.page) === pagination.totalPages;
 
-  const handleOpenDeleteModal = (id, name, isSelf, isAdmin) => {
+  const handleOpenDeleteModal = (id, name, isSelf) => {
     if (isSelf) {
       return toast.error("You cannot delete your own account.");
-    }
-    if (isAdmin) {
-      return toast.error("Admin accounts cannot be deleted.");
     }
     setDeleteModal({ open: true, id, name });
   };
@@ -38,9 +35,9 @@ export default function UsersPage({ users = [], pagination = { page: 1, totalPag
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) {
-        throw new Error(data.error || data.message || "Failed to delete user account");
+        throw new Error(data.error || data.message || "Failed to process user account");
       }
-      toast.success("User deleted successfully!");
+      toast.success(data.message || "User account processed successfully!");
       setDeleteModal({ open: false, id: null, name: "" });
       router.refresh();
     } catch (error) {
@@ -51,39 +48,11 @@ export default function UsersPage({ users = [], pagination = { page: 1, totalPag
     }
   };
 
-  const handleRole = async (id, role, currentRole) => {
-    if (currentRole === "ADMIN" || currentRole === "SUPER_ADMIN") {
-      return toast.error("Admin account access levels cannot be changed.");
-    }
-    try {
-      const formData = new FormData();
-      formData.append("role", role);
-      const response = await fetch(`/api/v1/users/${id}`, {
-        method: "PUT",
-        body: formData,
-      });
-
-      const data = await response.json().catch(() => ({}));
-
-      if (response.status === 400) {
-        return toast.error(data.error || data.message || "Maximum of 5 admin accounts allowed");
-      }
-      if (!response.ok) {
-        return toast.error(data.error || data.message || "Failed to update user role");
-      }
-      toast.success("Role updated successfully!");
-      router.refresh();
-    } catch (error) {
-      console.error("Role update error:", error);
-      toast.error(error.message);
-    }
-  };
-
   return (
     <div className="max-w-7xl mx-auto space-y-6 font-body">
       <DashboardPageHeader
         title="User Management"
-        description="Manage user accounts, assign admin privileges, and monitor account accesses."
+        description="Manage registered customer accounts and monitor client memberships."
       />
 
       <div className="bg-white rounded-3xl border border-gray-100 shadow-[0_4px_20px_rgba(13,35,30,0.03)] overflow-hidden">
@@ -98,7 +67,7 @@ export default function UsersPage({ users = [], pagination = { page: 1, totalPag
               className="mx-auto opacity-80"
             />
             <p className="text-gray-500 font-medium font-inter text-base">
-              No registered users found.
+              No registered customer accounts found.
             </p>
           </div>
         ) : (
@@ -106,18 +75,15 @@ export default function UsersPage({ users = [], pagination = { page: 1, totalPag
             <table className="w-full text-left border-collapse font-inter text-xs">
               <thead>
                 <tr className="bg-gray-50/80 border-b border-gray-100 text-gray-500 uppercase tracking-wider text-[11px] font-semibold">
-                  <th className="py-4 px-6">User Name</th>
+                  <th className="py-4 px-6">Customer Name</th>
                   <th className="py-4 px-6">Email Address</th>
-                  <th className="py-4 px-6">Current Role</th>
-                  <th className="py-4 px-6">Access Level</th>
+                  <th className="py-4 px-6">Registered Date</th>
                   <th className="py-4 px-6 text-right">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 text-gray-700">
                 {users.map((userItem) => {
                   const userId = userItem._id || userItem.id;
-                  const roleUpper = (userItem.role || "USER").toUpperCase();
-                  const isAdminAccount = roleUpper === "SUPER_ADMIN" || roleUpper === "ADMIN";
 
                   const isSelf =
                     Boolean(currentUser) &&
@@ -140,68 +106,25 @@ export default function UsersPage({ users = [], pagination = { page: 1, totalPag
                       <td className="py-4 px-6 text-gray-600">
                         {userItem.email}
                       </td>
-                      <td className="py-4 px-6">
-                        <span
-                          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${
-                            roleUpper === "SUPER_ADMIN"
-                              ? "bg-purple-100 text-purple-700 border border-purple-200"
-                              : roleUpper === "ADMIN"
-                              ? "bg-emerald-100 text-emerald-700 border border-emerald-200"
-                              : roleUpper === "EMPLOYEE" || roleUpper === "HR_MANAGER"
-                              ? "bg-blue-100 text-blue-700 border border-blue-200"
-                              : "bg-gray-100 text-gray-600 border border-gray-200"
-                          }`}
-                        >
-                          <span>{userItem.role || "USER"}</span>
-                          {isAdminAccount && (
-                            <Icon icon="lucide:shield-check" className="w-3 h-3 text-emerald-600" />
-                          )}
-                        </span>
-                      </td>
-                      <td className="py-4 px-6">
-                        <div className="flex items-center gap-1.5">
-                          <select
-                            value={roleUpper}
-                            disabled={isAdminAccount}
-                            onChange={(e) => handleRole(userId, e.target.value, roleUpper)}
-                            title={isAdminAccount ? "Admin account access levels cannot be changed" : "Change user access level"}
-                            className={`border rounded-lg px-2.5 py-1 text-xs font-semibold text-[#0D231E] focus:outline-none ${
-                              isAdminAccount
-                                ? "bg-gray-100/90 border-gray-200 text-gray-500 cursor-not-allowed opacity-80"
-                                : "bg-gray-50 border-gray-200 focus:border-[#2cb775] cursor-pointer"
-                            }`}
-                          >
-                            <option value="USER">User</option>
-                            <option value="EMPLOYEE">Employee</option>
-                            <option value="HR_MANAGER">HR Manager</option>
-                            <option value="ADMIN">Admin</option>
-                            <option value="SUPER_ADMIN">Super Admin</option>
-                          </select>
-                          {isAdminAccount && (
-                            <Icon
-                              icon="lucide:lock"
-                              className="w-3.5 h-3.5 text-amber-600 shrink-0"
-                              title="Protected Admin Access Level"
-                            />
-                          )}
-                        </div>
+                      <td className="py-4 px-6 text-gray-500 font-mono">
+                        {userItem.createdAt
+                          ? new Date(userItem.createdAt).toLocaleDateString("en-US", {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                            })
+                          : "—"}
                       </td>
                       <td className="py-4 px-6 text-right">
                         <button
-                          disabled={isSelf || isAdminAccount}
-                          onClick={() => handleOpenDeleteModal(userId, userItem.name, isSelf, isAdminAccount)}
+                          disabled={isSelf}
+                          onClick={() => handleOpenDeleteModal(userId, userItem.name, isSelf)}
                           className={`p-2 rounded-lg transition-colors ${
-                            isSelf || isAdminAccount
+                            isSelf
                               ? "bg-gray-100 text-gray-300 border border-gray-200 cursor-not-allowed"
                               : "bg-gray-50 text-gray-500 hover:bg-rose-50 hover:text-rose-600 cursor-pointer"
                           }`}
-                          title={
-                            isSelf
-                              ? "You cannot delete your own account"
-                              : isAdminAccount
-                              ? "Admin accounts cannot be deleted"
-                              : "Delete user"
-                          }
+                          title={isSelf ? "You cannot delete your own account" : "Delete customer account"}
                         >
                           <Icon icon="lucide:trash-2" className="w-4 h-4" />
                         </button>
@@ -269,9 +192,9 @@ export default function UsersPage({ users = [], pagination = { page: 1, totalPag
         isOpen={deleteModal.open}
         onClose={() => setDeleteModal({ open: false, id: null, name: "" })}
         onConfirm={handleConfirmDelete}
-        title="Delete User Account"
-        message={`Are you sure you want to delete ${deleteModal.name ? `"${deleteModal.name}"` : "this user"}? This action cannot be undone.`}
-        confirmText="Delete User"
+        title="Delete Customer Account"
+        message={`Are you sure you want to delete ${deleteModal.name ? `"${deleteModal.name}"` : "this customer account"}?`}
+        confirmText="Delete Account"
         variant="danger"
         loading={isDeleting}
       />

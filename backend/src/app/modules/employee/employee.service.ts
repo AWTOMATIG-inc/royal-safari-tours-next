@@ -586,6 +586,22 @@ export const updateEmployee = async (
     const empStatus = await findMasterRecord(prisma.employmentStatus, cleanStatus);
     if (!empStatus) throw new Error(`Employment Status '${cleanStatus}' not found`);
     updateData.employmentStatus = { connect: { id: empStatus.id } };
+
+    // Synchronize linked User account status: Active -> ACTIVE, Inactive -> INACTIVE
+    const isInactiveStatus = empStatus.name.toLowerCase() === "inactive";
+    const userStatusToSet = isInactiveStatus ? "INACTIVE" : "ACTIVE";
+
+    await prisma.user.updateMany({
+      where: {
+        OR: [
+          ...(existing.userId ? [{ id: existing.userId }] : []),
+          { email: existing.email.toLowerCase() },
+        ],
+      },
+      data: {
+        status: userStatusToSet,
+      },
+    });
   }
 
   const cleanManagerId = sanitizeInput(managerId);

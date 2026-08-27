@@ -97,10 +97,7 @@ async function main() {
   // 5. Seed Employment Statuses
   const employmentStatuses = [
     "Active",
-    "Probation",
     "Inactive",
-    "Suspended",
-    "On Leave",
   ];
 
   console.log("\n⚡ Seeding Employment Statuses...");

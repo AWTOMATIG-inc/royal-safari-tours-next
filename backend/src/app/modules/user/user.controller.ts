@@ -10,8 +10,9 @@ export const getAll = async (req: Request, res: Response): Promise<void> => {
     const page = parseInt(req.query.page as string || "1", 10);
     const limit = parseInt(req.query.limit as string || "10", 10);
     const search = req.query.search as string | undefined;
+    const role = req.query.role as string | undefined;
 
-    const { users, total } = await userService.getAllUsers(page, limit, search);
+    const { users, total } = await userService.getAllUsers(page, limit, search, role);
 
     res.status(StatusCodes.OK).json({
       success: true,
@@ -92,14 +93,16 @@ export const update = async (req: Request, res: Response): Promise<void> => {
 export const remove = async (req: Request, res: Response): Promise<void> => {
   try {
     const id = req.params.id as string;
-    await userService.deleteUser(id, req.user?.id);
+    const result = await userService.deleteUser(id, req.user?.id);
 
     res.status(StatusCodes.OK).json({
       success: true,
-      message: "User deleted successfully",
+      message: result.message || "User account processed successfully",
+      deactivated: result.deactivated,
+      user: result.user,
     });
   } catch (error: any) {
-    res.status(error.message === "User not found" ? StatusCodes.NOT_FOUND : StatusCodes.INTERNAL_SERVER_ERROR).json({
+    res.status(error.message === "User not found" ? StatusCodes.NOT_FOUND : StatusCodes.BAD_REQUEST).json({
       success: false,
       error: error.message || "Failed to delete user",
     });

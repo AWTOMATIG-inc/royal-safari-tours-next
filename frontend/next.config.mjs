@@ -9,7 +9,7 @@ const nextConfig = {
     ],
   },
   async rewrites() {
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL;
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
     return [
       {
@@ -18,6 +18,10 @@ const nextConfig = {
       },
       {
         source: "/uploads/:path*",
+        destination: `${backendUrl}/uploads/:path*`,
+      },
+      {
+        source: "/api/uploads/:path*",
         destination: `${backendUrl}/uploads/:path*`,
       },
     ];

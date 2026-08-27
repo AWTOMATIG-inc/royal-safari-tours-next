@@ -15,6 +15,13 @@ enum Role {
   USER
 }
 
+// Account operational status
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
 enum LeaveStatus {
   PENDING
   APPROVED
@@ -40,14 +47,15 @@ enum JobApplicationStatus {
 
 // Central User model for credentials & dashboard log-in
 model User {
-  id        String   @id @default(uuid())
+  id        String     @id @default(uuid())
   name      String
-  email     String   @unique
+  email     String     @unique
   avatar    String?
-  role      Role     @default(USER)
+  role      Role       @default(USER)
+  status    UserStatus @default(ACTIVE)
   password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
 
   // Link: A user optionally has an Employee profile if they are part of staff
   employee  Employee?
@@ -288,8 +296,8 @@ model Invoice {
   notes         String?       @default("Booking Money are not Re-fundable")
   
   // Creator relation
-  createdById   String
-  createdBy     User          @relation(fields: [createdById], references: [id])
+  createdById   String?
+  createdBy     User?         @relation(fields: [createdById], references: [id], onDelete: SetNull)
   creatorName   String?       // Cached employee/creator name for signature block
   items         InvoiceItem[]
   
@@ -309,4 +317,3 @@ model InvoiceItem {
   amount          Float    // quantity * rate
   createdAt       DateTime @default(now())
 }
-

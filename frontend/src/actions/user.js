@@ -13,7 +13,7 @@ export const getUsers = async (page = 1) => {
 
     const backendUrl = getBackendUrl();
 
-    const res = await fetch(`${backendUrl}/api/v1/users?page=${currentPage}&limit=${limit}`, {
+    const res = await fetch(`${backendUrl}/api/v1/users?page=${currentPage}&limit=${limit}&role=USER`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
