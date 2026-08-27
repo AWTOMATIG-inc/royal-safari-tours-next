@@ -31,7 +31,7 @@ export default function TourCardPage({ tourPackages = [], pagination = { page: 1
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="max-w-8xl mx-auto space-y-6">
       <DashboardPageHeader
         title="Tour Packages"
         description="Create, edit, and manage all luxury travel itineraries and price options."

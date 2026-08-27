@@ -31,7 +31,7 @@ export default function TourLocationCardPage({ tourPackages = [], pagination = {
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="max-w-8xl mx-auto space-y-6">
       <DashboardPageHeader
         title="Tour Locations"
         description="Manage destination regions, mangrove reserves, tea estates, and coastal sanctuaries."
