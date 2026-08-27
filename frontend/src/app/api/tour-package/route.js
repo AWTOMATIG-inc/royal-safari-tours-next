@@ -58,7 +58,6 @@ export async function POST(request) {
       duration,
       shortDescription,
       image: filename,
-      author: user?.id,
     });
     if (!tourPackage) {
       return NextResponse.json(
@@ -68,7 +67,7 @@ export async function POST(request) {
     }
     await TourLocationModel.findOneAndUpdate(
       { country: location.toLowerCase() },
-      { $push: { tourPackages: tourPackage._id } },
+      { $push: { packages: tourPackage._id } },
     );
 
     const paths = ["/","/dashboard/tour-packages"];

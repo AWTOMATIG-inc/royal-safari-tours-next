@@ -24,10 +24,6 @@ const tourLocationSchema = new mongoose.Schema(
         ref: "TourPackage",
       },
     ],
-    author: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    },
   },
   { timestamps: true }
 );
@@ -57,9 +53,11 @@ tourLocationSchema.pre("save", async function () {
 
     this.slug = slug;
   }
-
 });
 
+// Force re-compilation of model to clear cached schemas
+delete mongoose.models.TourLocation;
+
 export const TourLocationModel =
-  models.TourLocation ||
+  mongoose.models.TourLocation ||
   mongoose.model("TourLocation", tourLocationSchema);

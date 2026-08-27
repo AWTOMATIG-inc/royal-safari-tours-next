@@ -37,7 +37,6 @@ export async function POST(request) {
     const tourLocation = await TourLocationModel.create({
       country: country.toLowerCase(),
       image: filename,
-      author: user?.id,
     });
     if (!tourLocation) {
       return NextResponse.json(

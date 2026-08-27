@@ -48,12 +48,8 @@ const tourPackageSchema = new mongoose.Schema(
     additionalInfo: {
       type: String,
     },
-    author: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 // Generate slug from title
@@ -83,5 +79,9 @@ tourPackageSchema.pre("save", async function () {
   }
 });
 
+// Force re-compilation of model to clear cached schemas
+delete mongoose.models.TourPackage;
+
 export const TourPackageModel =
-  models.TourPackage || mongoose.model("TourPackage", tourPackageSchema);
+  mongoose.models.TourPackage ||
+  mongoose.model("TourPackage", tourPackageSchema);
