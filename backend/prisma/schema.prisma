@@ -317,3 +317,16 @@ model InvoiceItem {
   amount          Float    // quantity * rate
   createdAt       DateTime @default(now())
 }
+
+// Client / Traveler Image Gallery Model
+model GalleryItem {
+  id          String   @id @default(uuid())
+  title       String
+  caption     String?
+  imageUrl    String
+  destination String?
+  packageId   String?
+  isPublished Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

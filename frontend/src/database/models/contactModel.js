@@ -1,10 +1,11 @@
 import mongoose, { models } from "mongoose";
+
 const contactSchema = new mongoose.Schema(
-  {    
+  {
     name: {
       type: String,
       required: true,
-      minlength: 3,
+      minlength: 2,
     },
     email: {
       type: String,
@@ -17,7 +18,6 @@ const contactSchema = new mongoose.Schema(
     message: {
       type: String,
       required: true,
-      minlength: 10,
     },
     destination: {
       type: String,
@@ -30,13 +30,15 @@ const contactSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["pending", "approved", "rejected"],
-      default: "pending",
+      enum: ["New", "Contacted", "Follow-up", "Converted", "Closed", "pending", "approved", "rejected"],
+      default: "New",
     },
-    
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
+// Clear cached Mongoose model to force re-compilation
+delete mongoose.models.Contact;
+
 export const ContactModel =
-  models.Contact || mongoose.model("Contact", contactSchema);
+  mongoose.models.Contact || mongoose.model("Contact", contactSchema);

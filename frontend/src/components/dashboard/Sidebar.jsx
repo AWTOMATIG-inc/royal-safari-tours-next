@@ -56,6 +56,12 @@ const navItems = [
     roles: ["SUPER_ADMIN", "ADMIN"] 
   },
   { 
+    name: "Clients Gallery", 
+    href: "/dashboard/client-gallery", 
+    icon: "lucide:camera", 
+    roles: ["SUPER_ADMIN", "ADMIN"] 
+  },
+  { 
     name: "My Profile", 
     href: "/dashboard/my-profile", 
     icon: "lucide:user-circle", 

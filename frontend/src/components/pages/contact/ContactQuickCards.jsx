@@ -50,9 +50,9 @@ export default function ContactQuickCards() {
               <Icon icon="lucide:phone" className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <h3 className="text-[13px] sm:text-lg font-bold text-primary font-heading mb-0.5 sm:mb-1">Call Us</h3>
-            <p className="text-[11px] sm:text-sm text-gray-500 font-body mb-2 sm:mb-4 hidden sm:block">{siteConfig.contact.hours.weekday}</p>
+            <p className="text-[11px] sm:text-xs text-gray-500 font-body mb-2 sm:mb-4 hidden sm:block font-medium">01898334722 / 01898334733</p>
             <a
-              href={`tel:${siteConfig.contact.phone.supportRaw}`}
+              href={`tel:${siteConfig.contact.phone.primaryRaw}`}
               className="text-[11px] sm:text-sm font-semibold text-primary hover:text-accent transition-colors duration-300 flex items-center gap-1 group/link cursor-pointer font-body"
             >
               <span>Call Now</span>

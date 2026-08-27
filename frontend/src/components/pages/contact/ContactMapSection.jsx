@@ -8,7 +8,7 @@ export default function ContactMapSection() {
     <section id="map-section" className="container py-8 sm:py-10 md:py-14 font-body">
       <div className="relative w-full h-[280px] sm:h-[350px] md:h-[420px] rounded-3xl overflow-hidden shadow-xs border border-gray-200/80">
         <iframe
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3651.9868735393165!2d90.37583641151624!3d23.74783307888796!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755b8b33c892fb7%3A0x27747abef429a81a!2sDhanmondi%20Lake!5e0!3m2!1sen!2sbd!4v1716882112689!5m2!1sen!2sbd"
+          src={siteConfig.contact.address.embedUrl}
           width="100%"
           height="100%"
           style={{ border: 0 }}
@@ -16,7 +16,7 @@ export default function ContactMapSection() {
           loading="lazy"
           referrerPolicy="no-referrer-when-downgrade"
           className="w-full h-full"
-          title="Google Map Location"
+          title="Royal Safari Tours Location"
         />
 
         {/* Floating Map Info Card */}
