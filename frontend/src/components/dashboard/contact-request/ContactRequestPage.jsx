@@ -11,6 +11,7 @@ import toast from "react-hot-toast";
 export default function ContactRequestPage({ contactRequests = [], pagination = { page: 1, totalPages: 1 } }) {
   const router = useRouter();
   const [selectedReq, setSelectedReq] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const isPrev = Number(pagination.page) === 1;
   const isNext = Number(pagination.page) === pagination.totalPages;
@@ -54,12 +55,64 @@ export default function ContactRequestPage({ contactRequests = [], pagination = 
     }
   };
 
+  const filteredRequests = contactRequests.filter((req) => {
+    const q = searchQuery.toLowerCase().trim();
+    if (!q) return true;
+    const name = (req.name || "").toLowerCase();
+    const email = (req.email || "").toLowerCase();
+    const phone = (req.phone || "").toLowerCase();
+    const destination = (req.destination || "").toLowerCase();
+    const message = (req.message || "").toLowerCase();
+    const date = (req.date || "").toLowerCase();
+    const status = (req.status || "").toLowerCase();
+    return (
+      name.includes(q) ||
+      email.includes(q) ||
+      phone.includes(q) ||
+      destination.includes(q) ||
+      message.includes(q) ||
+      date.includes(q) ||
+      status.includes(q)
+    );
+  });
+
   return (
-    <div className="max-w-8xl mx-auto space-y-6">
+    <div className="max-w-8xl mx-auto space-y-6 font-inter">
       <DashboardPageHeader
         title="Contact Requests"
         description="Review, update status, and respond to incoming expedition inquiries and custom trip plans."
       />
+
+      {/* Independent Search Bar */}
+      <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-[0_4px_20px_rgba(13,35,30,0.03)] flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="relative w-full sm:w-80">
+          <Icon
+            icon="lucide:search"
+            className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
+          />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search inquiries by name, email, phone..."
+            className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-10 pr-9 py-2.5 text-xs text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#2cb775] focus:bg-white transition-all duration-200"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <Icon icon="lucide:x" className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+
+        {searchQuery && (
+          <div className="text-xs text-gray-500 font-medium self-start sm:self-center">
+            Found <span className="font-bold text-[#0D231E]">{filteredRequests.length}</span> matching inquiry(s)
+          </div>
+        )}
+      </div>
 
       <div className="bg-white rounded-3xl border border-gray-100 shadow-[0_4px_20px_rgba(13,35,30,0.03)] overflow-hidden">
         {contactRequests.length === 0 ? (
@@ -72,13 +125,26 @@ export default function ContactRequestPage({ contactRequests = [], pagination = 
               alt="Empty state"
               className="mx-auto opacity-80"
             />
-            <p className="text-gray-500 font-medium font-inter text-base">
+            <p className="text-gray-500 font-medium text-base">
               No contact requests received yet.
             </p>
           </div>
+        ) : filteredRequests.length === 0 ? (
+          <div className="p-12 text-center max-w-md mx-auto space-y-4">
+            <Icon icon="lucide:search-x" className="w-12 h-12 text-gray-300 mx-auto" />
+            <p className="text-gray-500 font-medium text-base">
+              No contact inquiries match &quot;{searchQuery}&quot;
+            </p>
+            <button
+              onClick={() => setSearchQuery("")}
+              className="px-4 py-2 bg-[#0D231E] text-white text-xs font-semibold rounded-xl hover:bg-[#2cb775] transition-colors cursor-pointer"
+            >
+              Clear Search
+            </button>
+          </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse font-inter text-xs">
+            <table className="w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="bg-gray-50/80 border-b border-gray-100 text-gray-500 uppercase tracking-wider text-[11px] font-semibold">
                   <th className="py-4 px-5">Name</th>
@@ -93,7 +159,7 @@ export default function ContactRequestPage({ contactRequests = [], pagination = 
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 text-gray-700">
-                {contactRequests.map((req) => (
+                {filteredRequests.map((req) => (
                   <tr key={req._id} className="hover:bg-gray-50/50 transition-colors">
                     <td className="py-4 px-5 font-bold text-[#0D231E] whitespace-nowrap">
                       {req.name}
@@ -119,12 +185,15 @@ export default function ContactRequestPage({ contactRequests = [], pagination = 
                     <td className="py-4 px-5">
                       <select
                         onChange={(e) => handleStatus(req._id, e.target.value)}
-                        defaultValue={req.status || "pending"}
+                        defaultValue={req.status || "New"}
                         className="bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1 text-xs font-semibold text-[#0D231E] focus:outline-none focus:border-[#2cb775] cursor-pointer"
                       >
+                        <option value="New">New</option>
+                        <option value="Contacted">Contacted</option>
+                        <option value="Follow-up">Follow-up</option>
+                        <option value="Converted">Converted</option>
+                        <option value="Closed">Closed</option>
                         <option value="pending">Pending</option>
-                        <option value="approved">Approved</option>
-                        <option value="rejected">Rejected</option>
                       </select>
                     </td>
                     <td className="py-4 px-5 text-right whitespace-nowrap">
@@ -158,7 +227,7 @@ export default function ContactRequestPage({ contactRequests = [], pagination = 
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
           <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-gray-100 space-y-6 animate-in fade-in zoom-in duration-200">
             <div className="flex items-center justify-between border-b border-gray-100 pb-4">
-              <div className="flex items-center gap-2 text-[#0D231E] font-bold text-lg font-inter">
+              <div className="flex items-center gap-2 text-[#0D231E] font-bold text-lg">
                 <Icon icon="lucide:mail-check" className="w-5 h-5 text-[#2cb775]" />
                 <span>Inquiry Details</span>
               </div>
@@ -170,7 +239,7 @@ export default function ContactRequestPage({ contactRequests = [], pagination = 
               </button>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 text-xs font-inter">
+            <div className="grid grid-cols-2 gap-4 text-xs">
               <div>
                 <span className="text-gray-400 font-medium block">Full Name</span>
                 <span className="font-bold text-gray-800 text-sm">{selectedReq.name}</span>
@@ -199,7 +268,7 @@ export default function ContactRequestPage({ contactRequests = [], pagination = 
 
             <div className="pt-2 border-t border-gray-100 space-y-1">
               <span className="text-gray-400 font-medium text-xs block">Customer Message</span>
-              <p className="p-3 bg-gray-50 rounded-xl text-xs text-gray-700 leading-relaxed font-inter">
+              <p className="p-3 bg-gray-50 rounded-xl text-xs text-gray-700 leading-relaxed">
                 {selectedReq.message}
               </p>
             </div>
@@ -217,15 +286,15 @@ export default function ContactRequestPage({ contactRequests = [], pagination = 
       )}
 
       {/* Pagination Controls */}
-      {pagination.totalPages > 1 && (
-        <div className="flex justify-center items-center gap-2 pt-4">
+      {pagination.totalPages > 1 && !searchQuery && (
+        <div className="flex justify-center items-center gap-2 pt-4 font-inter">
           <Link
             href={
               isPrev
                 ? "/dashboard/contact-requests?page=1"
                 : `/dashboard/contact-requests?page=${Number(pagination.page) - 1}`
             }
-            className={`px-4 py-2 border rounded-xl text-xs font-semibold font-inter transition-all ${
+            className={`px-4 py-2 border rounded-xl text-xs font-semibold transition-all ${
               isPrev
                 ? "cursor-not-allowed opacity-40 border-gray-200 text-gray-400 bg-white"
                 : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50 shadow-xs"
@@ -238,7 +307,7 @@ export default function ContactRequestPage({ contactRequests = [], pagination = 
             <Link
               key={i + 1}
               href={`/dashboard/contact-requests?page=${i + 1}`}
-              className={`w-9 h-9 flex items-center justify-center rounded-xl text-xs font-semibold font-inter transition-all ${
+              className={`w-9 h-9 flex items-center justify-center rounded-xl text-xs font-semibold transition-all ${
                 Number(pagination.page) === i + 1
                   ? "bg-[#0D231E] text-white shadow-xs"
                   : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50"
@@ -254,7 +323,7 @@ export default function ContactRequestPage({ contactRequests = [], pagination = 
                 ? `/dashboard/contact-requests?page=${pagination.totalPages}`
                 : `/dashboard/contact-requests?page=${Number(pagination.page) + 1}`
             }
-            className={`px-4 py-2 border rounded-xl text-xs font-semibold font-inter transition-all ${
+            className={`px-4 py-2 border rounded-xl text-xs font-semibold transition-all ${
               isNext
                 ? "cursor-not-allowed opacity-40 border-gray-200 text-gray-400 bg-white"
                 : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50 shadow-xs"

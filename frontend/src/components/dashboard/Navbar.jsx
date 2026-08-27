@@ -76,19 +76,6 @@ export default function Navbar({
 
         {/* Right Actions */}
         <div className="flex items-center gap-3 sm:gap-5 font-body">
-          {/* Quick Search Input */}
-          <div className="relative hidden md:block w-64 font-body">
-            <input
-              type="text"
-              placeholder="Search dashboard..."
-              className="w-full bg-sand border border-gray-200 rounded-xl pl-9 pr-4 py-2 text-xs font-body text-primary focus:outline-none focus:border-secondary transition-colors"
-            />
-            <Icon
-              icon="lucide:search"
-              className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"
-            />
-          </div>
-
           {/* User Profile & Dropdown */}
           <div className="relative font-body">
             <button

@@ -105,10 +105,15 @@ export default function Footer() {
             </h5>
 
             <div className="flex flex-col gap-3.5">
-              <a href={`tel:${siteConfig.contact.phone.primaryRaw}`} className="flex items-center gap-3 hover:text-accent transition-colors">
-                <Icon icon="lucide:phone" width="16" height="16" className="text-accent flex-shrink-0" />
-                <span className="font-semibold">{siteConfig.contact.phone.primary}</span>
-              </a>
+              <div className="flex flex-col gap-1.5">
+                <a href={`tel:${siteConfig.contact.phone.primaryRaw}`} className="flex items-center gap-3 hover:text-accent transition-colors">
+                  <Icon icon="lucide:phone" width="16" height="16" className="text-accent flex-shrink-0" />
+                  <span className="font-semibold">{siteConfig.contact.phone.primary}</span>
+                </a>
+                <a href={`tel:${siteConfig.contact.phone.secondaryRaw}`} className="flex items-center gap-3 hover:text-accent transition-colors pl-7">
+                  <span className="font-semibold">{siteConfig.contact.phone.secondary}</span>
+                </a>
+              </div>
 
               <a href={`mailto:${siteConfig.contact.email.info}`} className="flex items-center gap-3 hover:text-accent transition-colors font-semibold">
                 <Icon icon="lucide:mail" width="16" height="16" className="text-accent flex-shrink-0" />
@@ -138,7 +143,7 @@ export default function Footer() {
             <span>
               Powered by{" "}
               <a
-                className="text-accent font-bold hover:underline"
+                className="text-[#02D5E7] font-bold"
                 href="https://awtomatig.com/"
                 target="_blank"
                 rel="noreferrer"

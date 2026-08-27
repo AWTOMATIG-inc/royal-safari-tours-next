@@ -80,7 +80,7 @@ export default function Header() {
     router.push(`/adventure?search=${encodeURIComponent(term)}`);
   };
 
-  const whatsappUrl = siteConfig.contact.phone.whatsappUrl || "https://wa.me/8801731703541";
+  const whatsappUrl = siteConfig.contact.phone.whatsappUrl || "https://wa.me/8801898334722";
 
   // Translucent glassmorphic tokens that dynamically contract when scrolled
   const dockWrapperClass = scrolled

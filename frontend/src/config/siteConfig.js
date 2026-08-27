@@ -12,10 +12,12 @@ export const siteConfig = {
     phone: {
       primary: "+880 1898 334722",
       primaryRaw: "+8801898334722",
-      support: "+880 1731 703 541",
-      supportRaw: "+8801731703541",
-      whatsapp: "+880 1731 703 541",
-      whatsappUrl: "https://wa.me/8801731703541",
+      secondary: "+880 1898 334733",
+      secondaryRaw: "+8801898334733",
+      support: "+880 1898 334733",
+      supportRaw: "+8801898334733",
+      whatsapp: "+880 1898 334722",
+      whatsappUrl: "https://wa.me/8801898334722",
     },
     email: {
       info: "info.royalsafaritours@gmail.com",
@@ -29,6 +31,8 @@ export const siteConfig = {
       country: "Bangladesh",
       full: "212, Taltola City Super Market, Khilgaon, Dhaka 1219",
       mapUrl: "https://maps.app.goo.gl/yQszL8wQcR6Yc9M38",
+      embedUrl:
+        "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1889.298576809708!2d90.42367026577074!3d23.75135687802197!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755b98ba8192d13%3A0xa2291778f545bed6!2sRoyal%20Safari%20Tours!5e1!3m2!1sen!2sbd!4v1787830273476!5m2!1sen!2sbd",
     },
     hours: {
       weekday: "Mon - Sun: 8:00 AM - 10:00 PM",
