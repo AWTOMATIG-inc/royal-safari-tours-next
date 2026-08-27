@@ -81,6 +81,7 @@ export default function ContactFormSection() {
             <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 font-body">
               {/* Full Name */}
               <InputBox
+                type="text"
                 placeholder="Full Name"
                 icon={<Icon icon="lucide:user" className="w-4 h-4" />}
                 error={errors.name}
@@ -96,20 +97,52 @@ export default function ContactFormSection() {
                 {...register("email")}
               />
 
-              {/* Phone Number */}
-              <InputBox
-                placeholder="Phone Number"
-                icon={<Icon icon="lucide:phone" className="w-4 h-4" />}
-                error={errors.phone}
-                {...register("phone")}
-              />
+              {/* Phone Number (Exactly 11 Digits - Numeric Only) */}
+              {(() => {
+                const phoneReg = register("phone");
+                return (
+                  <InputBox
+                    type="tel"
+                    inputMode="numeric"
+                    maxLength={11}
+                    placeholder="Phone Number (11 digits)"
+                    icon={<Icon icon="lucide:phone" className="w-4 h-4" />}
+                    error={errors.phone}
+                    {...phoneReg}
+                    onChange={(e) => {
+                      e.target.value = e.target.value.replace(/\D/g, "");
+                      phoneReg.onChange(e);
+                    }}
+                  />
+                );
+              })()}
 
               {/* Travel Destination */}
               <InputBox
+                type="text"
                 placeholder="Travel Destination"
                 icon={<Icon icon="lucide:compass" className="w-4 h-4" />}
                 error={errors.destination}
                 {...register("destination")}
+              />
+
+              {/* Travel Date (Calendar Picker) */}
+              <InputBox
+                type="date"
+                placeholder="Select Travel Date"
+                icon={<Icon icon="lucide:calendar" className="w-4 h-4" />}
+                error={errors.date}
+                {...register("date")}
+              />
+
+              {/* Number of People (Number Input) */}
+              <InputBox
+                type="number"
+                min="1"
+                placeholder="Number of People"
+                icon={<Icon icon="lucide:users" className="w-4 h-4" />}
+                error={errors.people}
+                {...register("people")}
               />
 
               {/* Message */}
@@ -118,28 +151,12 @@ export default function ContactFormSection() {
                   placeholder="Tell us about your trip..."
                   {...register("message")}
                   rows="5"
-                  className={`w-full p-4 bg-white border ${errors.message ? "border-red-400" : "border-gray-200"} rounded-xl text-sm text-primary placeholder:text-gray-400 focus:outline-none focus:border-secondary transition-all duration-300 font-body min-h-[120px] sm:min-h-[130px] resize-y shadow-xs`}
+                  className={`w-full p-4 bg-white border ${errors.message ? "border-rose-400 focus:border-rose-500" : "border-gray-200 focus:border-secondary"} rounded-xl text-sm text-primary placeholder:text-gray-400 focus:outline-none transition-all duration-300 font-body min-h-[120px] sm:min-h-[130px] resize-y shadow-xs`}
                 />
                 {errors.message && (
-                  <span className="text-xs text-red-500 mt-1 font-body">{errors.message.message}</span>
+                  <span className="text-xs text-rose-500 mt-1 font-body">{errors.message.message}</span>
                 )}
               </div>
-
-              {/* Travel Date */}
-              <InputBox
-                placeholder="Travel Date"
-                icon={<Icon icon="lucide:calendar" className="w-4 h-4" />}
-                error={errors.date}
-                {...register("date")}
-              />
-
-              {/* Number of People */}
-              <InputBox
-                placeholder="Number of People"
-                icon={<Icon icon="lucide:users" className="w-4 h-4" />}
-                error={errors.people}
-                {...register("people")}
-              />
 
               {/* Submit Button */}
               <div className="sm:col-span-2 mt-1 font-body">
