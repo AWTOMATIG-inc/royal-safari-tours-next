@@ -2,31 +2,15 @@
 
 import SectionHeading from "@/components/SectionHeading";
 import { Icon } from "@iconify/react";
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 
 export default function TourHotelsSection({ hotels = [], hotelRating = 3 }) {
   const sliderRef = useRef(null);
-  const [canScroll, setCanScroll] = useState(false);
 
   if (!hotels || hotels.length === 0) return null;
 
-  const checkOverflow = () => {
-    if (sliderRef.current) {
-      const isMobile = window.innerWidth < 768;
-      const hasOverflow = sliderRef.current.scrollWidth > sliderRef.current.clientWidth + 5;
-      setCanScroll(isMobile || hasOverflow);
-    }
-  };
-
-  useEffect(() => {
-    checkOverflow();
-    window.addEventListener("resize", checkOverflow);
-    const timer = setTimeout(checkOverflow, 200);
-    return () => {
-      window.removeEventListener("resize", checkOverflow);
-      clearTimeout(timer);
-    };
-  }, [hotels]);
+  // Use slider whenever there are more than 2 items
+  const isSlider = hotels.length > 2;
 
   const handleScroll = (direction) => {
     if (!sliderRef.current) return;
@@ -36,7 +20,7 @@ export default function TourHotelsSection({ hotels = [], hotelRating = 3 }) {
 
   return (
     <div className="space-y-6 font-body">
-      {/* Header Row with Dynamic Navigation Slider Controls */}
+      {/* Header Row with Navigation Slider Controls */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <SectionHeading
           subtitle="ACCOMMODATIONS & STAY"
@@ -44,9 +28,9 @@ export default function TourHotelsSection({ hotels = [], hotelRating = 3 }) {
           description={`Selected ${hotelRating} Star accommodations prepared for your expedition.`}
         />
 
-        {/* Dynamic Slider Navigation Buttons */}
-        {canScroll && (
-          <div className="flex items-center gap-2 shrink-0 pb-2 sm:pb-0">
+        {/* Slider Navigation Buttons */}
+        {isSlider && (
+          <div className="flex items-center gap-2 shrink-0 pb-2 sm:pb-0 font-body">
             <button
               type="button"
               onClick={() => handleScroll("left")}
@@ -67,27 +51,23 @@ export default function TourHotelsSection({ hotels = [], hotelRating = 3 }) {
         )}
       </div>
 
-      {/* Dynamic Content Container */}
+      {/* Content Container: Single-line Horizontal Slider when > 2 items, Grid when 1-2 items */}
       <div
         ref={sliderRef}
         className={`font-body scrollbar-none transition-all duration-300 ${
-          canScroll
+          isSlider
             ? "flex items-center gap-4 overflow-x-auto snap-x snap-mandatory py-2 px-1"
-            : `grid gap-4 ${
-                hotels.length === 1
-                  ? "grid-cols-1"
-                  : hotels.length === 2
-                  ? "grid-cols-1 sm:grid-cols-2"
-                  : "grid-cols-1 sm:grid-cols-2 md:grid-cols-3"
-              }`
+            : hotels.length === 1
+            ? "grid grid-cols-1 gap-4"
+            : "grid grid-cols-1 sm:grid-cols-2 gap-4"
         }`}
       >
         {hotels.map((h, idx) => (
           <div
             key={idx}
-            className={`bg-sand/60 border border-gray-200 rounded-2xl p-5 shadow-xs flex items-center gap-4 font-body hover:border-secondary/30 transition-colors shrink-0 snap-start ${
-              canScroll
-                ? "w-[84vw] sm:w-[300px] md:w-[320px]"
+            className={`bg-sand/60 border border-gray-200 rounded-2xl p-5 shadow-xs flex items-center gap-4 font-body hover:border-secondary/30 transition-colors ${
+              isSlider
+                ? "w-[84vw] sm:w-[300px] md:w-[320px] shrink-0 snap-start"
                 : "w-full"
             }`}
           >
