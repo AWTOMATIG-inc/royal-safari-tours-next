@@ -161,7 +161,7 @@ export default function TourCardPage({ tourPackages = [], pagination = { page: 1
 
                   <div className="flex items-center gap-1.5">
                     <Link
-                      href={`/dashboard/tour-packages/edit/${pkg._id}`}
+                      href={`/dashboard/tour-packages/edit/${pkg.slug || pkg._id}`}
                       className="p-2 rounded-lg bg-gray-50 text-gray-600 hover:bg-[#2cb775]/10 hover:text-[#2cb775] transition-colors"
                       title="Edit package"
                     >

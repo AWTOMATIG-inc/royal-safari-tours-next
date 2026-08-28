@@ -16,7 +16,7 @@ export default function ToursCatalog({
   setSelectedLocation,
 }) {
   const [priceRange, setPriceRange] = useState("all");
-  const [minRating, setMinRating] = useState(0);
+  const [hotelRatingFilter, setHotelRatingFilter] = useState("all"); // "all", "3", "4", "5"
   const [sortBy, setSortBy] = useState("newest");
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -126,9 +126,13 @@ export default function ToursCatalog({
       });
     }
 
-    // 4. Rating Filter
-    if (minRating > 0) {
-      result = result.filter((tour) => (Number(tour.rating) || 0) >= minRating);
+    // 4. Accommodation Rating Filter
+    if (hotelRatingFilter !== "all") {
+      const targetStar = Number(hotelRatingFilter);
+      result = result.filter((tour) => {
+        const tourHotelRating = Number(tour.hotelRating || tour.rating || 3);
+        return tourHotelRating === targetStar;
+      });
     }
 
     // 5. Sort
@@ -140,12 +144,12 @@ export default function ToursCatalog({
     });
 
     return result;
-  }, [initialTourPackages, searchQuery, selectedLocation, priceRange, minRating, sortBy]);
+  }, [initialTourPackages, searchQuery, selectedLocation, priceRange, hotelRatingFilter, sortBy]);
 
   // Reset page number to 1 whenever filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, selectedLocation, priceRange, minRating, sortBy]);
+  }, [searchQuery, selectedLocation, priceRange, hotelRatingFilter, sortBy]);
 
   // Calculate pagination data
   const totalPages = Math.ceil(filteredTours.length / ITEMS_PER_PAGE);
@@ -175,7 +179,7 @@ export default function ToursCatalog({
     if (setSearchQuery) setSearchQuery("");
     if (setSelectedLocation) setSelectedLocation("all");
     setPriceRange("all");
-    setMinRating(0);
+    setHotelRatingFilter("all");
     setSortBy("newest");
     setCurrentPage(1);
   };
@@ -184,7 +188,7 @@ export default function ToursCatalog({
     searchQuery.trim() !== "" ||
     selectedLocation !== "all" ||
     priceRange !== "all" ||
-    minRating > 0;
+    hotelRatingFilter !== "all";
 
   // Reusable Filter Sidebar Content (Fixed height without internal scrollbars)
   const FilterContent = (
@@ -315,31 +319,37 @@ export default function ToursCatalog({
         </div>
       </div>
 
-      {/* 4. Minimum Rating Filter */}
+      {/* 4. Accommodation Filter */}
       <div className="space-y-2 border-t border-gray-200/80 pt-5 font-body">
         <label className="text-[11px] font-bold text-primary/70 uppercase tracking-widest block font-body">
-          Minimum Rating
+          Accommodation
         </label>
-        <div className="flex flex-wrap gap-2 font-body">
+        <div className="grid grid-cols-1 gap-2 font-body">
           {[
-            { rating: 0, label: "Any" },
-            { rating: 4.0, label: "4.0★+" },
-            { rating: 4.5, label: "4.5★+" },
-          ].map((r) => {
-            const isSelected = minRating === r.rating;
+            { value: "all", label: "All Accommodations" },
+            { value: "3", label: "3 Star Accommodation" },
+            { value: "4", label: "4 Star Accommodation" },
+            { value: "5", label: "5 Star Accommodation" },
+          ].map((acc) => {
+            const isSelected = String(hotelRatingFilter) === String(acc.value);
             return (
               <button
-                key={r.rating}
+                key={acc.value}
                 type="button"
-                onClick={() => setMinRating(r.rating)}
-                className={`px-3.5 py-2 rounded-xl text-xs font-body font-semibold transition-all cursor-pointer border flex items-center gap-1 ${
+                onClick={() => setHotelRatingFilter(acc.value)}
+                className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-body font-semibold transition-all cursor-pointer border ${
                   isSelected
                     ? "bg-accent text-white border-accent shadow-xs"
                     : "bg-white border-gray-200 text-gray-700 hover:border-accent"
                 }`}
               >
-                {r.rating > 0 && <Icon icon="solar:star-bold" className="w-3.5 h-3.5 text-white" />}
-                <span>{r.label}</span>
+                <span className="flex items-center gap-1.5">
+                  <Icon icon="solar:star-bold" className={isSelected ? "text-white" : "text-amber-500"} />
+                  {acc.label}
+                </span>
+                {isSelected && (
+                  <Icon icon="lucide:check" className="w-4 h-4 text-white" />
+                )}
               </button>
             );
           })}
@@ -428,10 +438,10 @@ export default function ToursCatalog({
             </span>
           )}
 
-          {minRating > 0 && (
+          {hotelRatingFilter !== "all" && (
             <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-primary text-white text-xs font-medium shadow-xs font-body">
-              Rating: {minRating}★+
-              <button onClick={() => setMinRating(0)} className="hover:text-accent cursor-pointer ml-1">
+              Accommodation: {hotelRatingFilter} Star
+              <button onClick={() => setHotelRatingFilter("all")} className="hover:text-accent cursor-pointer ml-1">
                 <Icon icon="lucide:x" className="w-3.5 h-3.5" />
               </button>
             </span>
