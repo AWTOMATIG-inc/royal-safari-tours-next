@@ -1,5 +1,17 @@
 import mongoose, { models } from "mongoose";
 
+const itineraryItemSchema = new mongoose.Schema({
+  dayName: { type: String, required: true }, // e.g. "Day 1"
+  title: { type: String, required: true },   // e.g. "Arrival At Kathmandu"
+  description: { type: String, default: "" },
+  image: { type: String, default: "" },
+});
+
+const hotelItemSchema = new mongoose.Schema({
+  city: { type: String, required: true },     // e.g. "Kathmandu"
+  hotelName: { type: String, required: true },// e.g. "Hotel XYZ"
+});
+
 const tourPackageSchema = new mongoose.Schema(
   {
     title: {
@@ -7,19 +19,30 @@ const tourPackageSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-
     slug: {
       type: String,
       unique: true,
     },
-
     image: {
       type: String,
       required: true,
     },
+    featuredImage: {
+      type: String,
+      default: "",
+    },
+    galleryImages: {
+      type: [String],
+      default: [],
+    },
     price: {
       type: Number,
       required: true,
+      min: 0,
+    },
+    discountPrice: {
+      type: Number,
+      default: null,
       min: 0,
     },
     duration: {
@@ -30,23 +53,50 @@ const tourPackageSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    rating: {
+    hotelRating: {
       type: Number,
       required: true,
+      default: 3,
+      min: 1,
+      max: 5,
+    },
+    rating: {
+      type: Number,
+      default: 5,
       min: 1,
       max: 5,
     },
     shortDescription: {
       type: String,
-      required: true,
-      maxlength: 800,
+      required: false,
     },
     description: {
       type: String,
       required: true,
     },
+    transportation: {
+      type: [String], // ["Public", "Private", "Rental"]
+      default: [],
+    },
+    itinerary: {
+      type: [itineraryItemSchema],
+      default: [],
+    },
+    inclusions: {
+      type: [String],
+      default: [],
+    },
+    exclusions: {
+      type: [String],
+      default: [],
+    },
+    hotels: {
+      type: [hotelItemSchema],
+      default: [],
+    },
     additionalInfo: {
       type: String,
+      default: "",
     },
   },
   { timestamps: true }

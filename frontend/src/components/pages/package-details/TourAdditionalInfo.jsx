@@ -31,51 +31,42 @@ export default function TourAdditionalInfo({ tourPackage }) {
   ];
 
   return (
-    <section className="py-12 sm:py-16 bg-white border-b border-gray-100 font-subheading">
-      <div className="container">
-        <div className="max-w-4xl space-y-8">
-          
-          <SectionHeading
-            subtitle="GOOD TO KNOW"
-            title="Additional Information"
-          />
+    <div className="space-y-8 font-subheading">
+      <SectionHeading
+        subtitle="GOOD TO KNOW"
+        title="Additional Information"
+      />
 
-          <div className="space-y-3 font-subheading">
-            {items.map((item, idx) => {
-              const isOpen = openIndex === idx;
-              return (
-                <div
-                  key={idx}
-                  className="bg-sand border border-gray-200/80 rounded-2xl overflow-hidden transition-all duration-300"
-                >
-                  <button
-                    onClick={() => setOpenIndex(isOpen ? -1 : idx)}
-                    className="w-full p-5 sm:p-6 text-left flex items-center justify-between gap-4 font-semibold text-primary cursor-pointer hover:bg-gray-100/50"
-                  >
-                    <span className="text-sm sm:text-base font-heading font-bold">
-                      {item.title}
-                    </span>
-                    <Icon
-                      icon={isOpen ? "lucide:chevron-up" : "lucide:chevron-down"}
-                      className="w-5 h-5 text-accent flex-shrink-0"
-                    />
-                  </button>
+      <div className="space-y-3 font-subheading">
+        {items.map((item, idx) => {
+          const isOpen = openIndex === idx;
+          return (
+            <div
+              key={idx}
+              className="bg-sand border border-gray-200/80 rounded-2xl overflow-hidden transition-all duration-300"
+            >
+              <button
+                onClick={() => setOpenIndex(isOpen ? -1 : idx)}
+                className="w-full p-5 sm:p-6 text-left flex items-center justify-between gap-4 font-semibold text-primary cursor-pointer hover:bg-gray-100/50"
+              >
+                <span className="text-sm sm:text-base font-heading font-bold">
+                  {item.title}
+                </span>
+                <Icon
+                  icon={isOpen ? "lucide:chevron-up" : "lucide:chevron-down"}
+                  className="w-5 h-5 text-accent flex-shrink-0"
+                />
+              </button>
 
-                  {isOpen && (
-                    <div className="px-5 pb-6 sm:px-6 text-xs sm:text-sm text-gray-600 font-body font-light leading-relaxed border-t border-gray-200/60 pt-4">
-                      <div
-                        className="prose prose-emerald max-w-none text-gray-600 [&>p]:mb-2"
-                        dangerouslySetInnerHTML={{ __html: item.content }}
-                      />
-                    </div>
-                  )}
+              {isOpen && (
+                <div className="p-5 sm:p-6 pt-3 border-t border-gray-200/50 text-xs sm:text-sm text-gray-700 font-light leading-relaxed prose prose-emerald max-w-none [&>ul]:list-disc [&>ul]:pl-5 [&>ul]:space-y-2 [&>ol]:list-decimal [&>ol]:pl-5 [&>p]:mb-2 font-body">
+                  <div dangerouslySetInnerHTML={{ __html: item.content }} />
                 </div>
-              );
-            })}
-          </div>
-
-        </div>
+              )}
+            </div>
+          );
+        })}
       </div>
-    </section>
+    </div>
   );
 }

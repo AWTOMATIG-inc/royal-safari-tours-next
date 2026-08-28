@@ -94,14 +94,19 @@ export const getTourPackagesAndLocations = async () => {
     };
   }
 };
-export const getTourPackageWithSlugAndLocations = async (slug) => {
+export const getTourPackageWithSlugAndLocations = async (identifier) => {
   try {
     await db_connect();
+    const isObjectId = /^[0-9a-fA-F]{24}$/.test(identifier);
+    const query = isObjectId
+      ? { $or: [{ _id: identifier }, { slug: identifier }] }
+      : { slug: identifier };
+
     const [tourPackageData, tourLocationData] = await Promise.all([
-      TourPackageModel.findOne({ slug }).sort({ createdAt: -1 }).lean(),
+      TourPackageModel.findOne(query).sort({ createdAt: -1 }).lean(),
       TourLocationModel.find().sort({ createdAt: -1 }).lean(),
     ]);
-    const tourPackage = JSON.parse(JSON.stringify(tourPackageData));
+    const tourPackage = tourPackageData ? JSON.parse(JSON.stringify(tourPackageData)) : null;
     const tourLocations = JSON.parse(JSON.stringify(tourLocationData));
     return {
       locations: tourLocations,
@@ -109,7 +114,7 @@ export const getTourPackageWithSlugAndLocations = async (slug) => {
       success: true,
     };
   } catch (error) {
-    console.error("Get Tour Package by Slug Error:", error);
+    console.error("Get Tour Package by Slug/ID Error:", error);
     return {
       success: false,
       message: "Failed to fetch tour packages",

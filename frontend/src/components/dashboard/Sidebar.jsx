@@ -50,9 +50,9 @@ const navItems = [
     roles: ["SUPER_ADMIN", "ADMIN"] 
   },
   { 
-    name: "Gallery", 
-    href: "/dashboard/gallery", 
-    icon: "lucide:image", 
+    name: "Media Gallery", 
+    href: "/dashboard/media", 
+    icon: "lucide:folder-open", 
     roles: ["SUPER_ADMIN", "ADMIN"] 
   },
   { 
