@@ -76,15 +76,15 @@ export default function TourHero({ tourPackage, onOpenBooking, onOpenGallery }) 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start font-body">
           {/* Left (7 Cols): Main Photography + Gallery Thumbnails Strip (Matching User Screenshot) */}
           <Reveal variant="fadeRight" className="lg:col-span-7 space-y-4 font-body">
-            {/* 1. Main Display Featured Photo Box */}
-            <div className="relative w-full aspect-[4/3] sm:aspect-[16/10] rounded-3xl overflow-hidden shadow-sm border border-gray-200/80 bg-sand group">
+            {/* 1. Main Featured Photo Card */}
+            <div className="relative w-full aspect-[4/3] sm:aspect-[16/10] rounded-3xl overflow-hidden shadow-sm border border-gray-200/80 bg-sand group transform-gpu">
               <Image
                 src={activePhotoUrl}
                 alt={tourPackage.title || "Tour Package Photography"}
                 fill
                 priority
                 sizes="(max-width: 1024px) 100vw, 60vw"
-                className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out will-change-transform"
               />
 
               {/* Gradient Overlay */}
@@ -92,7 +92,7 @@ export default function TourHero({ tourPackage, onOpenBooking, onOpenGallery }) 
 
               {/* Top Left: Location Badge */}
               {tourPackage.location && (
-                <div className="absolute top-4 left-4 z-10 bg-black/60 backdrop-blur-md text-white text-xs font-semibold px-3.5 py-1.5 rounded-full border border-white/20 flex items-center gap-1.5 shadow-xs font-body">
+                <div className="absolute top-4 left-4 z-10 bg-black/75 text-white text-xs font-semibold px-3.5 py-1.5 rounded-full border border-white/20 flex items-center gap-1.5 shadow-xs font-body">
                   <Icon icon="lucide:map-pin" className="w-3.5 h-3.5 text-accent" />
                   <span>{tourPackage.location}</span>
                 </div>
@@ -106,7 +106,7 @@ export default function TourHero({ tourPackage, onOpenBooking, onOpenGallery }) 
                     navigator.clipboard?.writeText(window.location.href);
                     alert("Tour link copied to clipboard!");
                   }}
-                  className="w-9 h-9 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md text-white flex items-center justify-center border border-white/20 transition-all cursor-pointer"
+                  className="w-9 h-9 rounded-full bg-black/75 hover:bg-black text-white flex items-center justify-center border border-white/20 transition-colors cursor-pointer"
                   title="Share Tour"
                 >
                   <Icon icon="lucide:share-2" className="w-4 h-4" />
@@ -114,7 +114,7 @@ export default function TourHero({ tourPackage, onOpenBooking, onOpenGallery }) 
                 <button
                   type="button"
                   onClick={() => alert("Added to favorites!")}
-                  className="w-9 h-9 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md text-white flex items-center justify-center border border-white/20 transition-all cursor-pointer"
+                  className="w-9 h-9 rounded-full bg-black/75 hover:bg-black text-white flex items-center justify-center border border-white/20 transition-colors cursor-pointer"
                   title="Favorite"
                 >
                   <Icon icon="lucide:heart" className="w-4 h-4 text-rose-400" />
@@ -124,7 +124,7 @@ export default function TourHero({ tourPackage, onOpenBooking, onOpenGallery }) 
               {/* Bottom Right: Open Fullscreen Gallery Lightbox */}
               <button
                 onClick={() => onOpenGallery(activePhotoIndex)}
-                className="absolute bottom-4 right-4 z-10 bg-black/60 hover:bg-primary backdrop-blur-md text-white text-xs font-semibold px-4 py-2.5 rounded-xl border border-white/20 flex items-center gap-2 shadow-xs hover:scale-105 transition-all cursor-pointer font-body"
+                className="absolute bottom-4 right-4 z-10 bg-black/75 hover:bg-primary text-white text-xs font-semibold px-4 py-2.5 rounded-xl border border-white/20 flex items-center gap-2 shadow-xs hover:scale-105 transition-all cursor-pointer font-body"
               >
                 <Icon icon="lucide:camera" className="w-4 h-4 text-accent" />
                 <span>View Full Gallery ({photos.length})</span>

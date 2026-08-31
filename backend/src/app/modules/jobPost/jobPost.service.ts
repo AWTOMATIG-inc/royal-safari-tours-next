@@ -1,5 +1,9 @@
 import { JobApplicationStatus } from "@prisma/client";
 import { prisma } from "../../utils/prisma";
+import {
+  sendApplicantConfirmationEmail,
+  sendAdminNewApplicationEmail,
+} from "../auth/emailSender";
 
 const generateSlug = (title: string): string => {
   const base = title
@@ -23,6 +27,7 @@ export const createJobPost = async (payload: {
   description: string;
   responsibilities: string;
   benefits?: string;
+  customQuestions?: any;
   isPublished?: boolean;
 }) => {
   const slug = generateSlug(payload.title);
@@ -40,6 +45,7 @@ export const createJobPost = async (payload: {
       description: payload.description.trim(),
       responsibilities: payload.responsibilities.trim(),
       benefits: payload.benefits ? payload.benefits.trim() : null,
+      customQuestions: payload.customQuestions ? payload.customQuestions : null,
       isPublished: payload.isPublished !== undefined ? payload.isPublished : true,
     },
   });
@@ -58,6 +64,7 @@ export const updateJobPost = async (
     description?: string;
     responsibilities?: string;
     benefits?: string;
+    customQuestions?: any;
     isPublished?: boolean;
   }
 ) => {
@@ -84,6 +91,7 @@ export const updateJobPost = async (
       ...(payload.description && { description: payload.description.trim() }),
       ...(payload.responsibilities && { responsibilities: payload.responsibilities.trim() }),
       ...(payload.benefits !== undefined && { benefits: payload.benefits ? payload.benefits.trim() : null }),
+      ...(payload.customQuestions !== undefined && { customQuestions: payload.customQuestions }),
       ...(payload.isPublished !== undefined && { isPublished: payload.isPublished }),
     },
   });
@@ -96,6 +104,12 @@ export const deleteJobPost = async (id: string) => {
   }
 
   return await prisma.jobPost.delete({ where: { id } });
+};
+
+const isJobExpired = (deadline: Date | string): boolean => {
+  const d = new Date(deadline);
+  d.setHours(23, 59, 59, 999);
+  return new Date() > d;
 };
 
 export const getPublicJobs = async (filters: {
@@ -130,11 +144,9 @@ export const getPublicJobs = async (filters: {
     },
   });
 
-  const now = new Date();
-
   return jobs.map((j) => ({
     ...j,
-    isExpired: now > new Date(j.deadline),
+    isExpired: isJobExpired(j.deadline),
     applicationsCount: j._count.applications,
   }));
 };
@@ -153,8 +165,7 @@ export const getPublicJobBySlug = async (slug: string) => {
     throw new Error("Job position not found");
   }
 
-  const now = new Date();
-  const isExpired = now > new Date(job.deadline);
+  const isExpired = isJobExpired(job.deadline);
 
   return {
     ...job,
@@ -173,6 +184,7 @@ export const submitJobApplication = async (
     currentCompany?: string;
     expectedSalary?: string;
     coverLetter?: string;
+    answers?: any;
   },
   resumeUrl: string
 ) => {
@@ -181,9 +193,8 @@ export const submitJobApplication = async (
     throw new Error("Job position not found");
   }
 
-  const now = new Date();
-  if (now > new Date(job.deadline)) {
-    throw new Error("Application deadline for this position has expired. Applications are closed.");
+  if (isJobExpired(job.deadline)) {
+    throw new Error("Application deadline for this position has passed. Applications are closed.");
   }
 
   const cleanEmail = payload.applicantEmail.trim().toLowerCase();
@@ -201,7 +212,7 @@ export const submitJobApplication = async (
     throw new Error("You have already submitted an application for this position with this email address or phone number.");
   }
 
-  return await prisma.jobApplication.create({
+  const application = await prisma.jobApplication.create({
     data: {
       jobPostId: job.id,
       applicantName: payload.applicantName.trim(),
@@ -212,9 +223,16 @@ export const submitJobApplication = async (
       expectedSalary: payload.expectedSalary ? payload.expectedSalary.trim() : null,
       coverLetter: payload.coverLetter ? payload.coverLetter.trim() : null,
       resumeUrl,
+      answers: payload.answers ? payload.answers : null,
       status: JobApplicationStatus.SUBMITTED,
     },
   });
+
+  // Dispatch Dual Emails (non-blocking)
+  sendApplicantConfirmationEmail(cleanEmail, payload.applicantName.trim(), job.title).catch(() => {});
+  sendAdminNewApplicationEmail(payload.applicantName.trim(), cleanEmail, cleanPhone, job.title).catch(() => {});
+
+  return application;
 };
 
 export const getAdminJobs = async () => {
@@ -227,11 +245,9 @@ export const getAdminJobs = async () => {
     },
   });
 
-  const now = new Date();
-
   return jobs.map((j) => ({
     ...j,
-    isExpired: now > new Date(j.deadline),
+    isExpired: isJobExpired(j.deadline),
     applicationsCount: j._count.applications,
   }));
 };

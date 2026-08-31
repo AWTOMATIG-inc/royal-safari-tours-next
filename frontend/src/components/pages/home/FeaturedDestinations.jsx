@@ -76,7 +76,7 @@ export default function FeaturedDestinations({ locations = [] }) {
               <RevealGroup.Item key={item._id}>
                 <Link
                   href={`/adventure?destination=${encodeURIComponent(title)}`}
-                  className="group relative rounded-3xl overflow-hidden aspect-[4/5] bg-black/5 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1 flex flex-col justify-end p-6 sm:p-7 md:p-8 border border-gray-200/80 w-full h-full block"
+                  className="group relative rounded-3xl overflow-hidden aspect-[4/5] bg-black/5 shadow-sm hover:shadow-xl transition-transform transition-colors duration-300 hover:-translate-y-1 transform-gpu flex flex-col justify-end p-6 sm:p-7 md:p-8 border border-gray-200/80 w-full h-full block"
                 >
                   {/* Image */}
                   <Image
@@ -84,7 +84,7 @@ export default function FeaturedDestinations({ locations = [] }) {
                     alt={title}
                     fill
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                    className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                    className="object-cover transition-transform duration-500 ease-out group-hover:scale-105 will-change-transform"
                   />
 
                   {/* Dark Gradient Overlay */}
@@ -93,10 +93,10 @@ export default function FeaturedDestinations({ locations = [] }) {
                   {/* Glass Tag & Info */}
                   <div className="relative z-10 space-y-2 text-white">
                     <div className="flex items-center justify-between">
-                      <span className="px-3 py-1 font-accent rounded-full bg-white/20 backdrop-blur-md text-white text-[10px] font-semibold tracking-[0.2em] uppercase">
+                      <span className="px-3 py-1 font-accent rounded-full bg-black/60 text-white text-[10px] font-semibold tracking-[0.2em] uppercase border border-white/20">
                         Expedition Region
                       </span>
-                      <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:translate-x-0 -translate-x-2">
+                      <div className="w-8 h-8 rounded-full bg-black/60 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 border border-white/20">
                         <Icon icon="lucide:arrow-up-right" className="w-4 h-4" />
                       </div>
                     </div>

@@ -26,7 +26,7 @@ export default function Hero() {
   };
 
   return (
-    <section className="relative w-full min-h-screen flex items-center justify-center section-hero overflow-hidden bg-[url('/images/banners/banner1.webp')] bg-fixed bg-cover bg-center font-body">
+    <section className="relative w-full min-h-screen flex items-center justify-center section-hero overflow-hidden bg-[url('/images/banners/banner1.webp')] bg-cover bg-center font-body">
       {/* Light gradient overlay for luxury contrast */}
       <div className="absolute inset-0 bg-gradient-to-r from-light/95 via-light/75 to-light/30 sm:via-light/65 sm:to-transparent z-0" />
 
@@ -72,7 +72,7 @@ export default function Hero() {
           {/* Right Column: Search Card Widget */}
           <div className="lg:col-span-5 flex justify-center lg:justify-end">
             <Reveal variant="fadeLeft" delay={0.2} className="w-full max-w-md">
-              <div className="relative w-full rounded-3xl p-[1px] bg-gradient-to-tr from-accent/30 to-secondary/30 shadow-xl backdrop-blur-xl">
+              <div className="relative w-full rounded-3xl p-[1px] bg-gradient-to-tr from-accent/30 to-secondary/30 shadow-xl">
                 <div className="bg-sand rounded-[23px] border border-primary/10 p-6 sm:p-8 space-y-6 shadow-md">
 
                   <div className="flex items-center justify-between border-b border-primary/10 pb-4">

@@ -3,8 +3,10 @@
 import { createMediaFolder, deleteMediaItem, getMediaByFolderPath } from "@/actions/media";
 import { Icon } from "@iconify/react";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
+
+const ITEMS_PER_PAGE = 15;
 
 export default function MediaGalleryView({
   isModal = false,
@@ -28,6 +30,12 @@ export default function MediaGalleryView({
   const [isCreatingFolder, setIsCreatingFolder] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Reset page when currentPath or searchQuery changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [currentPath, searchQuery]);
 
   // Load items whenever currentPath changes
   const loadMedia = async () => {
@@ -142,10 +150,25 @@ export default function MediaGalleryView({
   };
 
   // Filter items by search query
-  const filteredItems = mediaItems.filter((item) => {
-    if (!searchQuery) return true;
-    return item.name.toLowerCase().includes(searchQuery.toLowerCase().trim());
-  });
+  const filteredItems = useMemo(() => {
+    if (!searchQuery) return mediaItems;
+    return mediaItems.filter((item) =>
+      item.name.toLowerCase().includes(searchQuery.toLowerCase().trim())
+    );
+  }, [mediaItems, searchQuery]);
+
+  // Pagination calculation
+  const totalPages = Math.ceil(filteredItems.length / ITEMS_PER_PAGE) || 1;
+  const paginatedItems = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredItems.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredItems, currentPage]);
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
 
   return (
     <div className="space-y-6 font-inter">
@@ -268,82 +291,133 @@ export default function MediaGalleryView({
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 font-inter">
-          {filteredItems.map((item) => {
-            const isFolder = item.type === "folder";
-            const isSelected = selectedUrls.includes(item.url);
+        <>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 font-inter">
+            {paginatedItems.map((item) => {
+              const isFolder = item.type === "folder";
+              const isSelected = selectedUrls.includes(item.url);
 
-            if (isFolder) {
+              if (isFolder) {
+                return (
+                  <div
+                    key={item._id}
+                    onClick={() => handleOpenFolder(item.name)}
+                    className="group relative bg-white border border-gray-200 hover:border-secondary rounded-2xl p-4 transition-all duration-200 cursor-pointer shadow-xs hover:shadow-md flex flex-col items-center text-center space-y-2 font-inter"
+                  >
+                    {/* Delete Button */}
+                    <button
+                      type="button"
+                      onClick={(e) => handleDelete(e, item._id, item.name)}
+                      className="absolute top-2 right-2 p-1.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                      title="Delete Folder"
+                    >
+                      <Icon icon="lucide:trash-2" className="w-3.5 h-3.5" />
+                    </button>
+
+                    <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Icon icon="lucide:folder" className="w-6 h-6 fill-amber-500/20" />
+                    </div>
+
+                    <span className="text-xs font-bold text-[#0D231E] group-hover:text-secondary transition-colors line-clamp-1">
+                      {item.name}
+                    </span>
+                    <span className="text-[10px] text-gray-400">Folder</span>
+                  </div>
+                );
+              }
+
               return (
                 <div
                   key={item._id}
-                  onClick={() => handleOpenFolder(item.name)}
-                  className="group relative bg-white border border-gray-200 hover:border-secondary rounded-2xl p-4 transition-all duration-200 cursor-pointer shadow-xs hover:shadow-md flex flex-col items-center text-center space-y-2 font-inter"
+                  onClick={() => toggleSelect(item.url)}
+                  className={`group relative aspect-square rounded-2xl overflow-hidden bg-sand border-2 transition-all cursor-pointer shadow-xs ${
+                    isSelected
+                      ? "border-emerald-500 ring-4 ring-emerald-500/30 scale-98"
+                      : "border-gray-200 hover:border-secondary"
+                  }`}
                 >
-                  {/* Delete Button */}
+                  <Image
+                    src={item.url}
+                    alt={item.name}
+                    fill
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+
+                  {/* Clean Tick Mark Badge Overlay */}
+                  {isModal && isSelected && (
+                    <div className="absolute top-2 left-2 z-30 w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-md">
+                      <Icon icon="lucide:check" className="w-4 h-4 stroke-[3]" />
+                    </div>
+                  )}
+
+                  {/* Delete Button Overlay */}
                   <button
                     type="button"
                     onClick={(e) => handleDelete(e, item._id, item.name)}
-                    className="absolute top-2 right-2 p-1.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
-                    title="Delete Folder"
+                    className="absolute top-2 right-2 z-20 p-2 bg-rose-600/90 text-white rounded-xl hover:bg-rose-700 opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
+                    title="Delete Image"
                   >
                     <Icon icon="lucide:trash-2" className="w-3.5 h-3.5" />
                   </button>
 
-                  <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Icon icon="lucide:folder" className="w-6 h-6 fill-amber-500/20" />
-                  </div>
-
-                  <span className="text-xs font-bold text-[#0D231E] group-hover:text-secondary transition-colors line-clamp-1">
+                  {/* File Title Overlay */}
+                  <div className="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/80 via-black/40 to-transparent text-white text-[10px] truncate font-medium z-10">
                     {item.name}
-                  </span>
-                  <span className="text-[10px] text-gray-400">Folder</span>
+                  </div>
                 </div>
               );
-            }
+            })}
+          </div>
 
-            return (
-              <div
-                key={item._id}
-                onClick={() => toggleSelect(item.url)}
-                className={`group relative aspect-square rounded-2xl overflow-hidden bg-sand border-2 transition-all cursor-pointer shadow-xs ${
-                  isSelected
-                    ? "border-emerald-500 ring-4 ring-emerald-500/30 scale-98"
-                    : "border-gray-200 hover:border-secondary"
-                }`}
-              >
-                <Image
-                  src={item.url}
-                  alt={item.name}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-300"
-                />
+          {/* Media Gallery Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-gray-100 font-inter">
+              <span className="text-xs text-gray-500">
+                Showing <strong className="text-primary">{(currentPage - 1) * ITEMS_PER_PAGE + 1}</strong>–
+                <strong className="text-primary">
+                  {Math.min(currentPage * ITEMS_PER_PAGE, filteredItems.length)}
+                </strong>{" "}
+                of <strong className="text-primary">{filteredItems.length}</strong> items
+              </span>
 
-                {/* Clean Tick Mark Badge Overlay */}
-                {isModal && isSelected && (
-                  <div className="absolute top-2 left-2 z-30 w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-md">
-                    <Icon icon="lucide:check" className="w-4 h-4 stroke-[3]" />
-                  </div>
-                )}
-
-                {/* Delete Button Overlay */}
+              <div className="flex items-center gap-1.5">
                 <button
                   type="button"
-                  onClick={(e) => handleDelete(e, item._id, item.name)}
-                  className="absolute top-2 right-2 z-20 p-2 bg-rose-600/90 text-white rounded-xl hover:bg-rose-700 opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
-                  title="Delete Image"
+                  disabled={currentPage === 1}
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  className="px-3 py-1.5 rounded-lg border border-gray-200 text-xs font-semibold text-primary hover:bg-gray-100 disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer"
                 >
-                  <Icon icon="lucide:trash-2" className="w-3.5 h-3.5" />
+                  Prev
                 </button>
 
-                {/* File Title Overlay */}
-                <div className="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/80 via-black/40 to-transparent text-white text-[10px] truncate font-medium z-10">
-                  {item.name}
-                </div>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <button
+                    key={page}
+                    type="button"
+                    onClick={() => handlePageChange(page)}
+                    className={`w-8 h-8 rounded-lg text-xs font-bold transition-all cursor-pointer border ${
+                      currentPage === page
+                        ? "bg-[#0D231E] text-white border-[#0D231E] shadow-xs"
+                        : "bg-white border-gray-200 text-gray-600 hover:border-secondary"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ))}
+
+                <button
+                  type="button"
+                  disabled={currentPage === totalPages}
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  className="px-3 py-1.5 rounded-lg border border-gray-200 text-xs font-semibold text-primary hover:bg-gray-100 disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer"
+                >
+                  Next
+                </button>
               </div>
-            );
-          })}
-        </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

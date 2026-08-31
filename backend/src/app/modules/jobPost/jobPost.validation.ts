@@ -11,6 +11,7 @@ export const createJobPostSchema = z.object({
   description: z.string().min(5, "Job description is required"),
   responsibilities: z.string().min(5, "Job responsibilities are required"),
   benefits: z.string().optional(),
+  customQuestions: z.any().optional(),
   isPublished: z.boolean().optional().default(true),
 });
 
@@ -25,6 +26,7 @@ export const updateJobPostSchema = z.object({
   description: z.string().min(5).optional(),
   responsibilities: z.string().min(5).optional(),
   benefits: z.string().optional(),
+  customQuestions: z.any().optional(),
   isPublished: z.boolean().optional(),
 });
 
@@ -36,6 +38,7 @@ export const submitJobApplicationSchema = z.object({
   currentCompany: z.string().optional(),
   expectedSalary: z.string().optional(),
   coverLetter: z.string().optional(),
+  answers: z.any().optional(),
 });
 
 export const updateApplicationStatusSchema = z.object({

@@ -51,8 +51,22 @@ export const submitJobApplication = async (req: Request, res: Response): Promise
       return;
     }
 
+    let answers = req.body.answers;
+    if (typeof answers === "string") {
+      try {
+        answers = JSON.parse(answers);
+      } catch (e) {
+        answers = null;
+      }
+    }
+
+    const payload = {
+      ...req.body,
+      answers,
+    };
+
     const resumeUrl = `/uploads/documents/${req.file.filename}`;
-    const result = await jobPostService.submitJobApplication(slug, req.body, resumeUrl);
+    const result = await jobPostService.submitJobApplication(slug, payload, resumeUrl);
 
     res.status(StatusCodes.CREATED).json({
       success: true,
@@ -85,7 +99,21 @@ export const getAdminJobs = async (_req: Request, res: Response): Promise<void> 
 
 export const createJobPost = async (req: Request, res: Response): Promise<void> => {
   try {
-    const result = await jobPostService.createJobPost(req.body);
+    let customQuestions = req.body.customQuestions;
+    if (typeof customQuestions === "string") {
+      try {
+        customQuestions = JSON.parse(customQuestions);
+      } catch (e) {
+        customQuestions = null;
+      }
+    }
+
+    const payload = {
+      ...req.body,
+      ...(customQuestions !== undefined && { customQuestions }),
+    };
+
+    const result = await jobPostService.createJobPost(payload);
     res.status(StatusCodes.CREATED).json({
       success: true,
       message: "Job post created successfully",
@@ -102,7 +130,22 @@ export const createJobPost = async (req: Request, res: Response): Promise<void> 
 export const updateJobPost = async (req: Request, res: Response): Promise<void> => {
   try {
     const id = req.params.id as string;
-    const result = await jobPostService.updateJobPost(id, req.body);
+
+    let customQuestions = req.body.customQuestions;
+    if (typeof customQuestions === "string") {
+      try {
+        customQuestions = JSON.parse(customQuestions);
+      } catch (e) {
+        customQuestions = null;
+      }
+    }
+
+    const payload = {
+      ...req.body,
+      ...(customQuestions !== undefined && { customQuestions }),
+    };
+
+    const result = await jobPostService.updateJobPost(id, payload);
     res.status(StatusCodes.OK).json({
       success: true,
       message: "Job post updated successfully",

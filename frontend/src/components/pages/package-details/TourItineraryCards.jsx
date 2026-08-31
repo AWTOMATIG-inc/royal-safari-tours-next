@@ -18,7 +18,6 @@ export default function TourItineraryCards({ itinerary = [] }) {
     const scrollAmount = direction === "left" ? -340 : 340;
     sliderRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
   };
-
   return (
     <div className="space-y-6 font-body">
       {/* Header Row with Navigation Slider Controls */}
@@ -50,7 +49,6 @@ export default function TourItineraryCards({ itinerary = [] }) {
           </div>
         )}
       </div>
-
       {/* Content Container: Single-line Horizontal Slider when > 2 items, Grid when 1-2 items */}
       <div
         ref={sliderRef}
@@ -70,7 +68,7 @@ export default function TourItineraryCards({ itinerary = [] }) {
           return (
             <div
               key={idx}
-              className={`group relative aspect-[9/12] rounded-3xl overflow-hidden bg-sand border border-gray-200 shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer font-body ${
+              className={`group relative aspect-[9/12] rounded-3xl overflow-hidden bg-sand border border-gray-200 shadow-sm hover:shadow-xl transition-transform transition-colors duration-300 transform-gpu cursor-pointer font-body ${
                 isSlider
                   ? "w-[85vw] sm:w-[320px] md:w-[340px] shrink-0 snap-start"
                   : "w-full"
@@ -81,7 +79,8 @@ export default function TourItineraryCards({ itinerary = [] }) {
                 src={bgUrl}
                 alt={day.title || day.dayName}
                 fill
-                className="object-cover group-hover:scale-108 transition-transform duration-700 ease-out"
+                sizes="(max-width: 640px) 85vw, 340px"
+                className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out will-change-transform"
               />
 
               {/* Gradient Overlay */}
@@ -89,7 +88,7 @@ export default function TourItineraryCards({ itinerary = [] }) {
 
               {/* Top Day Badge */}
               <div className="absolute top-4 left-4 z-10">
-                <span className="bg-[#0D231E]/90 backdrop-blur-md text-accent border border-accent/30 text-xs font-bold px-3 py-1 rounded-full tracking-wider font-body shadow-xs">
+                <span className="bg-[#0D231E]/95 text-accent border border-accent/30 text-xs font-bold px-3 py-1 rounded-full tracking-wider font-body shadow-xs">
                   {day.dayName || `Day ${idx + 1}`}
                 </span>
               </div>
@@ -106,7 +105,7 @@ export default function TourItineraryCards({ itinerary = [] }) {
               </div>
 
               {/* Hover / Tap Revealed Full Description Overlay */}
-              <div className="absolute inset-0 bg-[#0D231E]/95 backdrop-blur-md p-6 z-20 text-white font-body opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-between overflow-y-auto">
+              <div className="absolute inset-0 bg-[#0D231E]/95 p-6 z-20 text-white font-body opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between overflow-y-auto">
                 <div className="space-y-3">
                   <span className="inline-block bg-accent/20 text-accent border border-accent/30 text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full font-body">
                     {day.dayName || `Day ${idx + 1}`}

@@ -27,7 +27,8 @@ export default function Header() {
   // Monitor page scroll to apply sticky shrink transitions
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 40);
+      const isScrolled = window.scrollY > 40;
+      setScrolled((prev) => (prev !== isScrolled ? isScrolled : prev));
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -66,12 +67,12 @@ export default function Header() {
 
   // Handle Functional Search Submission (Redirects to /adventure?search=query)
   const handleSearchSubmit = (e) => {
-    if (e) e.preventDefault();
+    e.preventDefault();
     if (!searchQuery.trim()) return;
-    const query = searchQuery.trim();
+    const term = searchQuery.trim();
     setShowSearch(false);
     setSearchQuery("");
-    router.push(`/adventure?search=${encodeURIComponent(query)}`);
+    router.push(`/adventure?search=${encodeURIComponent(term)}`);
   };
 
   const handlePopularSearch = (term) => {
@@ -84,8 +85,8 @@ export default function Header() {
 
   // Translucent glassmorphic tokens that dynamically contract when scrolled
   const dockWrapperClass = scrolled
-    ? "top-3 sm:top-4 py-2 sm:py-2.5 px-5 sm:px-6 bg-white/90 backdrop-blur-lg border-primary/12 shadow-[0_12px_40px_rgba(13,35,30,0.08)]"
-    : "top-4 sm:top-6 py-3 sm:py-3.5 px-6 sm:px-8 bg-light/85 backdrop-blur-lg border-primary/8 shadow-[0_8px_30px_rgba(13,35,30,0.04)]";
+    ? "top-3 sm:top-4 py-2 sm:py-2.5 px-5 sm:px-6 bg-white/98 border-primary/12 shadow-[0_12px_40px_rgba(13,35,30,0.08)] transform-gpu"
+    : "top-4 sm:top-6 py-3 sm:py-3.5 px-6 sm:px-8 bg-light/95 border-primary/8 shadow-[0_8px_30px_rgba(13,35,30,0.04)] transform-gpu";
 
   return (
     <>

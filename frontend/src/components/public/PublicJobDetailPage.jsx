@@ -1,7 +1,7 @@
 "use client";
 
 import { Icon } from "@iconify/react";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { getPublicJobBySlug, submitJobApplication } from "@/actions/recruitment";
@@ -27,6 +27,8 @@ export default function PublicJobDetailPage({ slug }) {
     coverLetter: "",
   });
 
+  const [answersState, setAnswersState] = useState({});
+
   useEffect(() => {
     const fetchJob = async () => {
       setLoading(true);
@@ -40,6 +42,27 @@ export default function PublicJobDetailPage({ slug }) {
     };
     fetchJob();
   }, [slug]);
+
+  // Parse custom questions
+  const customQuestions = useMemo(() => {
+    if (!job || !job.customQuestions) return [];
+    if (Array.isArray(job.customQuestions)) return job.customQuestions;
+    if (typeof job.customQuestions === "string") {
+      try {
+        return JSON.parse(job.customQuestions);
+      } catch (e) {
+        return [];
+      }
+    }
+    return [];
+  }, [job]);
+
+  const handleAnswerChange = (questionText, value) => {
+    setAnswersState((prev) => ({
+      ...prev,
+      [questionText]: value,
+    }));
+  };
 
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];
@@ -67,10 +90,25 @@ export default function PublicJobDetailPage({ slug }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validate required custom questions
+    for (const q of customQuestions) {
+      if (q.required && (!answersState[q.questionText] || !answersState[q.questionText].trim())) {
+        toast.error(`Please answer the required question: "${q.questionText}"`);
+        return;
+      }
+    }
+
     if (!resumeFile) {
       toast.error("Please upload your Resume / CV (PDF, DOC, DOCX)");
       return;
     }
+
+    // Format answers array
+    const answersList = customQuestions.map((q) => ({
+      questionText: q.questionText,
+      answerText: (answersState[q.questionText] || "").trim(),
+    }));
 
     setSubmitting(true);
     const formData = new FormData();
@@ -82,6 +120,7 @@ export default function PublicJobDetailPage({ slug }) {
     formData.append("currentCompany", form.currentCompany);
     formData.append("expectedSalary", form.expectedSalary);
     formData.append("coverLetter", form.coverLetter);
+    formData.append("answers", JSON.stringify(answersList));
 
     const res = await submitJobApplication(slug, formData);
     setSubmitting(false);
@@ -101,6 +140,7 @@ export default function PublicJobDetailPage({ slug }) {
       expectedSalary: "",
       coverLetter: "",
     });
+    setAnswersState({});
     setResumeFile(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
@@ -142,250 +182,140 @@ export default function PublicJobDetailPage({ slug }) {
   }
 
   return (
-    <div className="min-h-screen bg-[#fafbfc] font-body text-[#0D231E] pb-24">
-      {/* Top Header Hero (Increased top padding pt-28 sm:pt-36 to accommodate floating main Navbar) */}
-      <div className="bg-[#0D231E] text-white pt-28 sm:pt-36 pb-12 sm:pb-16 px-4 sm:px-8 border-b border-gray-800 relative overflow-hidden">
-        <div className="max-w-7xl mx-auto space-y-6 relative z-10">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <Link
-              href="/jobs"
-              className="inline-flex items-center gap-1.5 text-xs text-[#2cb775] hover:underline font-semibold"
-            >
-              <Icon icon="lucide:arrow-left" className="w-4 h-4" />
-              Back to All Job Openings
-            </Link>
+    <div className="min-h-screen bg-[#fafbfc] font-body pt-28 sm:pt-32 pb-20">
+      <div className="container max-w-6xl mx-auto px-4 sm:px-6 space-y-8 font-body">
+        {/* Navigation Breadcrumb */}
+        <div className="flex items-center justify-between font-body">
+          <Link
+            href="/jobs"
+            className="inline-flex items-center gap-2 text-xs font-semibold text-gray-500 hover:text-primary transition-colors"
+          >
+            <Icon icon="lucide:arrow-left" className="w-4 h-4" />
+            <span>Back to All Openings</span>
+          </Link>
 
-            <button
-              onClick={handleShareLink}
-              className="inline-flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white text-xs font-semibold px-4 py-2 rounded-xl transition-all border border-white/20 cursor-pointer"
-            >
-              <Icon icon="lucide:share-2" className="w-3.5 h-3.5 text-[#2cb775]" />
-              Share Job Position
-            </button>
-          </div>
+          <button
+            onClick={handleShareLink}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-gray-200 text-xs font-semibold text-gray-600 hover:text-primary hover:border-gray-300 transition-colors shadow-2xs cursor-pointer"
+          >
+            <Icon icon="lucide:share-2" className="w-3.5 h-3.5 text-secondary" />
+            <span>Share Job</span>
+          </button>
+        </div>
 
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-            <div className="space-y-4 max-w-3xl">
-              <div className="flex flex-wrap items-center gap-2">
-                {job.isExpired ? (
-                  <span className="px-3.5 py-1 rounded-full bg-rose-500/20 text-rose-300 text-xs font-bold uppercase tracking-wider border border-rose-500/30">
-                    Deadline Expired
-                  </span>
-                ) : (
-                  <span className="px-3.5 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-bold uppercase tracking-wider border border-amber-500/30">
-                    Accepting Applications
-                  </span>
-                )}
+        {/* Hero Card */}
+        <div className="bg-white rounded-3xl p-6 sm:p-8 md:p-10 border border-gray-100 shadow-[0_4px_25px_rgba(13,35,30,0.04)] space-y-6 relative overflow-hidden font-body">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 font-body">
+            <div className="space-y-3 max-w-2xl font-body">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="inline-flex items-center px-3 py-1 rounded-full bg-[#2cb775]/10 text-[#2cb775] text-xs font-bold font-body">
+                  📍 {job.location}
+                </span>
+                <span className="inline-flex items-center px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold font-body">
+                  {job.jobType}
+                </span>
+                <span className="inline-flex items-center px-3 py-1 rounded-full bg-amber-50 text-amber-700 text-xs font-semibold font-body">
+                  {job.workMode}
+                </span>
               </div>
 
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-heading text-white leading-tight">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#0D231E] font-heading leading-tight">
                 {job.title}
               </h1>
 
-              {/* Clean Subtitle (Removed duplicate Location & Deadline text) */}
-              <div className="flex items-center gap-2 text-xs text-gray-300">
-                <Icon icon="lucide:building-2" className="w-4 h-4 text-[#2cb775]" />
-                <span className="font-semibold text-white">Royal Safari Tours Ltd.</span>
-                <span>•</span>
-                <span>Career Opportunity</span>
-              </div>
+              {job.officeTime && (
+                <p className="text-xs text-gray-500 flex items-center gap-1.5 font-body">
+                  <Icon icon="lucide:clock" className="w-3.5 h-3.5 text-secondary" />
+                  <span>Office Hours: {job.officeTime}</span>
+                </p>
+              )}
             </div>
 
-            {!job.isExpired && (
-              <div className="shrink-0">
+            <div className="flex flex-col sm:flex-row md:flex-col items-stretch sm:items-center md:items-end gap-3 shrink-0 font-body">
+              {job.isExpired ? (
+                <div className="px-5 py-3 rounded-2xl bg-rose-50 text-rose-600 text-xs font-bold border border-rose-200 text-center font-body">
+                  Application Expired
+                </div>
+              ) : (
                 <button
                   onClick={scrollToApply}
-                  className="bg-[#2cb775] hover:bg-[#239660] text-white text-xs font-bold px-8 py-3.5 rounded-2xl transition-all shadow-lg hover:shadow-xl cursor-pointer flex items-center gap-2 uppercase tracking-wider"
+                  className="px-8 py-3.5 rounded-2xl bg-[#0D231E] hover:bg-[#2cb775] text-white text-xs font-bold transition-all shadow-md cursor-pointer flex items-center justify-center gap-2 font-body"
                 >
                   <span>Apply Now</span>
                   <Icon icon="lucide:arrow-down" className="w-4 h-4" />
                 </button>
-              </div>
-            )}
+              )}
+
+              <span className="text-[11px] text-gray-400 font-mono text-center md:text-right font-body">
+                Deadline: {formatDateStr(job.deadline)}
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* Backdrop Glow */}
-        <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-[#2cb775]/10 blur-3xl" />
-      </div>
-
-      {/* Main 2-Column Split Layout */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-8 mt-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* LEFT COLUMN: Specs & Job Details (7 Cols / 60% Width) */}
-          <div className="lg:col-span-7 space-y-8">
-            {/* Consolidated 6-Metric Highlights Grid (3x2 on Desktop, 2x3 on Mobile) */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 bg-white p-5 sm:p-6 rounded-3xl border border-gray-100 shadow-[0_4px_20px_rgba(13,35,30,0.03)]">
-              {/* Spec 1: Job Type */}
-              <div className="bg-gray-50/70 rounded-2xl p-3 sm:p-3.5 border border-gray-100 flex items-center gap-3">
-                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#2cb775]/10 text-[#2cb775] flex items-center justify-center shrink-0">
-                  <Icon icon="lucide:briefcase" className="w-4 h-4 sm:w-5 sm:h-5" />
-                </div>
-                <div className="min-w-0">
-                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
-                    Job Type
-                  </span>
-                  <p className="text-xs font-bold text-[#0D231E] font-heading truncate">
-                    {job.jobType}
-                  </p>
-                </div>
-              </div>
-
-              {/* Spec 2: Work Mode */}
-              <div className="bg-gray-50/70 rounded-2xl p-3 sm:p-3.5 border border-gray-100 flex items-center gap-3">
-                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-                  <Icon icon="lucide:laptop" className="w-4 h-4 sm:w-5 sm:h-5" />
-                </div>
-                <div className="min-w-0">
-                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
-                    Work Mode
-                  </span>
-                  <p className="text-xs font-bold text-[#0D231E] font-heading truncate">
-                    {job.workMode}
-                  </p>
-                </div>
-              </div>
-
-              {/* Spec 3: Vacancies */}
-              <div className="bg-gray-50/70 rounded-2xl p-3 sm:p-3.5 border border-gray-100 flex items-center gap-3">
-                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
-                  <Icon icon="lucide:users" className="w-4 h-4 sm:w-5 sm:h-5" />
-                </div>
-                <div className="min-w-0">
-                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
-                    Vacancies
-                  </span>
-                  <p className="text-xs font-bold text-[#0D231E] font-heading truncate">
-                    {job.vacancies} Positions
-                  </p>
-                </div>
-              </div>
-
-              {/* Spec 4: Office Hours */}
-              <div className="bg-gray-50/70 rounded-2xl p-3 sm:p-3.5 border border-gray-100 flex items-center gap-3">
-                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center shrink-0">
-                  <Icon icon="lucide:clock" className="w-4 h-4 sm:w-5 sm:h-5" />
-                </div>
-                <div className="min-w-0">
-                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
-                    Office Hours
-                  </span>
-                  <p className="text-xs font-bold text-[#0D231E] font-mono truncate">
-                    {job.officeTime || "Standard"}
-                  </p>
-                </div>
-              </div>
-
-              {/* Spec 5: Location */}
-              <div className="bg-gray-50/70 rounded-2xl p-3 sm:p-3.5 border border-gray-100 flex items-center gap-3">
-                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center shrink-0">
-                  <Icon icon="lucide:map-pin" className="w-4 h-4 sm:w-5 sm:h-5" />
-                </div>
-                <div className="min-w-0">
-                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
-                    Location
-                  </span>
-                  <p className="text-xs font-bold text-[#0D231E] truncate">
-                    {job.location}
-                  </p>
-                </div>
-              </div>
-
-              {/* Spec 6: Application Deadline */}
-              <div className="bg-gray-50/70 rounded-2xl p-3 sm:p-3.5 border border-gray-100 flex items-center gap-3">
-                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
-                  <Icon icon="lucide:calendar" className="w-4 h-4 sm:w-5 sm:h-5" />
-                </div>
-                <div className="min-w-0">
-                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
-                    Deadline
-                  </span>
-                  <p className="text-xs font-bold text-amber-700 font-mono truncate">
-                    {formatDateStr(job.deadline)}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Job Overview Container */}
-            <div className="bg-white rounded-3xl border border-gray-100 shadow-[0_4px_20px_rgba(13,35,30,0.03)] p-6 sm:p-8 space-y-4">
-              <h2 className="text-lg font-bold text-[#0D231E] font-heading border-b border-gray-100 pb-3 flex items-center gap-2">
-                <Icon icon="lucide:info" className="w-5 h-5 text-[#2cb775]" />
-                Job Overview & Position Summary
-              </h2>
+        {/* Content Layout (Grid) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 font-body">
+          {/* Left Column (7 Cols): Rich HTML Overview & Requirements */}
+          <div className="lg:col-span-7 space-y-8 font-body">
+            {/* Overview */}
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-[0_4px_20px_rgba(13,35,30,0.03)] space-y-4 font-body">
+              <h3 className="text-lg font-bold text-[#0D231E] font-heading flex items-center gap-2 border-b border-gray-100 pb-3">
+                <Icon icon="lucide:info" className="w-5 h-5 text-secondary" />
+                Role Overview
+              </h3>
               <div
-                className="rich-text-content text-gray-700 leading-relaxed text-xs"
+                className="text-xs sm:text-sm text-gray-600 leading-relaxed font-body rich-text-content"
                 dangerouslySetInnerHTML={{ __html: job.description }}
               />
             </div>
 
-            {/* Job Responsibilities Container */}
-            <div className="bg-white rounded-3xl border border-gray-100 shadow-[0_4px_20px_rgba(13,35,30,0.03)] p-6 sm:p-8 space-y-4">
-              <h2 className="text-lg font-bold text-[#0D231E] font-heading border-b border-gray-100 pb-3 flex items-center gap-2">
-                <Icon icon="lucide:check-circle-2" className="w-5 h-5 text-[#2cb775]" />
-                Key Responsibilities & Requirements
-              </h2>
+            {/* Responsibilities */}
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-[0_4px_20px_rgba(13,35,30,0.03)] space-y-4 font-body">
+              <h3 className="text-lg font-bold text-[#0D231E] font-heading flex items-center gap-2 border-b border-gray-100 pb-3">
+                <Icon icon="lucide:list-checks" className="w-5 h-5 text-secondary" />
+                Key Responsibilities & Qualifications
+              </h3>
               <div
-                className="rich-text-content text-gray-700 leading-relaxed text-xs"
+                className="text-xs sm:text-sm text-gray-600 leading-relaxed font-body rich-text-content"
                 dangerouslySetInnerHTML={{ __html: job.responsibilities }}
               />
             </div>
 
-            {/* Job Benefits Container */}
+            {/* Perks & Benefits */}
             {job.benefits && (
-              <div className="bg-white rounded-3xl border border-gray-100 shadow-[0_4px_20px_rgba(13,35,30,0.03)] p-6 sm:p-8 space-y-4">
-                <h2 className="text-lg font-bold text-[#0D231E] font-heading border-b border-gray-100 pb-3 flex items-center gap-2">
-                  <Icon icon="lucide:gift" className="w-5 h-5 text-[#2cb775]" />
-                  Perks & Allowance Benefits
-                </h2>
+              <div className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-[0_4px_20px_rgba(13,35,30,0.03)] space-y-4 font-body">
+                <h3 className="text-lg font-bold text-[#0D231E] font-heading flex items-center gap-2 border-b border-gray-100 pb-3">
+                  <Icon icon="lucide:gift" className="w-5 h-5 text-accent" />
+                  Benefits & Perks
+                </h3>
                 <div
-                  className="rich-text-content text-gray-700 leading-relaxed text-xs"
+                  className="text-xs sm:text-sm text-gray-600 leading-relaxed font-body rich-text-content"
                   dangerouslySetInnerHTML={{ __html: job.benefits }}
                 />
               </div>
             )}
           </div>
 
-          {/* RIGHT COLUMN: Sticky Application Form or Deadline Notice (5 Cols / 40% Width) */}
-          <div className="lg:col-span-5 lg:sticky lg:top-10 space-y-6" ref={formRef}>
-            {job.isExpired ? (
-              /* Deadline Expired Sticky Card */
-              <div className="bg-amber-50/80 border-2 border-amber-200 rounded-3xl p-8 text-center space-y-4 shadow-sm">
-                <div className="w-16 h-16 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center mx-auto">
-                  <Icon icon="lucide:clock-4" className="w-8 h-8" />
-                </div>
-                <h3 className="text-xl font-bold text-amber-950 font-heading">
-                  Applications Closed
-                </h3>
-                <p className="text-xs text-amber-800 leading-relaxed max-w-xs mx-auto">
-                  The application deadline for <strong>{job.title}</strong> expired on <strong>{formatDateStr(job.deadline)}</strong>.
+          {/* Right Column (5 Cols): Job Application Form */}
+          <div className="lg:col-span-5 font-body" ref={formRef}>
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-[0_4px_25px_rgba(13,35,30,0.04)] space-y-6 sticky top-28 font-body">
+              <div className="space-y-1 border-b border-gray-100 pb-4">
+                <h2 className="text-xl font-bold text-[#0D231E] font-heading flex items-center gap-2">
+                  Apply for Position
+                </h2>
+                <p className="text-xs text-gray-500">
+                  Fill in your details and answer screening questions to submit your application.
                 </p>
-                <div className="pt-2">
-                  <Link
-                    href="/jobs"
-                    className="inline-flex items-center gap-2 bg-[#0D231E] text-white text-xs font-semibold px-6 py-3 rounded-xl transition-all hover:bg-[#2cb775]"
-                  >
-                    <span>Browse Other Job Positions</span>
-                    <Icon icon="lucide:arrow-right" className="w-4 h-4" />
-                  </Link>
-                </div>
               </div>
-            ) : (
-              /* Active Candidate Application Form Card */
-              <div className="bg-white rounded-3xl border border-gray-100 shadow-[0_8px_30px_rgba(13,35,30,0.06)] p-6 sm:p-8 space-y-6">
-                <div className="border-b border-gray-100 pb-4 space-y-1">
-                  <span className="text-[10px] font-bold text-[#2cb775] uppercase tracking-wider">
-                    Online Application Portal
-                  </span>
-                  <h2 className="text-xl font-bold text-[#0D231E] font-heading flex items-center gap-2">
-                    Apply for Position
-                  </h2>
-                  <p className="text-xs text-gray-500">
-                    Fill in your details and attach your CV/Resume to apply.
-                  </p>
-                </div>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
+              {job.isExpired ? (
+                <div className="p-6 text-center bg-sand rounded-2xl border border-gray-200 text-gray-500 text-xs font-body space-y-2">
+                  <Icon icon="lucide:clock" className="w-8 h-8 text-rose-500 mx-auto" />
+                  <p className="font-bold text-gray-700">Applications Closed</p>
+                  <p>The deadline for this position has passed.</p>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-4 font-body">
                   <div>
                     <label className="block text-xs font-semibold text-gray-700 mb-1">
                       Full Name *
@@ -452,7 +382,7 @@ export default function PublicJobDetailPage({ slug }) {
                         type="text"
                         value={form.expectedSalary}
                         onChange={(e) => setForm({ ...form, expectedSalary: e.target.value })}
-                        placeholder="e.g. 80,000 BDT"
+                        placeholder="e.g. 55000 BDT"
                         className="w-full border border-gray-300 p-3 rounded-xl text-xs focus:outline-none focus:border-[#2cb775]"
                       />
                     </div>
@@ -460,111 +390,117 @@ export default function PublicJobDetailPage({ slug }) {
 
                   <div>
                     <label className="block text-xs font-semibold text-gray-700 mb-1">
-                      Current / Previous Company
+                      Current Company / Organization
                     </label>
                     <input
                       type="text"
                       value={form.currentCompany}
                       onChange={(e) => setForm({ ...form, currentCompany: e.target.value })}
-                      placeholder="e.g. Acme Tours & Travels Ltd."
+                      placeholder="e.g. Current Employer"
                       className="w-full border border-gray-300 p-3 rounded-xl text-xs focus:outline-none focus:border-[#2cb775]"
                     />
                   </div>
 
-                  {/* Drag-and-Drop Resume Box */}
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-700 mb-1">
-                      Attach Resume / CV (PDF, DOC, DOCX) *
-                    </label>
-                    <div className="border-2 border-dashed border-gray-300 hover:border-[#2cb775] rounded-2xl p-5 text-center transition-colors bg-gray-50/50">
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept=".pdf,.doc,.docx"
-                        onChange={handleFileChange}
-                        hidden
-                      />
-                      {resumeFile ? (
-                        <div className="flex items-center justify-center gap-2 text-xs text-[#2cb775] font-bold">
-                          <Icon icon="lucide:file-check" className="w-5 h-5" />
-                          <span className="truncate max-w-[180px]">{resumeFile.name}</span>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setResumeFile(null);
-                              if (fileInputRef.current) fileInputRef.current.value = "";
-                            }}
-                            className="p-1 rounded-md text-rose-500 hover:bg-rose-50 cursor-pointer"
-                          >
-                            <Icon icon="lucide:x" className="w-4 h-4" />
-                          </button>
+                  {/* Render Custom Screening Questions Section */}
+                  {customQuestions.length > 0 && (
+                    <div className="p-4 rounded-2xl bg-sand/80 border border-gray-200 space-y-4 font-body">
+                      <h4 className="text-xs font-bold text-primary flex items-center gap-1.5 border-b border-gray-200 pb-2">
+                        <Icon icon="lucide:help-circle" className="w-4 h-4 text-secondary" />
+                        Screening Questions ({customQuestions.length})
+                      </h4>
+
+                      {customQuestions.map((q, idx) => (
+                        <div key={q.id || idx} className="space-y-1.5 font-body">
+                          <label className="block text-xs font-semibold text-gray-800">
+                            {idx + 1}. {q.questionText} {q.required && <span className="text-rose-500">*</span>}
+                          </label>
+                          <textarea
+                            rows={2}
+                            required={q.required}
+                            value={answersState[q.questionText] || ""}
+                            onChange={(e) => handleAnswerChange(q.questionText, e.target.value)}
+                            placeholder="Type your response here..."
+                            className="w-full border border-gray-300 p-2.5 rounded-xl text-xs focus:outline-none focus:border-secondary bg-white font-body"
+                          />
                         </div>
-                      ) : (
-                        <div
-                          onClick={() => fileInputRef.current?.click()}
-                          className="cursor-pointer space-y-1.5"
-                        >
-                          <Icon icon="lucide:upload-cloud" className="w-7 h-7 text-gray-400 mx-auto" />
-                          <p className="text-xs font-semibold text-[#0D231E]">
-                            Click to upload your CV / Resume
-                          </p>
-                          <p className="text-[11px] text-gray-400">PDF or DOC format up to 20MB</p>
-                        </div>
-                      )}
+                      ))}
                     </div>
-                  </div>
+                  )}
 
                   <div>
                     <label className="block text-xs font-semibold text-gray-700 mb-1">
-                      Cover Letter / Message to HR
+                      Brief Cover Letter / Note
                     </label>
                     <textarea
                       rows={3}
                       value={form.coverLetter}
                       onChange={(e) => setForm({ ...form, coverLetter: e.target.value })}
-                      placeholder="Briefly introduce yourself..."
+                      placeholder="Write a brief intro highlighting why you're a great fit..."
                       className="w-full border border-gray-300 p-3 rounded-xl text-xs focus:outline-none focus:border-[#2cb775]"
                     />
                   </div>
 
-                  <div className="pt-2">
-                    <button
-                      type="submit"
-                      disabled={submitting}
-                      className="w-full bg-[#0D231E] hover:bg-[#2cb775] text-white text-xs font-bold py-3.5 rounded-2xl transition-all shadow-md cursor-pointer flex items-center justify-center gap-2 uppercase tracking-wider"
+                  {/* Resume Upload Box */}
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">
+                      Upload Resume / CV (PDF, DOC) *
+                    </label>
+                    <div
+                      onClick={() => fileInputRef.current?.click()}
+                      className="border-2 border-dashed border-gray-300 hover:border-[#2cb775] rounded-2xl p-4 text-center cursor-pointer transition-colors bg-sand/50"
                     >
-                      <Icon icon="lucide:send" className="w-4 h-4 text-[#2cb775]" />
-                      {submitting ? "Submitting..." : "Submit Application"}
-                    </button>
+                      <Icon icon="lucide:upload-cloud" className="w-6 h-6 text-secondary mx-auto mb-1" />
+                      <p className="text-xs font-semibold text-primary">
+                        {resumeFile ? resumeFile.name : "Click to browse & upload CV"}
+                      </p>
+                      <p className="text-[10px] text-gray-400 mt-0.5">Maximum file size 20MB</p>
+                    </div>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept=".pdf,.doc,.docx"
+                      onChange={handleFileChange}
+                      className="hidden"
+                    />
                   </div>
+
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="w-full py-3.5 rounded-2xl bg-[#0D231E] hover:bg-[#2cb775] text-white text-xs font-bold transition-all shadow-md cursor-pointer flex items-center justify-center gap-2 font-body"
+                  >
+                    <Icon icon="lucide:send" className="w-4 h-4 text-secondary" />
+                    <span>{submitting ? "Submitting Application..." : "Submit Application"}</span>
+                  </button>
                 </form>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Success Confirmation Modal */}
+      {/* Success Modal */}
       {successModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-8 text-center space-y-4 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
-            <div className="w-16 h-16 rounded-full bg-[#2cb775]/10 text-[#2cb775] flex items-center justify-center mx-auto">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-[99999] flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 text-center space-y-4 shadow-2xl animate-in fade-in zoom-in-95 duration-200 font-body">
+            <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
               <Icon icon="lucide:check-circle-2" className="w-10 h-10" />
             </div>
-            <h3 className="text-xl font-bold font-heading text-[#0D231E]">
-              Application Received!
+
+            <h3 className="text-xl font-bold text-[#0D231E] font-heading">
+              Application Submitted!
             </h3>
+
             <p className="text-xs text-gray-600 leading-relaxed">
-              Thank you for applying to <strong>Royal Safari Tours</strong>. Our HR recruitment team will evaluate your application and contact you if shortlisted.
+              Thank you for applying for the position of <strong>{job.title}</strong>. We have sent a confirmation email to your inbox and our team will review your application soon.
             </p>
-            <div className="pt-2">
-              <button
-                onClick={() => setSuccessModal(false)}
-                className="bg-[#0D231E] text-white text-xs font-semibold px-6 py-2.5 rounded-xl transition-colors cursor-pointer"
-              >
-                Close Window
-              </button>
-            </div>
+
+            <button
+              onClick={() => setSuccessModal(false)}
+              className="w-full py-3 rounded-xl bg-[#0D231E] text-white text-xs font-bold transition-colors cursor-pointer"
+            >
+              Done
+            </button>
           </div>
         </div>
       )}

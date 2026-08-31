@@ -18,6 +18,7 @@ export default function JobPostModal({ isOpen, onClose, job, onSuccess }) {
     description: "",
     responsibilities: "",
     benefits: "",
+    customQuestions: [],
     isPublished: true,
   });
 
@@ -25,6 +26,19 @@ export default function JobPostModal({ isOpen, onClose, job, onSuccess }) {
 
   useEffect(() => {
     if (job) {
+      let questions = [];
+      if (job.customQuestions) {
+        if (typeof job.customQuestions === "string") {
+          try {
+            questions = JSON.parse(job.customQuestions);
+          } catch (e) {
+            questions = [];
+          }
+        } else if (Array.isArray(job.customQuestions)) {
+          questions = job.customQuestions;
+        }
+      }
+
       setFormData({
         title: job.title || "",
         vacancies: job.vacancies || 1,
@@ -36,6 +50,7 @@ export default function JobPostModal({ isOpen, onClose, job, onSuccess }) {
         description: job.description || "",
         responsibilities: job.responsibilities || "",
         benefits: job.benefits || "",
+        customQuestions: questions,
         isPublished: job.isPublished !== undefined ? job.isPublished : true,
       });
     } else {
@@ -50,12 +65,42 @@ export default function JobPostModal({ isOpen, onClose, job, onSuccess }) {
         description: "<p>We are seeking a talented professional to join our Royal Safari Tours team.</p>",
         responsibilities: "<ul><li>Lead daily operations and ensure seamless tour logistics.</li><li>Manage team schedules and client communications.</li></ul>",
         benefits: "<ul><li>Competitive base salary + performance bonuses.</li><li>Medical insurance & annual tour package allowances.</li></ul>",
+        customQuestions: [],
         isPublished: true,
       });
     }
   }, [job, isOpen]);
 
   if (!isOpen) return null;
+
+  // Question Builder Handlers
+  const handleAddQuestion = () => {
+    const newQ = {
+      id: "q_" + Date.now(),
+      questionText: "",
+      required: true,
+    };
+    setFormData((prev) => ({
+      ...prev,
+      customQuestions: [...(prev.customQuestions || []), newQ],
+    }));
+  };
+
+  const handleUpdateQuestion = (id, field, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      customQuestions: (prev.customQuestions || []).map((q) =>
+        q.id === id ? { ...q, [field]: value } : q
+      ),
+    }));
+  };
+
+  const handleRemoveQuestion = (id) => {
+    setFormData((prev) => ({
+      ...prev,
+      customQuestions: (prev.customQuestions || []).filter((q) => q.id !== id),
+    }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -64,12 +109,22 @@ export default function JobPostModal({ isOpen, onClose, job, onSuccess }) {
       return;
     }
 
+    // Filter out blank custom questions
+    const validQuestions = (formData.customQuestions || []).filter((q) =>
+      q.questionText.trim()
+    );
+
+    const payload = {
+      ...formData,
+      customQuestions: validQuestions,
+    };
+
     setLoading(true);
     let res;
     if (job) {
-      res = await updateJobPost(job.id, formData);
+      res = await updateJobPost(job.id, payload);
     } else {
-      res = await createJobPost(formData);
+      res = await createJobPost(payload);
     }
     setLoading(false);
 
@@ -86,7 +141,7 @@ export default function JobPostModal({ isOpen, onClose, job, onSuccess }) {
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-3xl max-w-3xl w-full p-6 sm:p-8 shadow-2xl space-y-6 animate-in fade-in zoom-in-95 duration-200 font-body max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between border-b border-gray-100 pb-4">
+        <div className="flex items-center justify-between border-b border-gray-100 pb-4 font-body">
           <h3 className="text-lg font-bold text-[#0D231E] font-heading flex items-center gap-2">
             <Icon icon="lucide:briefcase" className="w-5 h-5 text-[#2cb775]" />
             {job ? "Edit Job Posting" : "Create New Job Opening"}
@@ -99,10 +154,9 @@ export default function JobPostModal({ isOpen, onClose, job, onSuccess }) {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Job Title & Vacancies */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="sm:col-span-2">
+        <form onSubmit={handleSubmit} className="space-y-5 font-body">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
               <label className="block text-xs font-semibold text-gray-700 mb-1">
                 Job Title *
               </label>
@@ -111,18 +165,18 @@ export default function JobPostModal({ isOpen, onClose, job, onSuccess }) {
                 required
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                placeholder="e.g. Senior Tour Operations Manager"
+                placeholder="e.g. Sales & Reservation Specialist"
                 className="w-full border border-gray-300 p-3 rounded-xl text-xs focus:outline-none focus:border-[#2cb775]"
               />
             </div>
             <div>
               <label className="block text-xs font-semibold text-gray-700 mb-1">
-                Vacancies *
+                Vacancies Count *
               </label>
               <input
                 type="number"
+                min="1"
                 required
-                min={1}
                 value={formData.vacancies}
                 onChange={(e) => setFormData({ ...formData, vacancies: Number(e.target.value) })}
                 className="w-full border border-gray-300 p-3 rounded-xl text-xs focus:outline-none focus:border-[#2cb775]"
@@ -130,7 +184,6 @@ export default function JobPostModal({ isOpen, onClose, job, onSuccess }) {
             </div>
           </div>
 
-          {/* Job Specifications Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label className="block text-xs font-semibold text-gray-700 mb-1">
@@ -147,7 +200,6 @@ export default function JobPostModal({ isOpen, onClose, job, onSuccess }) {
                 <option value="Internship">Internship</option>
               </select>
             </div>
-
             <div>
               <label className="block text-xs font-semibold text-gray-700 mb-1">
                 Work Mode *
@@ -162,17 +214,16 @@ export default function JobPostModal({ isOpen, onClose, job, onSuccess }) {
                 <option value="Remote">Remote</option>
               </select>
             </div>
-
             <div>
               <label className="block text-xs font-semibold text-gray-700 mb-1">
-                Application Deadline *
+                Deadline Date *
               </label>
               <input
                 type="date"
                 required
                 value={formData.deadline}
                 onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
-                className="w-full border border-gray-300 p-3 rounded-xl text-xs focus:outline-none focus:border-[#2cb775] font-mono"
+                className="w-full border border-gray-300 p-3 rounded-xl text-xs focus:outline-none focus:border-[#2cb775]"
               />
             </div>
           </div>
@@ -203,6 +254,79 @@ export default function JobPostModal({ isOpen, onClose, job, onSuccess }) {
                 className="w-full border border-gray-300 p-3 rounded-xl text-xs focus:outline-none focus:border-[#2cb775]"
               />
             </div>
+          </div>
+
+          {/* Custom Dynamic Q&A Builder Section */}
+          <div className="p-4 rounded-2xl bg-sand/70 border border-gray-200 space-y-3 font-body">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="text-xs font-bold text-primary flex items-center gap-1.5 font-body">
+                  <Icon icon="lucide:help-circle" className="w-4 h-4 text-secondary" />
+                  Custom Screening Questions (Optional)
+                </h4>
+                <p className="text-[11px] text-gray-500 font-light mt-0.5">
+                  Applicants will be required to answer these questions during application submission.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleAddQuestion}
+                className="px-3 py-1.5 rounded-xl bg-[#0D231E] hover:bg-[#2cb775] text-white text-xs font-bold transition-colors flex items-center gap-1 cursor-pointer"
+              >
+                <Icon icon="lucide:plus" className="w-3.5 h-3.5" />
+                <span>Add Question</span>
+              </button>
+            </div>
+
+            {formData.customQuestions && formData.customQuestions.length > 0 ? (
+              <div className="space-y-2.5 pt-2">
+                {formData.customQuestions.map((q, index) => (
+                  <div
+                    key={q.id || index}
+                    className="p-3 bg-white rounded-xl border border-gray-200 shadow-2xs flex flex-col sm:flex-row items-stretch sm:items-center gap-3 font-body"
+                  >
+                    <span className="text-xs font-bold text-gray-400 w-6 text-center">
+                      Q{index + 1}
+                    </span>
+                    <input
+                      type="text"
+                      placeholder="e.g. What is your notice period or availability date?"
+                      value={q.questionText}
+                      onChange={(e) =>
+                        handleUpdateQuestion(q.id, "questionText", e.target.value)
+                      }
+                      className="flex-1 border border-gray-200 rounded-lg px-3 py-1.5 text-xs text-primary focus:outline-none focus:border-secondary font-body"
+                    />
+
+                    <div className="flex items-center gap-3 shrink-0">
+                      <label className="flex items-center gap-1.5 text-xs font-medium text-gray-600 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={q.required}
+                          onChange={(e) =>
+                            handleUpdateQuestion(q.id, "required", e.target.checked)
+                          }
+                          className="w-3.5 h-3.5 text-secondary rounded focus:ring-secondary"
+                        />
+                        <span>Required</span>
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveQuestion(q.id)}
+                        className="p-1 text-gray-400 hover:text-rose-500 rounded-lg hover:bg-rose-50 cursor-pointer"
+                        title="Delete Question"
+                      >
+                        <Icon icon="lucide:trash-2" className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-gray-400 italic text-center py-2">
+                No custom questions added yet. Click "+ Add Question" to create screening questions.
+              </p>
+            )}
           </div>
 
           {/* Rich Text Editors */}
@@ -242,7 +366,7 @@ export default function JobPostModal({ isOpen, onClose, job, onSuccess }) {
             </label>
           </div>
 
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100 font-body">
             <button
               type="button"
               onClick={onClose}

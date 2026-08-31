@@ -99,10 +99,11 @@ export default function FeaturedExperiences({ tourPackages = [] }) {
 
   useEffect(() => {
     const updateCardsPerView = () => {
-      setCardsPerView(getCardsPerView());
+      const perView = getCardsPerView();
+      setCardsPerView((prev) => (prev !== perView ? perView : prev));
     };
     updateCardsPerView();
-    window.addEventListener("resize", updateCardsPerView);
+    window.addEventListener("resize", updateCardsPerView, { passive: true });
     return () => window.removeEventListener("resize", updateCardsPerView);
   }, []);
 
@@ -255,7 +256,7 @@ export default function FeaturedExperiences({ tourPackages = [] }) {
                       />
                       
                       {/* Floating Location Tag */}
-                      <div className="absolute top-4 left-4 px-3.5 py-1.5 rounded-full bg-black/60 backdrop-blur-md text-white text-[11px] font-medium tracking-wider uppercase flex items-center gap-1.5 border border-white/20 font-body">
+                      <div className="absolute top-4 left-4 px-3.5 py-1.5 rounded-full bg-black/75 text-white text-[11px] font-medium tracking-wider uppercase flex items-center gap-1.5 border border-white/20 font-body">
                         <Icon icon="lucide:map-pin" className="w-3.5 h-3.5 text-accent" />
                         <span>{location}</span>
                       </div>
