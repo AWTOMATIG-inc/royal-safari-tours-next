@@ -250,6 +250,7 @@ model JobPost {
   description      String           // Rich HTML overview
   responsibilities String           // Rich HTML content
   benefits         String?          // Rich HTML perks & benefits
+  customQuestions  Json?            // Array of custom questions: [{ id, questionText, required }]
   isPublished      Boolean          @default(true)
   applications     JobApplication[]
   createdAt        DateTime         @default(now())
@@ -269,6 +270,7 @@ model JobApplication {
   expectedSalary  String?
   resumeUrl       String               // Path/URL to uploaded resume file
   coverLetter     String?
+  answers         Json?                // Array of Q&A responses: [{ questionText, answerText }]
   status          JobApplicationStatus @default(SUBMITTED)
   hrNotes         String?
   appliedAt       DateTime             @default(now())

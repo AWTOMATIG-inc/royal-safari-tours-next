@@ -9,11 +9,8 @@ export default function StickyBookingBar({ tourPackage, onOpenBooking }) {
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 550) {
-        setVisible(true);
-      } else {
-        setVisible(false);
-      }
+      const isVisible = window.scrollY > 550;
+      setVisible((prev) => (prev !== isVisible ? isVisible : prev));
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -29,10 +26,10 @@ export default function StickyBookingBar({ tourPackage, onOpenBooking }) {
   return (
     <>
       {/* DESKTOP STICKY BAR */}
-      <div className="hidden md:block fixed top-24 left-1/2 -translate-x-1/2 z-[990] w-full max-w-5xl px-4 transition-all duration-500 ease-out animate-fadeIn font-body">
-        <div className="bg-primary/95 backdrop-blur-xl border border-white/15 rounded-2xl shadow-xl px-6 py-3.5 flex items-center justify-between text-white font-body">
+      <div className="hidden md:block fixed top-24 left-1/2 -translate-x-1/2 z-[990] w-full max-w-5xl px-4 transition-all duration-300 ease-out font-body transform-gpu">
+        <div className="bg-[#0D231E]/95 border border-white/15 rounded-2xl shadow-xl px-6 py-3.5 flex items-center justify-between text-white font-body">
           
-          <div className="flex items-center gap-4 truncate max-w-md">
+          <div className="flex items-center gap-4 truncate max-w-md font-body">
             <h4 className="font-heading text-lg font-bold truncate text-white">
               {tourPackage.title}
             </h4>
@@ -42,8 +39,8 @@ export default function StickyBookingBar({ tourPackage, onOpenBooking }) {
           </div>
 
           <div className="flex items-center gap-6 font-body">
-            <div className="flex flex-col text-right">
-              <span className="text-[10px] text-white/60 uppercase font-bold tracking-wider">
+            <div className="flex flex-col text-right font-body">
+              <span className="text-[10px] text-white/60 uppercase font-bold tracking-wider font-body">
                 Price Per Guest
               </span>
               <span className="text-lg font-bold text-accent font-heading">
@@ -51,59 +48,63 @@ export default function StickyBookingBar({ tourPackage, onOpenBooking }) {
               </span>
             </div>
 
-            <div className="flex items-center gap-2 font-body">
+            <div className="flex items-center gap-3 font-body">
               <a
                 href={`https://api.whatsapp.com/send?phone=${siteConfig.contact.phone.whatsappRaw}&text=${whatsappMessage}`}
                 target="_blank"
                 rel="noreferrer"
-                className="p-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
-                title="Chat on WhatsApp"
+                className="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors font-body"
+                title="Message on WhatsApp"
               >
                 <Icon icon="akar-icons:whatsapp-fill" className="w-5 h-5 text-whatsapp" />
               </a>
 
               <button
+                type="button"
                 onClick={onOpenBooking}
-                className="bg-secondary hover:bg-accent text-white text-xs font-semibold px-6 py-3 rounded-xl transition-all duration-300 uppercase tracking-wider cursor-pointer shadow-xs font-body"
+                className="px-6 py-2.5 rounded-xl bg-secondary hover:bg-secondary/90 text-white text-xs font-bold transition-colors shadow-sm cursor-pointer font-body flex items-center gap-2"
               >
-                Book Now
+                <span>Book Now</span>
+                <Icon icon="lucide:arrow-right" className="w-4 h-4" />
               </button>
             </div>
           </div>
-
         </div>
       </div>
 
-      {/* MOBILE STICKY BAR */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-[990] bg-primary/95 backdrop-blur-xl border-t border-white/15 px-4 py-3 shadow-xl flex items-center justify-between text-white font-body">
-        <div className="flex flex-col font-body">
-          <span className="text-[10px] text-white/60 uppercase font-bold tracking-wider">
-            Starting From
-          </span>
-          <span className="text-base font-bold text-accent font-heading">
-            ৳{Number(tourPackage.price).toLocaleString()}
-          </span>
-        </div>
+      {/* MOBILE STICKY BOTTOM BAR */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-[990] bg-[#0D231E]/95 border-t border-white/15 p-3.5 shadow-2xl font-body transform-gpu">
+        <div className="flex items-center justify-between gap-3 font-body">
+          <div className="flex flex-col font-body">
+            <span className="text-[9px] text-white/60 uppercase font-bold tracking-wider font-body">
+              Starting Price
+            </span>
+            <span className="text-base font-bold text-accent font-heading">
+              ৳{Number(tourPackage.price).toLocaleString()}
+            </span>
+          </div>
 
-        <div className="flex items-center gap-2 font-body">
-          <a
-            href={`https://api.whatsapp.com/send?phone=${siteConfig.contact.phone.whatsappRaw}&text=${whatsappMessage}`}
-            target="_blank"
-            rel="noreferrer"
-            className="p-2.5 rounded-xl bg-white/10 text-white cursor-pointer"
-          >
-            <Icon icon="akar-icons:whatsapp-fill" className="w-5 h-5 text-whatsapp" />
-          </a>
+          <div className="flex items-center gap-2 font-body">
+            <a
+              href={`https://api.whatsapp.com/send?phone=${siteConfig.contact.phone.whatsappRaw}&text=${whatsappMessage}`}
+              target="_blank"
+              rel="noreferrer"
+              className="p-2.5 rounded-xl bg-white/10 text-white flex items-center justify-center font-body"
+            >
+              <Icon icon="akar-icons:whatsapp-fill" className="w-4 h-4 text-whatsapp" />
+            </a>
 
-          <button
-            onClick={onOpenBooking}
-            className="bg-secondary hover:bg-accent text-white text-xs font-semibold px-5 py-3 rounded-xl uppercase tracking-wider cursor-pointer shadow-xs font-body"
-          >
-            Book Now
-          </button>
+            <button
+              type="button"
+              onClick={onOpenBooking}
+              className="px-5 py-2.5 rounded-xl bg-secondary text-white text-xs font-bold flex items-center gap-1.5 font-body"
+            >
+              <span>Book Now</span>
+              <Icon icon="lucide:arrow-right" className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
       </div>
     </>
   );
 }
-

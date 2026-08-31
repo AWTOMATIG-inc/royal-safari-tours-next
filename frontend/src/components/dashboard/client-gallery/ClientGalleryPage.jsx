@@ -4,10 +4,11 @@ import DashboardPageHeader from "@/components/dashboard/DashboardPageHeader";
 import { Icon } from "@iconify/react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const ITEMS_PER_PAGE = 12;
 
 export default function ClientGalleryPage({ items = [] }) {
   const router = useRouter();
@@ -15,6 +16,12 @@ export default function ClientGalleryPage({ items = [] }) {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDestination, setSelectedDestination] = useState("All");
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Reset pagination on filter / search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedDestination]);
 
   // Modal states
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -182,6 +189,19 @@ export default function ClientGalleryPage({ items = [] }) {
     }
   };
 
+  // Pagination calculation
+  const totalPages = Math.ceil(filteredItems.length / ITEMS_PER_PAGE) || 1;
+  const paginatedItems = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredItems.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredItems, currentPage]);
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
+
   // Filter items
   const filteredItems = items.filter((item) => {
     const q = searchQuery.toLowerCase().trim();
@@ -220,41 +240,39 @@ export default function ClientGalleryPage({ items = [] }) {
           />
           <input
             type="text"
+            placeholder="Search titles, captions, destinations..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search gallery by title or destination..."
-            className="w-full bg-sand border border-gray-200 rounded-xl pl-10 pr-4 py-2 text-xs font-inter text-primary focus:outline-none focus:border-secondary transition-colors"
+            className="w-full bg-sand border border-gray-200 rounded-xl pl-10 pr-4 py-2.5 text-xs text-primary font-inter focus:outline-none focus:border-secondary transition-all"
           />
-        </div>
-
-        {/* Destination Filter Tabs & Direct Upload Button */}
-        <div className="flex items-center gap-3 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
-          <span className="text-xs font-semibold text-gray-500 shrink-0">Destination:</span>
-          {destinations.map((dest) => (
+          {searchQuery && (
             <button
-              key={dest}
-              onClick={() => setSelectedDestination(dest)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
-                selectedDestination === dest
-                  ? "bg-[#0D231E] text-white"
-                  : "bg-sand text-gray-600 hover:bg-gray-200"
-              }`}
+              onClick={() => setSearchQuery("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-rose-500"
             >
-              {dest}
+              <Icon icon="lucide:x" className="w-4 h-4" />
             </button>
-          ))}
-
-          <button
-            onClick={() => {
-              resetForm();
-              setIsAddModalOpen(true);
-            }}
-            className="px-4 py-2 rounded-xl bg-[#0D231E] hover:bg-[#2cb775] text-white text-xs font-semibold transition-colors duration-300 flex items-center gap-2 cursor-pointer shrink-0"
-          >
-            <Icon icon="lucide:upload" className="w-4 h-4" />
-            <span>Upload Photo</span>
-          </button>
+          )}
         </div>
+
+        {/* Destination Tabs */}
+        {destinations.length > 1 && (
+          <div className="flex items-center gap-1.5 overflow-x-auto py-1 max-w-xl scrollbar-none font-inter">
+            {destinations.map((dest) => (
+              <button
+                key={dest}
+                onClick={() => setSelectedDestination(dest)}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer ${
+                  selectedDestination === dest
+                    ? "bg-[#0D231E] text-white shadow-xs"
+                    : "bg-sand text-gray-600 hover:bg-gray-200"
+                }`}
+              >
+                {dest === "All" ? "All Destinations" : dest}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Gallery Cards Grid */}
@@ -279,66 +297,117 @@ export default function ClientGalleryPage({ items = [] }) {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-          {filteredItems.map((item) => (
-            <div
-              key={item.id}
-              className="group bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-[0_4px_20px_rgba(13,35,30,0.03)] hover:shadow-md transition-all duration-300 flex flex-col justify-between"
-            >
-              {/* Image Container */}
-              <div className="relative aspect-[4/3] w-full bg-sand overflow-hidden">
-                <Image
-                  src={getFullImageUrl(item.imageUrl)}
-                  alt={item.title || "Client photo"}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
-                />
+        <div className="space-y-6 font-inter">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            {paginatedItems.map((item) => (
+              <div
+                key={item.id}
+                className="group bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-[0_4px_20px_rgba(13,35,30,0.03)] hover:shadow-md transition-all duration-300 flex flex-col justify-between"
+              >
+                {/* Image Container */}
+                <div className="relative aspect-[4/3] w-full bg-sand overflow-hidden">
+                  <Image
+                    src={getFullImageUrl(item.imageUrl)}
+                    alt={item.title || "Client photo"}
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
 
-                {/* Destination Badge */}
-                {item.destination && (
-                  <div className="absolute bottom-3 left-3 z-10">
-                    <span className="bg-[#0D231E]/80 backdrop-blur-md text-white px-2.5 py-1 rounded-lg text-[10px] font-medium tracking-wide">
-                      📍 {item.destination}
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              {/* Info Block */}
-              <div className="p-4 flex-1 flex flex-col justify-between space-y-3 font-inter">
-                <div>
-                  <h4 className="text-sm font-bold text-[#0D231E] line-clamp-1 group-hover:text-[#2cb775] transition-colors">
-                    {item.title}
-                  </h4>
-                  {item.caption && (
-                    <p className="text-xs text-gray-500 line-clamp-2 mt-1 font-light">
-                      "{item.caption}"
-                    </p>
+                  {/* Destination Badge */}
+                  {item.destination && (
+                    <div className="absolute bottom-3 left-3 z-10">
+                      <span className="bg-[#0D231E]/80 backdrop-blur-md text-white px-2.5 py-1 rounded-lg text-[10px] font-medium tracking-wide">
+                        📍 {item.destination}
+                      </span>
+                    </div>
                   )}
                 </div>
 
-                {/* Actions Row */}
-                <div className="pt-3 border-t border-gray-100 flex items-center justify-end gap-2">
-                  {/* Edit Button */}
-                  <button
-                    onClick={() => handleEditClick(item)}
-                    className="p-2 rounded-lg bg-gray-50 text-gray-600 hover:bg-secondary/10 hover:text-secondary transition-colors cursor-pointer"
-                    title="Edit Photo"
-                  >
-                    <Icon icon="lucide:pencil" className="w-4 h-4" />
-                  </button>
-                  {/* Delete Button */}
-                  <button
-                    onClick={() => handleDelete(item.id)}
-                    className="p-2 rounded-lg bg-gray-50 text-gray-500 hover:bg-rose-50 hover:text-rose-600 transition-colors cursor-pointer"
-                    title="Delete Photo"
-                  >
-                    <Icon icon="lucide:trash-2" className="w-4 h-4" />
-                  </button>
+                {/* Info Block */}
+                <div className="p-4 flex-1 flex flex-col justify-between space-y-3 font-inter">
+                  <div>
+                    <h4 className="text-sm font-bold text-[#0D231E] line-clamp-1 group-hover:text-[#2cb775] transition-colors">
+                      {item.title}
+                    </h4>
+                    {item.caption && (
+                      <p className="text-xs text-gray-500 line-clamp-2 mt-1 font-light">
+                        "{item.caption}"
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Actions Row */}
+                  <div className="pt-3 border-t border-gray-100 flex items-center justify-end gap-2">
+                    {/* Edit Button */}
+                    <button
+                      onClick={() => handleEditClick(item)}
+                      className="p-2 rounded-lg bg-gray-50 text-gray-600 hover:bg-secondary/10 hover:text-secondary transition-colors cursor-pointer"
+                      title="Edit Photo"
+                    >
+                      <Icon icon="lucide:pencil" className="w-4 h-4" />
+                    </button>
+                    {/* Delete Button */}
+                    <button
+                      onClick={() => handleDelete(item.id)}
+                      className="p-2 rounded-lg bg-gray-50 text-gray-500 hover:bg-rose-50 hover:text-rose-600 transition-colors cursor-pointer"
+                      title="Delete Photo"
+                    >
+                      <Icon icon="lucide:trash-2" className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
+            ))}
+          </div>
+
+          {/* Admin Client Gallery Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-gray-100 font-inter bg-white p-4 rounded-2xl border border-gray-100 shadow-[0_4px_20px_rgba(13,35,30,0.03)]">
+              <span className="text-xs text-gray-500">
+                Showing <strong className="text-primary font-bold">{(currentPage - 1) * ITEMS_PER_PAGE + 1}</strong>–
+                <strong className="text-primary font-bold">
+                  {Math.min(currentPage * ITEMS_PER_PAGE, filteredItems.length)}
+                </strong>{" "}
+                of <strong className="text-primary font-bold">{filteredItems.length}</strong> client photos
+              </span>
+
+              <div className="flex items-center gap-1.5 font-inter">
+                <button
+                  type="button"
+                  disabled={currentPage === 1}
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  className="px-3.5 py-2 rounded-xl border border-gray-200 text-xs font-semibold text-primary hover:bg-gray-100 disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer"
+                >
+                  Prev
+                </button>
+
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                  <button
+                    key={pageNum}
+                    type="button"
+                    onClick={() => handlePageChange(pageNum)}
+                    className={`w-9 h-9 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
+                      currentPage === pageNum
+                        ? "bg-[#0D231E] text-white border-[#0D231E] shadow-xs"
+                        : "bg-white border-gray-200 text-gray-600 hover:border-secondary"
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                ))}
+
+                <button
+                  type="button"
+                  disabled={currentPage === totalPages}
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  className="px-3.5 py-2 rounded-xl border border-gray-200 text-xs font-semibold text-primary hover:bg-gray-100 disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer"
+                >
+                  Next
+                </button>
+              </div>
             </div>
-          ))}
+          )}
         </div>
       )}
 
