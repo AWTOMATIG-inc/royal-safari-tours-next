@@ -4,9 +4,9 @@ import fs from "fs";
 
 export interface OptimizedImageResult {
   filename: string;
-  thumbFilename: string | null;
+  thumbFilename?: string | null;
   url: string;
-  thumbUrl: string | null;
+  thumbUrl?: string | null;
   size: number;
   width: number | null;
   height: number | null;
@@ -15,11 +15,10 @@ export interface OptimizedImageResult {
 
 /**
  * High-Performance Image Optimization Pipeline using Sharp
- * - Preserves original uploaded image filename as WebP (e.g. Pattaya.webp)
- * - Creates physical directory hierarchy matching folderPath
+ * - Saves a single clean, high-performance WebP image matching the uploaded image name
+ * - Strips redundant duplicate thumbnail creation to save disk space
  * - Auto-orients EXIF metadata
- * - Resizes main display image (max 1600px width, 82% quality)
- * - Generates thumbnail version (max 450px width, 80% quality)
+ * - Resizes main display image (max 1920px width/height, 84% quality WebP)
  */
 export async function optimizeAndSaveImage(
   buffer: Buffer,
@@ -39,7 +38,7 @@ export async function optimizeAndSaveImage(
   const targetDir = path.resolve(baseUploadsDir, sanitizedSubfolder);
 
   // Assert targetDir is strictly within baseUploadsDir
-  if (!targetDir.startsWith(baseUploadsDir)) {
+  if (!targetDir.toLowerCase().startsWith(baseUploadsDir.toLowerCase())) {
     throw new Error("Invalid destination folder: Path traversal detected");
   }
 
@@ -55,7 +54,6 @@ export async function optimizeAndSaveImage(
     .replace(/\s+/g, "_") || "image";
 
   let filename = `${cleanName}.webp`;
-  let thumbFilename = `${cleanName}_thumb.webp`;
 
   // Collision handling: if file exists, append sequential counter (_1, _2, etc.)
   if (fs.existsSync(path.join(targetDir, filename))) {
@@ -64,52 +62,34 @@ export async function optimizeAndSaveImage(
       counter++;
     }
     filename = `${cleanName}_${counter}.webp`;
-    thumbFilename = `${cleanName}_${counter}_thumb.webp`;
   }
 
   const mainFilePath = path.join(targetDir, filename);
-  const thumbFilePath = path.join(targetDir, thumbFilename);
 
-  // Process Main Image
+  // Process & Optimize Single WebP Image
   const sharpInstance = sharp(buffer).rotate(); // Auto-rotate EXIF
   const metadata = await sharpInstance.metadata();
 
   const mainWebpBuffer = await sharpInstance
     .resize({
-      width: 1600,
-      height: 1600,
+      width: 1920,
+      height: 1920,
       fit: sharp.fit.inside,
       withoutEnlargement: true,
     })
-    .webp({ quality: 82, effort: 4 })
+    .webp({ quality: 84, effort: 4 })
     .toBuffer();
 
   await fs.promises.writeFile(mainFilePath, mainWebpBuffer);
 
-  // Process Thumbnail
-  const thumbWebpBuffer = await sharp(buffer)
-    .rotate()
-    .resize({
-      width: 450,
-      height: 450,
-      fit: sharp.fit.inside,
-      withoutEnlargement: true,
-    })
-    .webp({ quality: 80, effort: 3 })
-    .toBuffer();
-
-  await fs.promises.writeFile(thumbFilePath, thumbWebpBuffer);
-
   const mainStats = await fs.promises.stat(mainFilePath);
-
   const url = `/uploads/${sanitizedSubfolder}/${filename}`;
-  const thumbUrl = `/uploads/${sanitizedSubfolder}/${thumbFilename}`;
 
   return {
     filename,
-    thumbFilename,
+    thumbFilename: null,
     url,
-    thumbUrl,
+    thumbUrl: null,
     size: mainStats.size,
     width: metadata.width || null,
     height: metadata.height || null,

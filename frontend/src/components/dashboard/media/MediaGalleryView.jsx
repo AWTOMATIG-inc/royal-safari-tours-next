@@ -564,14 +564,15 @@ export default function MediaGalleryView({
                 {/* Render Files Next */}
                 {paginatedFiles.map((item) => {
                   const itemId = item.id;
-                  const isSelected = selectedUrls.includes(item.url);
-                  const isMenuOpen = activeMenuId === itemId;
-                  const imgSrc = getImageUrl(item.url || item.path || item.filename || item.name, "/images/placeholders/empty_state.png");
+                  const rawSrc = item.url || item.path || item.filename || item.name;
+                  const resolvedSrc = getImageUrl(rawSrc, "/images/placeholders/empty_state.png");
+                  const v = item.updatedAt ? new Date(item.updatedAt).getTime() : 1;
+                  const imgSrc = resolvedSrc.includes("?") ? `${resolvedSrc}&v=${v}` : `${resolvedSrc}?v=${v}`;
 
                   return (
                     <tr
                       key={itemId}
-                      onClick={() => toggleSelect(item.url || imgSrc)}
+                      onClick={() => toggleSelect(item.url || resolvedSrc)}
                       className={`hover:bg-emerald-50/40 transition-colors cursor-pointer ${
                         isSelected ? "bg-emerald-50/70" : ""
                       }`}
@@ -787,12 +788,15 @@ export default function MediaGalleryView({
                   const itemId = item.id;
                   const isSelected = selectedUrls.includes(item.url);
                   const isMenuOpen = activeMenuId === itemId;
-                  const imgSrc = getImageUrl(item.url || item.path || item.filename || item.name, "/images/placeholders/empty_state.png");
+                  const rawSrc = item.url || item.path || item.filename || item.name;
+                  const resolvedSrc = getImageUrl(rawSrc, "/images/placeholders/empty_state.png");
+                  const v = item.updatedAt ? new Date(item.updatedAt).getTime() : 1;
+                  const imgSrc = resolvedSrc.includes("?") ? `${resolvedSrc}&v=${v}` : `${resolvedSrc}?v=${v}`;
 
                   return (
                     <div
                       key={itemId}
-                      onClick={() => toggleSelect(item.url || imgSrc)}
+                      onClick={() => toggleSelect(item.url || resolvedSrc)}
                       className={`group relative aspect-square rounded-2xl overflow-hidden bg-sand border-2 transition-all cursor-pointer shadow-xs ${
                         isSelected
                           ? "border-emerald-500 ring-4 ring-emerald-500/30 scale-98"

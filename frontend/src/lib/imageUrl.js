@@ -11,7 +11,11 @@ export function getImageUrl(path, fallback = "/images/banners/home_hero.webp") {
 
   // External URLs
   if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
-    return trimmed;
+    try {
+      return encodeURI(decodeURI(trimmed));
+    } catch (_e) {
+      return encodeURI(trimmed);
+    }
   }
 
   // Base64 data URLs
@@ -19,21 +23,23 @@ export function getImageUrl(path, fallback = "/images/banners/home_hero.webp") {
     return trimmed;
   }
 
-  // Absolute /uploads/ or /images/ paths
-  if (trimmed.startsWith("/uploads/") || trimmed.startsWith("/images/")) {
-    return trimmed;
-  }
+  let finalPath = trimmed;
 
   // Legacy /api/uploads/ conversion
-  if (trimmed.startsWith("/api/uploads/")) {
-    return trimmed.replace("/api/uploads/", "/uploads/");
+  if (finalPath.startsWith("/api/uploads/")) {
+    finalPath = finalPath.replace("/api/uploads/", "/uploads/");
+  } else if (!finalPath.startsWith("/uploads/") && !finalPath.startsWith("/images/")) {
+    if (finalPath.includes("/")) {
+      finalPath = `/${finalPath.replace(/^\/+/, "")}`;
+    } else {
+      finalPath = `/uploads/media/${finalPath}`;
+    }
   }
 
-  // Relative upload filename
-  if (trimmed.includes("/")) {
-    return `/${trimmed}`;
+  // Ensure clean URI encoding for spaces and special characters so <Image /> never fails
+  try {
+    return encodeURI(decodeURI(finalPath));
+  } catch (_e) {
+    return encodeURI(finalPath);
   }
-
-  // Default filename assumed in /uploads/media/
-  return `/uploads/media/${trimmed}`;
 }

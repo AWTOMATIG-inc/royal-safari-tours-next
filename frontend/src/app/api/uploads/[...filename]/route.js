@@ -33,8 +33,14 @@ export async function GET(req, context) {
       return new NextResponse("Not Found", { status: 404 });
     }
 
-    const subfolder = filenameArr[0];
-    const imagefile = filenameArr.slice(1).join("/");
+    const rawSubfolder = filenameArr[0] || "";
+    const rawImagefile = filenameArr.slice(1).join("/");
+    let subfolder = rawSubfolder;
+    let imagefile = rawImagefile;
+    try {
+      subfolder = decodeURIComponent(rawSubfolder);
+      imagefile = decodeURIComponent(rawImagefile);
+    } catch (_e) {}
 
     // Comprehensive search paths across frontend, backend, and root uploads directories
     const cwd = process.cwd();
