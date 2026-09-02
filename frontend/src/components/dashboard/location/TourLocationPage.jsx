@@ -1,48 +1,67 @@
 "use client";
 
 import DashboardPageHeader from "@/components/dashboard/DashboardPageHeader";
+import ConfirmModal from "@/components/dashboard/ConfirmModal";
 import { Icon } from "@iconify/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { getImageUrl } from "@/lib/imageUrl";
 
 export default function TourLocationCardPage({ tourPackages = [], pagination = { page: 1, totalPages: 1 } }) {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
+  const [deleteModal, setDeleteModal] = useState({ open: false, id: null, title: "" });
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  const isPrev = Number(pagination.page) === 1;
-  const isNext = Number(pagination.page) === pagination.totalPages;
+  const isPrev = Number(pagination.page || 1) === 1;
+  const isNext = Number(pagination.page || 1) === Number(pagination.totalPages || 1);
 
-  const handleDelete = async (id) => {
-    const userConfirmed = confirm("Are you sure you want to delete this location?");
-    if (!userConfirmed) return;
+  const handleOpenDeleteModal = (id, title) => {
+    setDeleteModal({ open: true, id, title });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteModal.id) return;
+    setIsDeleting(true);
     try {
-      const res = await fetch(`/api/tour-location/${id}`, {
+      const res = await fetch(`/api/tour-location/${deleteModal.id}`, {
         method: "DELETE",
       });
       if (!res.ok) {
         throw new Error("Network response was not ok");
       }
       toast.success("Tour location deleted successfully!");
+      setDeleteModal({ open: false, id: null, title: "" });
       router.refresh();
     } catch (error) {
       console.error("Delete operation failed:", error);
       toast.error(error.message);
+    } finally {
+      setIsDeleting(false);
     }
+  };
+
+  const getLocTitle = (loc) => {
+    if (!loc) return "Location";
+    if (typeof loc.country === "string") return loc.country;
+    if (typeof loc.title === "string") return loc.title;
+    if (typeof loc.name === "string") return loc.name;
+    return "Location";
   };
 
   const filteredLocations = tourPackages.filter((location) => {
     const q = searchQuery.toLowerCase().trim();
     if (!q) return true;
-    const title = (location.country || location.title || location.name || "").toLowerCase();
+    const title = getLocTitle(location).toLowerCase();
     const slug = (location.slug || "").toLowerCase();
     return title.includes(q) || slug.includes(q);
   });
 
   return (
-    <div className="max-w-8xl mx-auto space-y-6">
+    <div className="max-w-8xl mx-auto space-y-6 font-inter">
       <DashboardPageHeader
         title="Tour Locations"
         description="Manage destination regions, mangrove reserves, tea estates, and coastal sanctuaries."
@@ -52,7 +71,7 @@ export default function TourLocationCardPage({ tourPackages = [], pagination = {
       />
 
       {/* Independent Search Bar */}
-      <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-[0_4px_20px_rgba(13,35,30,0.03)] flex flex-col sm:flex-row items-center justify-between gap-4 font-inter">
+      <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-[0_4px_20px_rgba(13,35,30,0.03)] flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="relative w-full sm:w-80">
           <Icon
             icon="lucide:search"
@@ -83,9 +102,9 @@ export default function TourLocationCardPage({ tourPackages = [], pagination = {
       </div>
 
       {tourPackages.length === 0 ? (
-        <div className="bg-white rounded-3xl p-12 text-center border border-gray-100 shadow-sm max-w-md mx-auto my-12 space-y-4 font-inter">
+        <div className="bg-white rounded-3xl p-12 text-center border border-gray-100 shadow-sm max-w-md mx-auto my-12 space-y-4">
           <Image
-            src="/images/dashboard/empty.png"
+            src="/images/placeholders/empty_state.png"
             width={300}
             height={300}
             priority
@@ -97,7 +116,7 @@ export default function TourLocationCardPage({ tourPackages = [], pagination = {
           </p>
         </div>
       ) : filteredLocations.length === 0 ? (
-        <div className="bg-white rounded-3xl p-12 text-center border border-gray-100 shadow-sm max-w-md mx-auto my-12 space-y-4 font-inter">
+        <div className="bg-white rounded-3xl p-12 text-center border border-gray-100 shadow-sm max-w-md mx-auto my-12 space-y-4">
           <Icon icon="lucide:search-x" className="w-12 h-12 text-gray-300 mx-auto" />
           <p className="text-gray-500 font-medium text-base">
             No locations match &quot;{searchQuery}&quot;
@@ -110,16 +129,16 @@ export default function TourLocationCardPage({ tourPackages = [], pagination = {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 font-inter">
-          {filteredLocations.map((location) => {
-            const title = location.country || location.title || location.name || "Location";
-            const imageSrc = location.image?.startsWith("http") || location.image?.startsWith("/")
-              ? location.image
-              : `/api/uploads/locations/${location.image}`;
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredLocations.map((location, idx) => {
+            const locId = location.id || `loc-${idx}`;
+            const title = getLocTitle(location);
+            const imageSrc = getImageUrl(location.image || location.banner, "/images/banners/travel_inspiration.webp");
+            const locSlug = location.slug || locId;
 
             return (
               <div
-                key={location._id}
+                key={locId}
                 className="group bg-white rounded-2xl border border-gray-100 shadow-[0_4px_20px_rgba(13,35,30,0.03)] hover:shadow-[0_12px_35px_rgba(13,35,30,0.08)] overflow-hidden transition-all duration-300 flex flex-col justify-between p-5 space-y-4"
               >
                 <div className="space-y-3">
@@ -150,19 +169,19 @@ export default function TourLocationCardPage({ tourPackages = [], pagination = {
 
                 <div className="flex items-center justify-between pt-3 border-t border-gray-100">
                   <span className="text-xs text-gray-400">
-                    Slug: <code className="text-[#0D231E]">{location.slug || title.toLowerCase()}</code>
+                    Slug: <code className="text-[#0D231E]">{locSlug}</code>
                   </span>
 
                   <div className="flex items-center gap-1.5">
                     <Link
-                      href={`/dashboard/tour-locations/edit/${location._id}`}
+                      href={`/dashboard/tour-locations/edit/${locSlug}`}
                       className="p-2 rounded-lg bg-gray-50 text-gray-600 hover:bg-[#2cb775]/10 hover:text-[#2cb775] transition-colors"
                       title="Edit location"
                     >
                       <Icon icon="lucide:pencil" className="w-4 h-4" />
                     </Link>
                     <button
-                      onClick={() => handleDelete(location._id)}
+                      onClick={() => handleOpenDeleteModal(locId, title)}
                       className="p-2 rounded-lg bg-gray-50 text-gray-500 hover:bg-rose-50 hover:text-rose-600 transition-colors cursor-pointer"
                       title="Delete location"
                     >
@@ -177,8 +196,8 @@ export default function TourLocationCardPage({ tourPackages = [], pagination = {
       )}
 
       {/* Pagination Controls */}
-      {pagination.totalPages > 1 && !searchQuery && (
-        <div className="flex justify-center items-center gap-2 pt-4 font-inter">
+      {pagination && pagination.totalPages > 1 && !searchQuery && (
+        <div className="flex justify-center items-center gap-2 pt-4">
           <Link
             href={
               isPrev
@@ -224,6 +243,18 @@ export default function TourLocationCardPage({ tourPackages = [], pagination = {
           </Link>
         </div>
       )}
+
+      {/* Custom Confirmation Modal */}
+      <ConfirmModal
+        isOpen={deleteModal.open}
+        onClose={() => setDeleteModal({ open: false, id: null, title: "" })}
+        onConfirm={handleConfirmDelete}
+        title="Delete Location"
+        message={`Are you sure you want to delete ${deleteModal.title ? `"${deleteModal.title}"` : "this location"}? This action cannot be undone.`}
+        confirmText="Delete Location"
+        variant="danger"
+        loading={isDeleting}
+      />
     </div>
   );
 }

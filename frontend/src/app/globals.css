@@ -119,19 +119,19 @@
 
 @layer components {
   .bg-body {
-    @apply bg-[url('/images/banners/bg-for-body.webp'),linear-gradient(#fcfaee,#fcfaee)] bg-center;
+    @apply bg-[url('/images/banners/client_gallery_hero.webp'),linear-gradient(#fcfaee,#fcfaee)] bg-center;
   }
   .bg-body2 {
-    @apply bg-[url('/images/banners/bg-for-body2.webp'),linear-gradient(#F0ECDC,#F0ECDC)] bg-center;
+    @apply bg-[url('/images/banners/client_gallery_hero.webp'),linear-gradient(#F0ECDC,#F0ECDC)] bg-center;
   }
   .bg-banner-subscription {
-    @apply bg-[linear-gradient(rgba(0,0,0,0.2),rgba(0,0,0,0.2)),url('/images/banners/banner2.webp')] bg-center bg-cover;
+    @apply bg-[linear-gradient(rgba(0,0,0,0.2),rgba(0,0,0,0.2)),url('/images/banners/about_preview.webp')] bg-center bg-cover;
   }
   .bg-about-banner {
-    @apply bg-[linear-gradient(rgba(0,0,0,0.6),rgba(0,0,0,0.6)),url('/images/banners/about-banner.webp')] bg-center bg-cover;
+    @apply bg-[linear-gradient(rgba(0,0,0,0.6),rgba(0,0,0,0.6)),url('/images/banners/about_hero.webp')] bg-center bg-cover;
   }
   .bg-footer-banner {
-    @apply bg-[linear-gradient(rgba(0,0,0,0.6),rgba(0,0,0,0.6)),url('/images/banners/footer-banner.webp')] bg-center bg-cover;
+    @apply bg-[linear-gradient(rgba(0,0,0,0.6),rgba(0,0,0,0.6)),url('/images/banners/footer_cta.webp')] bg-center bg-cover;
   }
 }
 

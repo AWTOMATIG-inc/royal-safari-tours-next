@@ -2,28 +2,37 @@
 
 import Link from "next/link";
 
-export default function Pagination({ page, limit, total, totalPages }) {
+export default function Pagination({ page = 1, totalPages = 1, baseUrl = "/dashboard/tour-packages" }) {
+  if (totalPages <= 1) return null;
+
+  const isPrev = Number(page) <= 1;
+  const isNext = Number(page) >= Number(totalPages);
+
   return (
-    <div className="flex justify-center items-center gap-2 mt-8 font-body">
+    <div className="flex justify-center items-center gap-2 pt-6 font-inter">
       <Link
-        disabled={Number(page) === 1}
-        href={`/dashboard/bookings?page=${Number(page) - 1}`}
-        className="disabled:cursor-not-allowed text-xs font-semibold px-4 py-2 bg-sand hover:bg-gray-200 text-primary rounded-xl border border-gray-200 disabled:opacity-50 transition-colors"
+        href={isPrev ? `${baseUrl}?page=1` : `${baseUrl}?page=${Number(page) - 1}`}
+        className={`px-4 py-2 border rounded-xl text-xs font-semibold transition-all ${
+          isPrev
+            ? "cursor-not-allowed opacity-40 border-gray-200 text-gray-400 bg-white"
+            : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50 shadow-xs"
+        }`}
       >
-        Prev
+        Previous
       </Link>
 
-      {[...Array(totalPages)].map((_, index) => {
+      {Array.from({ length: totalPages }, (_, index) => {
         const pageNumber = index + 1;
+        const isActive = Number(page) === pageNumber;
 
         return (
           <Link
             key={pageNumber}
-            href={`/dashboard/bookings?page=${Number(pageNumber)}`}
-            className={`text-xs font-semibold px-4 py-2 rounded-xl border transition-colors ${
-              page === pageNumber
-                ? "bg-primary text-white border-primary shadow-xs"
-                : "bg-sand text-primary border-gray-200 hover:bg-gray-200"
+            href={`${baseUrl}?page=${pageNumber}`}
+            className={`w-9 h-9 flex items-center justify-center rounded-xl text-xs font-bold transition-all ${
+              isActive
+                ? "bg-[#0D231E] text-white shadow-xs"
+                : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50"
             }`}
           >
             {pageNumber}
@@ -32,13 +41,15 @@ export default function Pagination({ page, limit, total, totalPages }) {
       })}
 
       <Link
-        disabled={Number(page) === Number(totalPages)}
-        href={`/dashboard/bookings?page=${Number(page) + 1}`}
-        className="disabled:cursor-not-allowed text-xs font-semibold px-4 py-2 bg-sand hover:bg-gray-200 text-primary rounded-xl border border-gray-200 disabled:opacity-50 transition-colors"
+        href={isNext ? `${baseUrl}?page=${totalPages}` : `${baseUrl}?page=${Number(page) + 1}`}
+        className={`px-4 py-2 border rounded-xl text-xs font-semibold transition-all ${
+          isNext
+            ? "cursor-not-allowed opacity-40 border-gray-200 text-gray-400 bg-white"
+            : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50 shadow-xs"
+        }`}
       >
         Next
       </Link>
     </div>
   );
 }
-

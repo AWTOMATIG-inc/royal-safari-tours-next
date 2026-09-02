@@ -1,6 +1,7 @@
 "use client";
 
 import DashboardPageHeader from "@/components/dashboard/DashboardPageHeader";
+import ConfirmModal from "@/components/dashboard/ConfirmModal";
 import { Icon } from "@iconify/react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -11,6 +12,8 @@ export default function GalleryPage({ images = [] }) {
   const router = useRouter();
   const fileInputRef = useRef(null);
   const [uploading, setUploading] = useState(false);
+  const [deleteModal, setDeleteModal] = useState({ open: false, id: null });
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleUpload = async (e) => {
     const files = Array.from(e.target.files);
@@ -40,16 +43,23 @@ export default function GalleryPage({ images = [] }) {
     }
   };
 
-  const handleDelete = async (id) => {
-    const confirmed = confirm("Are you sure you want to delete this image?");
-    if (!confirmed) return;
+  const handleOpenDeleteModal = (id) => {
+    setDeleteModal({ open: true, id });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteModal.id) return;
+    setIsDeleting(true);
     try {
-      const res = await fetch(`/api/gallery/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/gallery/${deleteModal.id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Delete failed");
-      toast.success("Image deleted!");
+      toast.success("Image deleted successfully!");
+      setDeleteModal({ open: false, id: null });
       router.refresh();
     } catch (error) {
       toast.error(error.message);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -99,30 +109,45 @@ export default function GalleryPage({ images = [] }) {
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-          {images.map((img) => (
-            <div
-              key={img._id || img.id}
-              className="group relative aspect-square rounded-2xl overflow-hidden bg-sand border border-gray-100 shadow-xs"
-            >
-              <Image
-                src={`/api/uploads/gallery/${img.filename}`}
-                alt="Gallery Photo"
-                fill
-                className="object-cover group-hover:scale-105 transition-transform duration-300"
-              />
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                <button
-                  onClick={() => handleDelete(img._id || img.id)}
-                  className="p-2.5 rounded-xl bg-rose-600 text-white hover:bg-rose-700 transition-colors shadow-lg cursor-pointer"
-                  title="Delete image"
-                >
-                  <Icon icon="lucide:trash-2" className="w-4 h-4" />
-                </button>
+          {images.map((img) => {
+            const imgId = img.id;
+            return (
+              <div
+                key={imgId}
+                className="group relative aspect-square rounded-2xl overflow-hidden bg-sand border border-gray-100 shadow-xs"
+              >
+                <Image
+                  src={`/api/uploads/gallery/${img.filename}`}
+                  alt="Gallery Photo"
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                  <button
+                    onClick={() => handleOpenDeleteModal(imgId)}
+                    className="p-2.5 rounded-xl bg-rose-600 text-white hover:bg-rose-700 transition-colors shadow-lg cursor-pointer"
+                    title="Delete image"
+                  >
+                    <Icon icon="lucide:trash-2" className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
+
+      {/* Custom Confirmation Modal */}
+      <ConfirmModal
+        isOpen={deleteModal.open}
+        onClose={() => setDeleteModal({ open: false, id: null })}
+        onConfirm={handleConfirmDelete}
+        title="Delete Gallery Photo"
+        message="Are you sure you want to delete this photo from the gallery? This action cannot be undone."
+        confirmText="Delete Photo"
+        variant="danger"
+        loading={isDeleting}
+      />
     </div>
   );
 }

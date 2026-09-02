@@ -1,70 +1,48 @@
-import { db_connect } from "@/database";
-import { ContactModel } from "@/database/models/contactModel";
 import { NextResponse } from "next/server";
+import { getForwardHeaders } from "@/lib/proxyHelper";
 
-export async function PUT(request, context) {
-  const { id } = await context.params;
-  const formData = await request.formData();
-  const body = Object.fromEntries(formData);
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
+export async function GET(request, { params }) {
   try {
-    await db_connect();
-    if (!formData.has("status")) {
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 },
-      );
-    }
-    const contactData = await ContactModel.findByIdAndUpdate(id,{ status: body.status }, {
-      new: true,
-      runValidators: true,
-    })
-      
-
-    if (!contactData) {
-      return NextResponse.json({ error: "Contact request not found" }, { status: 404 });
-    }
-
-    
-    return NextResponse.json(
-      { message: "Contact request updated successfully" },
-      {
-        status: 200,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      },
-    );
+    const { id } = await params;
+    const headers = getForwardHeaders(request);
+    const res = await fetch(`${BACKEND_URL}/api/v1/contacts/${id}`, { headers, cache: "no-store" });
+    const data = await res.json();
+    return NextResponse.json(data.data || data, { status: res.status });
   } catch (error) {
-    console.log(error);
-    return NextResponse.json(
-      { error: "something went wrong" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Failed to fetch contact inquiry" }, { status: 500 });
   }
 }
-export async function DELETE(request, context) {
-  const { id } = await context.params;
+
+export async function PATCH(request, { params }) {
   try {
-    await db_connect();
-    const contactData = await ContactModel.findByIdAndDelete(id);
-    if (!contactData) {
-      return NextResponse.json({ error: "Contact request not found" }, { status: 404 });
-    }
-    return NextResponse.json(
-      { message: "Contact request deleted successfully" },
-      {
-        status: 200,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      },
-    );
+    const { id } = await params;
+    const body = await request.json();
+    const headers = getForwardHeaders(request, { "Content-Type": "application/json" });
+    const res = await fetch(`${BACKEND_URL}/api/v1/contacts/${id}/status`, {
+      method: "PATCH",
+      headers,
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    return NextResponse.json(data.data || data, { status: res.status });
   } catch (error) {
-    console.log(error);
-    return NextResponse.json(
-      { error: "something went wrong" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: error.message || "Failed to update contact status" }, { status: 500 });
+  }
+}
+
+export async function DELETE(request, { params }) {
+  try {
+    const { id } = await params;
+    const headers = getForwardHeaders(request);
+    const res = await fetch(`${BACKEND_URL}/api/v1/contacts/${id}`, {
+      method: "DELETE",
+      headers,
+    });
+    const data = await res.json();
+    return NextResponse.json(data, { status: res.status });
+  } catch (error) {
+    return NextResponse.json({ error: error.message || "Failed to delete contact inquiry" }, { status: 500 });
   }
 }

@@ -45,6 +45,19 @@ enum JobApplicationStatus {
   REJECTED
 }
 
+enum MediaType {
+  FILE
+  FOLDER
+}
+
+enum ContactStatus {
+  PENDING
+  CONTACTED
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
 // Central User model for credentials & dashboard log-in
 model User {
   id        String     @id @default(uuid())
@@ -136,6 +149,7 @@ model Employee {
   leaveBalances      EmployeeLeaveBalance[]
   leaveApplications  LeaveApplication[]
   attendances        Attendance[]
+  contactInquiries   ContactInquiry[]
   
   createdAt          DateTime               @default(now())
   updatedAt          DateTime               @updatedAt
@@ -150,7 +164,7 @@ model EmployeeDocument {
   fileUrl      String   // Path/URL to document file
   fileType     String?  // MIME type
   uploadedAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  updatedAt    DateTime @updatedAt
 }
 
 // Leave Policy / Type Master Model (Casual Leave, Sick Leave, Paid Leave, etc.)
@@ -320,15 +334,150 @@ model InvoiceItem {
   createdAt       DateTime @default(now())
 }
 
+// Tour Location Master Model
+model TourLocation {
+  id          String        @id @default(uuid())
+  country     String        @unique
+  slug        String        @unique
+  image       String?
+  description String?
+  isFeatured  Boolean       @default(true)
+  packages    TourPackage[]
+  gallery     GalleryItem[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+// Tour Package Master Model
+model TourPackage {
+  id               String             @id @default(uuid())
+  title            String
+  slug             String             @unique
+  image            String?
+  featuredImage    String?
+  galleryImages    String[]
+  price            Float
+  discountPrice    Float?
+  duration         String             // e.g. "5 Days / 4 Nights"
+  locationId       String?
+  location         TourLocation?      @relation(fields: [locationId], references: [id], onDelete: SetNull)
+  locationName     String?            // Fallback location label
+  hotelRating      Int                @default(4)
+  rating           Float              @default(4.8)
+  description      String?
+  shortDescription String?
+  additionalInfo   String?
+  transportation   String[]
+  inclusions       String[]
+  exclusions       String[]
+  isFeatured       Boolean            @default(true)
+  isPublished      Boolean            @default(true)
+  itinerary        PackageItinerary[]
+  hotels           PackageHotel[]
+  gallery          GalleryItem[]
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+}
+
+// Package Daily Itinerary Breakdown Model
+model PackageItinerary {
+  id          String      @id @default(uuid())
+  packageId   String
+  package     TourPackage @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  dayName     String      // e.g. "Day 01"
+  title       String      // e.g. "Arrival & Hotel Check-in"
+  description String
+  image       String?
+  sortOrder   Int         @default(0)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+// Package Hotel Stay Configuration Model
+model PackageHotel {
+  id        String      @id @default(uuid())
+  packageId String
+  package   TourPackage @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  city      String      // e.g. "Cox's Bazar"
+  hotelName String      // e.g. "Sayeman Beach Resort"
+  roomType  String?     // e.g. "Deluxe Sea View"
+  rating    Int         @default(4)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+// Traveler Testimonial / Review Model
+model Testimonial {
+  id              String   @id @default(uuid())
+  name            String
+  country         String   // Traveler origin or location tag
+  feedback        String
+  rating          Int      @default(5)
+  backgroundImage String?
+  avatarImage     String?
+  isPublished     Boolean  @default(true)
+  sortOrder       Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// Media Management / File Manager Model
+model MediaItem {
+  id         String    @id @default(uuid())
+  name       String
+  type       MediaType @default(FILE)
+  url        String?
+  folderPath String    @default("") // Empty string for root folder
+  size       Int       @default(0)
+  mimeType   String?
+  width      Int?
+  height     Int?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([folderPath])
+}
+
+// Contact Request / Inquiry Form Model
+model ContactInquiry {
+  id           String        @id @default(uuid())
+  name         String
+  email        String
+  phone        String
+  message      String
+  destination  String?
+  travelDate   String?
+  guestCount   Int?          @default(1)
+  status       ContactStatus @default(PENDING)
+  notes        String?
+  assignedToId String?
+  assignedTo   Employee?     @relation(fields: [assignedToId], references: [id], onDelete: SetNull)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+// Newsletter Subscriber Model
+model NewsletterSubscriber {
+  id           String   @id @default(uuid())
+  name         String?
+  email        String   @unique
+  isActive     Boolean  @default(true)
+  subscribedAt DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
 // Client / Traveler Image Gallery Model
 model GalleryItem {
-  id          String   @id @default(uuid())
+  id          String        @id @default(uuid())
   title       String
   caption     String?
   imageUrl    String
   destination String?
+  locationId  String?
+  location    TourLocation? @relation(fields: [locationId], references: [id], onDelete: SetNull)
   packageId   String?
-  isPublished Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  package     TourPackage?  @relation(fields: [packageId], references: [id], onDelete: SetNull)
+  isPublished Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 }

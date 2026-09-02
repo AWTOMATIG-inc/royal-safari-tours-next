@@ -110,7 +110,7 @@ export default function TravelerGallerySection({ initialItems = [] }) {
       ) : (
         <RevealGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6 font-body">
           {filteredItems.map((item, idx) => (
-            <RevealGroup.Item key={item.id || item._id || idx}>
+            <RevealGroup.Item key={item.id || idx}>
               <div
                 onClick={() => setLightboxIndex(idx)}
                 className="group relative aspect-[4/3] rounded-2xl overflow-hidden bg-sand shadow-xs border border-primary/10 cursor-pointer"

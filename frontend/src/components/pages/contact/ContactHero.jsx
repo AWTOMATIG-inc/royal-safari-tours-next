@@ -7,7 +7,7 @@ import { Icon } from "@iconify/react";
 
 export default function ContactHero() {
   return (
-    <section className="relative w-full min-h-[75vh] sm:min-h-[80vh] pt-32 sm:pt-36 md:pt-40 pb-36 sm:pb-44 md:pb-48 bg-[url('/images/banners/contact_hero.jpg')] bg-fixed bg-cover bg-center font-body">
+    <section className="relative w-full min-h-[75vh] sm:min-h-[80vh] pt-32 sm:pt-36 md:pt-40 pb-36 sm:pb-44 md:pb-48 bg-[url('/images/banners/contact_hero.png')] bg-fixed bg-cover bg-center font-body">
       {/* Light gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-r from-light/95 via-light/75 to-light/30 sm:via-light/65 sm:to-transparent z-0" />
 

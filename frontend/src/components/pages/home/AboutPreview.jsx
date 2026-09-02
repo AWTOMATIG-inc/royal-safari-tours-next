@@ -79,7 +79,7 @@ export default function AboutPreview() {
             <Reveal variant="fadeLeft" className="lg:col-span-5 relative w-full">
               <div className="relative aspect-[4/5] w-full overflow-hidden rounded-3xl border border-white/10 shadow-2xl group">
                 <Image
-                  src="/images/banners/about.webp"
+                  src="/images/banners/about_preview.webp"
                   alt="Royal Safari Tours Wilderness Journey"
                   fill
                   sizes="(max-width: 1024px) 100vw, 40vw"

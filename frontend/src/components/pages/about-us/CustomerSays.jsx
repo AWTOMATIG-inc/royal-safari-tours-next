@@ -71,7 +71,7 @@ export default function CustomerSays() {
 
   const getAvatarSrc = (item) => {
     const raw = item?.avatarImage || item?.avatar;
-    if (!raw) return "/images/avatar.jpg";
+    if (!raw) return "/images/placeholders/avatar_placeholder.jpg";
     if (raw.startsWith("http") || raw.startsWith("/")) return raw;
     return `/api/uploads/testimonials/${raw}`;
   };
@@ -124,7 +124,7 @@ export default function CustomerSays() {
 
             return (
               <div
-                key={item._id || item.id}
+                key={item.id}
                 className="relative p-[1px] rounded-3xl bg-gradient-to-tr from-white/5 to-white/20 backdrop-blur-xl shadow-xl transition-transform duration-500 hover:scale-[1.01] max-w-2xl mx-auto lg:max-w-none w-full"
               >
                 <div className="bg-primary/80 backdrop-blur-md border border-white/10 p-8 sm:p-10 rounded-[23px] flex flex-col justify-between h-full space-y-6 text-left font-body">

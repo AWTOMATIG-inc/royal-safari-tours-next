@@ -1,105 +1,66 @@
-import { db_connect } from "@/database";
-import { TestimonialModel } from "@/database/models/testimonialModel";
-import { deleteFile } from "@/lib/deleteFile";
-import { fileuploader } from "@/lib/fileuploader";
-import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
+import { getForwardHeaders } from "@/lib/proxyHelper";
 
-export async function GET(request, context) {
-  const { id } = await context.params;
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
+export async function GET(request, { params }) {
   try {
-    await db_connect();
-    const testimonial = await TestimonialModel.findById(id);
-    if (!testimonial) {
-      return new NextResponse("Testimonial not found", { status: 404 });
-    }
-    return NextResponse.json(testimonial, { status: 200 });
+    const { id } = await params;
+    const headers = getForwardHeaders(request);
+    const res = await fetch(`${BACKEND_URL}/api/v1/testimonials/${id}`, { headers, cache: "no-store" });
+    const data = await res.json();
+    return NextResponse.json(data.data || data, { status: res.status });
   } catch (error) {
-    console.log(error);
-    return NextResponse.json({ error: "something went wrong" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to fetch testimonial" }, { status: 500 });
   }
 }
 
-export async function DELETE(request, context) {
-  const { id } = await context.params;
+export async function PUT(request, { params }) {
   try {
-    await db_connect();
-    const deleted = await TestimonialModel.findByIdAndDelete(id);
-    if (!deleted) {
-      return NextResponse.json({ error: "Testimonial not found" }, { status: 404 });
-    }
-    deleteFile("testimonials", deleted.backgroundImage);
-    deleteFile("testimonials", deleted.avatarImage);
+    const { id } = await params;
+    const contentType = request.headers.get("content-type") || "";
+    let bodyPayload;
 
-    const paths = ["/", "/dashboard/testimonials"];
-    paths.forEach((p) => revalidatePath(p));
-
-    return NextResponse.json(
-      { message: "Testimonial deleted successfully" },
-      { status: 200 },
-    );
-  } catch (error) {
-    console.log(error);
-    return NextResponse.json({ error: "something went wrong" }, { status: 500 });
-  }
-}
-
-export async function PUT(request, context) {
-  const { id } = await context.params;
-  const formData = await request.formData();
-  const {
-    name,
-    country,
-    feedback,
-    rating,
-    backgroundImage,
-    avatarImage,
-    existingBackgroundImage,
-    existingAvatarImage,
-  } = Object.fromEntries(formData);
-
-  if (!name || !country || !feedback || !rating) {
-    return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
-  }
-
-  try {
-    await db_connect();
-
-    let bgFilename = existingBackgroundImage;
-    let avatarFilename = existingAvatarImage;
-
-    if (backgroundImage && backgroundImage.size > 0) {
-      bgFilename = await fileuploader(backgroundImage, "testimonials");
-      deleteFile("testimonials", existingBackgroundImage);
+    if (contentType.includes("application/json")) {
+      bodyPayload = await request.json();
+    } else if (contentType.includes("multipart/form-data")) {
+      const formData = await request.formData();
+      bodyPayload = {
+        name: formData.get("name"),
+        country: formData.get("country"),
+        feedback: formData.get("feedback"),
+        rating: Number(formData.get("rating")) || 5,
+        backgroundImage: typeof formData.get("backgroundImage") === "string" ? formData.get("backgroundImage") : formData.get("existingBackgroundImage") || null,
+        avatarImage: typeof formData.get("avatarImage") === "string" ? formData.get("avatarImage") : formData.get("existingAvatarImage") || null,
+      };
+    } else {
+      bodyPayload = await request.json();
     }
 
-    if (avatarImage && avatarImage.size > 0) {
-      avatarFilename = await fileuploader(avatarImage, "testimonials");
-      deleteFile("testimonials", existingAvatarImage);
-    }
-
-    const updated = await TestimonialModel.findByIdAndUpdate(id, {
-      name,
-      country,
-      feedback,
-      rating: Number(rating),
-      backgroundImage: bgFilename,
-      avatarImage: avatarFilename,
+    const headers = getForwardHeaders(request, { "Content-Type": "application/json" });
+    const res = await fetch(`${BACKEND_URL}/api/v1/testimonials/${id}`, {
+      method: "PUT",
+      headers,
+      body: JSON.stringify(bodyPayload),
     });
-
-    if (!updated) {
-      return NextResponse.json({ error: "Testimonial not found" }, { status: 404 });
-    }
-
-    const paths = ["/", "/dashboard/testimonials"];
-    paths.forEach((p) => revalidatePath(p));
-
-    return NextResponse.json(
-      { message: "Testimonial updated successfully" },
-      { status: 200 },
-    );
+    const data = await res.json();
+    return NextResponse.json(data.data || data, { status: res.status });
   } catch (error) {
-    console.log(error);
-    return NextResponse.json({ error: "something went wrong" }, { status: 500 });
+    return NextResponse.json({ error: error.message || "Failed to update testimonial" }, { status: 500 });
+  }
+}
+
+export async function DELETE(request, { params }) {
+  try {
+    const { id } = await params;
+    const headers = getForwardHeaders(request);
+    const res = await fetch(`${BACKEND_URL}/api/v1/testimonials/${id}`, {
+      method: "DELETE",
+      headers,
+    });
+    const data = await res.json();
+    return NextResponse.json(data, { status: res.status });
+  } catch (error) {
+    return NextResponse.json({ error: error.message || "Failed to delete testimonial" }, { status: 500 });
   }
 }

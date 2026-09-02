@@ -229,7 +229,7 @@ export default function DashboardClient({ invoices = [], contactRequests = [], t
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {contactRequests.slice(0, 4).map((req) => (
               <div
-                key={req._id || req.id}
+                key={req.id}
                 className="p-4 rounded-2xl bg-gray-50/70 border border-gray-100 hover:border-purple-200 transition-all space-y-2.5"
               >
                 <div className="flex items-center justify-between gap-2">

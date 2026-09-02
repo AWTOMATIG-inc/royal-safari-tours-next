@@ -46,7 +46,7 @@ export default function CustomerStories() {
 
   const getAvatarSrc = (item) => {
     const raw = item?.avatarImage || item?.avatar;
-    if (!raw) return "/images/avatar.jpg";
+    if (!raw) return "/images/placeholders/avatar_placeholder.jpg";
     if (raw.startsWith("http") || raw.startsWith("/")) return raw;
     return `/api/uploads/testimonials/${raw}`;
   };

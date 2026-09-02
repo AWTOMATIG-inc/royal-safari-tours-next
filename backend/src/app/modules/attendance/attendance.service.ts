@@ -17,9 +17,36 @@ export const getOrCreatePolicy = async () => {
   return policy;
 };
 
+/**
+ * Extracts date and time components in Asia/Dhaka timezone (UTC+6)
+ */
+export const getDhakaTimeParts = (date = new Date()) => {
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Dhaka",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
+  const parts = formatter.formatToParts(date);
+  const getPart = (type: string) => parts.find((p) => p.type === type)?.value || "0";
+  const year = parseInt(getPart("year"), 10);
+  const month = parseInt(getPart("month"), 10) - 1; // 0-indexed
+  const day = parseInt(getPart("day"), 10);
+  const rawHour = parseInt(getPart("hour"), 10);
+  const hour = rawHour === 24 ? 0 : rawHour;
+  const minute = parseInt(getPart("minute"), 10);
+  const second = parseInt(getPart("second"), 10);
+
+  return { year, month, day, hour, minute, second };
+};
+
 const getNormalizedToday = (): Date => {
-  const now = new Date();
-  return new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+  const { year, month, day } = getDhakaTimeParts();
+  return new Date(Date.UTC(year, month, day, 0, 0, 0, 0));
 };
 
 export const checkIn = async (
@@ -61,12 +88,14 @@ export const checkIn = async (
   const policy = await getOrCreatePolicy();
   const now = new Date();
 
-  // Compute late threshold based on workStartTime + lateGraceMinutes
-  const [startHour, startMin] = policy.workStartTime.split(":").map(Number);
-  const thresholdDate = new Date(now);
-  thresholdDate.setHours(startHour, startMin + policy.lateGraceMinutes, 0, 0);
+  // Compute late threshold based on Asia/Dhaka local time
+  const { hour: currentHour, minute: currentMinute } = getDhakaTimeParts(now);
+  const currentMinutes = currentHour * 60 + currentMinute;
 
-  const isLate = now > thresholdDate;
+  const [startHour, startMin] = policy.workStartTime.split(":").map(Number);
+  const thresholdMinutes = startHour * 60 + startMin + policy.lateGraceMinutes;
+
+  const isLate = currentMinutes > thresholdMinutes;
   const status = isLate ? AttendanceStatus.LATE : AttendanceStatus.PRESENT;
 
   return await prisma.attendance.create({
@@ -140,12 +169,14 @@ export const checkOut = async (
   const rawHours = diffMs / (1000 * 60 * 60);
   const workHours = Math.round(rawHours * 100) / 100;
 
-  // Compute early out threshold based on workEndTime - earlyOutGraceMinutes
-  const [endHour, endMin] = policy.workEndTime.split(":").map(Number);
-  const earlyThresholdDate = new Date(now);
-  earlyThresholdDate.setHours(endHour, endMin - policy.earlyOutGraceMinutes, 0, 0);
+  // Compute early out threshold based on Asia/Dhaka local time
+  const { hour: currentOutHour, minute: currentOutMinute } = getDhakaTimeParts(now);
+  const currentOutMinutes = currentOutHour * 60 + currentOutMinute;
 
-  const isEarlyOut = now < earlyThresholdDate;
+  const [endHour, endMin] = policy.workEndTime.split(":").map(Number);
+  const earlyThresholdMinutes = endHour * 60 + endMin - policy.earlyOutGraceMinutes;
+
+  const isEarlyOut = currentOutMinutes < earlyThresholdMinutes;
 
   let finalStatus = attendance.status;
   if (workHours < policy.halfDayHours) {

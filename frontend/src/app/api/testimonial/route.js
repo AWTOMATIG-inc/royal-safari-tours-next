@@ -1,53 +1,55 @@
-import { db_connect } from "@/database";
-import { TestimonialModel } from "@/database/models/testimonialModel";
-import { fileuploader } from "@/lib/fileuploader";
-import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
+import { getForwardHeaders } from "@/lib/proxyHelper";
 
-export async function POST(request) {
-  const formData = await request.formData();
-  const { name, country, feedback, rating, backgroundImage, avatarImage } =
-    Object.fromEntries(formData);
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
-  if (!name || !country || !feedback || !rating || !backgroundImage || !avatarImage) {
-    return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
-  }
-
+export async function GET(request) {
   try {
-    await db_connect();
-    const bgFilename = await fileuploader(backgroundImage, "testimonials");
-    const avatarFilename = await fileuploader(avatarImage, "testimonials");
+    const { searchParams } = new URL(request.url);
+    const queryString = searchParams.toString();
+    const url = queryString
+      ? `${BACKEND_URL}/api/v1/testimonials?${queryString}`
+      : `${BACKEND_URL}/api/v1/testimonials`;
 
-    if (!bgFilename || !avatarFilename) {
-      return NextResponse.json({ error: "File upload failed" }, { status: 500 });
-    }
-
-    const testimonial = await TestimonialModel.create({
-      name,
-      country,
-      feedback,
-      rating: Number(rating),
-      backgroundImage: bgFilename,
-      avatarImage: avatarFilename,
-    });
-
-    const paths = ["/", "/dashboard/testimonials"];
-    paths.forEach((p) => revalidatePath(p));
-
-    return NextResponse.json(testimonial, { status: 200 });
+    const headers = getForwardHeaders(request);
+    const res = await fetch(url, { headers, cache: "no-store" });
+    const data = await res.json();
+    return NextResponse.json(data.data || data, { status: res.status });
   } catch (error) {
-    console.log(error);
-    return NextResponse.json({ error: "something went wrong" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to fetch testimonials" }, { status: 500 });
   }
 }
 
-export async function GET() {
+export async function POST(request) {
   try {
-    await db_connect();
-    const testimonials = await TestimonialModel.find().sort({ createdAt: -1 });
-    return NextResponse.json(testimonials, { status: 200 });
+    const contentType = request.headers.get("content-type") || "";
+    let bodyPayload;
+
+    if (contentType.includes("application/json")) {
+      bodyPayload = await request.json();
+    } else if (contentType.includes("multipart/form-data")) {
+      const formData = await request.formData();
+      bodyPayload = {
+        name: formData.get("name") || "Traveler",
+        country: formData.get("country") || "Bangladesh",
+        feedback: formData.get("feedback") || "",
+        rating: Number(formData.get("rating")) || 5,
+        backgroundImage: typeof formData.get("backgroundImage") === "string" ? formData.get("backgroundImage") : null,
+        avatarImage: typeof formData.get("avatarImage") === "string" ? formData.get("avatarImage") : null,
+      };
+    } else {
+      bodyPayload = await request.json();
+    }
+
+    const headers = getForwardHeaders(request, { "Content-Type": "application/json" });
+    const res = await fetch(`${BACKEND_URL}/api/v1/testimonials`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(bodyPayload),
+    });
+    const data = await res.json();
+    return NextResponse.json(data.data || data, { status: res.status });
   } catch (error) {
-    console.log(error);
-    return NextResponse.json({ error: "something went wrong" }, { status: 500 });
+    return NextResponse.json({ error: error.message || "Failed to create testimonial" }, { status: 500 });
   }
 }

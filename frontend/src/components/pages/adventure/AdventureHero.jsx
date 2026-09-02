@@ -20,7 +20,7 @@ export default function AdventureHero({
   };
 
   return (
-    <section className="relative w-full min-h-[75vh] sm:min-h-[80vh] flex flex-col justify-between section-hero bg-[url('/images/banners/camping.webp')] bg-fixed bg-cover bg-center text-white overflow-visible font-body">
+    <section className="relative w-full min-h-[75vh] sm:min-h-[80vh] flex flex-col justify-between section-hero bg-[url('/images/banners/adventure_hero.webp')] bg-fixed bg-cover bg-center text-white overflow-visible font-body">
       {/* Gradients overlay */}
       <div className="absolute inset-0 bg-black/60 z-0" />
       <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-transparent to-black/40 z-0" />

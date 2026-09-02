@@ -1,6 +1,6 @@
 "use client";
 
-import royal_logo from "@/assets/logo/royal-logo.png";
+const royal_logo = "/images/branding/royal_logo.png";
 import { siteConfig } from "@/config/siteConfig";
 import { useAuth } from "@/hooks/useAuth";
 import { Icon } from "@iconify/react";
@@ -103,6 +103,8 @@ export default function Header() {
                 loading="eager"
                 src={royal_logo}
                 alt="Royal Safari Tours"
+                width={200}
+                height={60}
                 priority
                 className="h-7 sm:h-8 md:h-11 w-auto object-contain transition-all duration-300"
               />
@@ -163,7 +165,7 @@ export default function Header() {
             <a
               href={whatsappUrl}
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               className="bg-primary hover:bg-secondary hover:scale-[1.02] text-white text-[11px] tracking-[0.15em] font-bold py-2.5 px-4 sm:px-5 rounded-full transition-all duration-300 uppercase cursor-pointer shadow-xs flex items-center gap-2 font-body"
             >
               <Icon icon="akar-icons:whatsapp-fill" className="w-4 h-4 text-white" />
@@ -181,6 +183,8 @@ export default function Header() {
               loading="eager"
               src={royal_logo}
               alt="Royal Safari Tours"
+              width={200}
+              height={60}
               priority
               className="h-7 sm:h-8 md:h-10 w-auto object-contain transition-all duration-300"
             />
@@ -302,6 +306,8 @@ export default function Header() {
               loading="eager"
               src={royal_logo}
               alt="Royal Safari Tours"
+              width={200}
+              height={60}
               className="h-7 sm:h-8 w-auto object-contain"
             />
             <button

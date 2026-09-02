@@ -1,47 +1,68 @@
 "use client";
 
 import DashboardPageHeader from "@/components/dashboard/DashboardPageHeader";
+import ConfirmModal from "@/components/dashboard/ConfirmModal";
 import { Icon } from "@iconify/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { getImageUrl } from "@/lib/imageUrl";
 
 export default function TourCardPage({ tourPackages = [], pagination = { page: 1, totalPages: 1 } }) {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
+  const [deleteModal, setDeleteModal] = useState({ open: false, id: null, title: "" });
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  const isPrev = Number(pagination.page) === 1;
-  const isNext = Number(pagination.page) === pagination.totalPages;
+  const isPrev = Number(pagination.page || 1) === 1;
+  const isNext = Number(pagination.page || 1) === Number(pagination.totalPages || 1);
 
-  const handleDelete = async (id) => {
-    const userConfirmed = confirm("Are you sure you want to delete this tour package?");
-    if (!userConfirmed) return;
+  const handleOpenDeleteModal = (id, title) => {
+    setDeleteModal({ open: true, id, title });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteModal.id) return;
+    setIsDeleting(true);
     try {
-      const res = await fetch(`/api/tour-package/${id}`, {
+      const res = await fetch(`/api/tour-package/${deleteModal.id}`, {
         method: "DELETE",
       });
       if (!res.ok) {
         throw new Error("Network response was not ok");
       }
-      router.refresh();
       toast.success("Tour package deleted successfully!");
+      setDeleteModal({ open: false, id: null, title: "" });
+      router.refresh();
     } catch (error) {
       console.error("Delete operation failed:", error);
       toast.error(error.message);
+    } finally {
+      setIsDeleting(false);
     }
+  };
+
+  const getLocationStr = (pkg) => {
+    if (!pkg) return "";
+    if (pkg.locationName) return pkg.locationName;
+    if (typeof pkg.location === "string") return pkg.location;
+    if (pkg.location && typeof pkg.location === "object") {
+      return pkg.location.country || pkg.location.name || pkg.location.title || "";
+    }
+    return "";
   };
 
   const filteredPackages = tourPackages.filter((pkg) => {
     const q = searchQuery.toLowerCase().trim();
     if (!q) return true;
     const title = (pkg.title || "").toLowerCase();
-    const location = (pkg.location || "").toLowerCase();
+    const loc = getLocationStr(pkg).toLowerCase();
     const shortDesc = (pkg.shortDescription || "").toLowerCase();
     const desc = (pkg.description || "").toLowerCase();
     const priceStr = String(pkg.price || "");
-    return title.includes(q) || location.includes(q) || shortDesc.includes(q) || desc.includes(q) || priceStr.includes(q);
+    return title.includes(q) || loc.includes(q) || shortDesc.includes(q) || desc.includes(q) || priceStr.includes(q);
   });
 
   return (
@@ -87,7 +108,7 @@ export default function TourCardPage({ tourPackages = [], pagination = { page: 1
       {tourPackages.length === 0 ? (
         <div className="bg-white rounded-3xl p-12 text-center border border-gray-100 shadow-sm max-w-md mx-auto my-12 space-y-4 font-inter">
           <Image
-            src="/images/dashboard/empty.png"
+            src="/images/placeholders/empty_state.png"
             width={300}
             height={300}
             priority
@@ -113,14 +134,15 @@ export default function TourCardPage({ tourPackages = [], pagination = { page: 1
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 font-inter">
-          {filteredPackages.map((pkg) => {
-            const imageSrc = pkg.image?.startsWith("http") || pkg.image?.startsWith("/")
-              ? pkg.image
-              : `/api/uploads/tour-packages/${pkg.image}`;
+          {filteredPackages.map((pkg, idx) => {
+            const pkgId = pkg.id || `pkg-${idx}`;
+            const imageSrc = getImageUrl(pkg.featuredImage || pkg.image, "/images/banners/home_hero.webp");
+            const locDisplay = getLocationStr(pkg);
+            const pkgSlug = pkg.slug || pkgId;
 
             return (
               <div
-                key={pkg._id}
+                key={pkgId}
                 className="group bg-white rounded-2xl border border-gray-100 shadow-[0_4px_20px_rgba(13,35,30,0.03)] hover:shadow-[0_12px_35px_rgba(13,35,30,0.08)] overflow-hidden transition-all duration-300 flex flex-col justify-between p-5 space-y-4"
               >
                 <div className="space-y-3">
@@ -129,11 +151,11 @@ export default function TourCardPage({ tourPackages = [], pagination = { page: 1
                       src={imageSrc}
                       fill
                       sizes="(max-width: 768px) 100vw, 33vw"
-                      alt={pkg.title}
+                      alt={pkg.title || "Tour Package"}
                       className="object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                     <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-full text-xs font-mono font-bold text-[#0D231E] shadow-sm">
-                      ৳{pkg.price?.toLocaleString()}
+                      ৳{Number(pkg.price || 0).toLocaleString()}
                     </div>
                   </div>
 
@@ -149,26 +171,30 @@ export default function TourCardPage({ tourPackages = [], pagination = { page: 1
 
                 <div className="flex items-center justify-between pt-3 border-t border-gray-100 text-xs text-gray-500">
                   <div className="flex items-center gap-3">
-                    <span className="flex items-center gap-1">
-                      <Icon icon="lucide:map-pin" className="w-3.5 h-3.5 text-[#2cb775]" />
-                      <span className="capitalize">{pkg.location}</span>
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Icon icon="lucide:clock" className="w-3.5 h-3.5 text-gray-400" />
-                      <span>{pkg.duration}</span>
-                    </span>
+                    {locDisplay && (
+                      <span className="flex items-center gap-1">
+                        <Icon icon="lucide:map-pin" className="w-3.5 h-3.5 text-[#2cb775]" />
+                        <span className="capitalize">{locDisplay}</span>
+                      </span>
+                    )}
+                    {pkg.duration && (
+                      <span className="flex items-center gap-1">
+                        <Icon icon="lucide:clock" className="w-3.5 h-3.5 text-gray-400" />
+                        <span>{pkg.duration}</span>
+                      </span>
+                    )}
                   </div>
 
                   <div className="flex items-center gap-1.5">
                     <Link
-                      href={`/dashboard/tour-packages/edit/${pkg.slug || pkg._id}`}
+                      href={`/dashboard/tour-packages/edit/${pkgSlug}`}
                       className="p-2 rounded-lg bg-gray-50 text-gray-600 hover:bg-[#2cb775]/10 hover:text-[#2cb775] transition-colors"
                       title="Edit package"
                     >
                       <Icon icon="lucide:pencil" className="w-4 h-4" />
                     </Link>
                     <button
-                      onClick={() => handleDelete(pkg._id)}
+                      onClick={() => handleOpenDeleteModal(pkgId, pkg.title)}
                       className="p-2 rounded-lg bg-gray-50 text-gray-500 hover:bg-rose-50 hover:text-rose-600 transition-colors cursor-pointer"
                       title="Delete package"
                     >
@@ -183,7 +209,7 @@ export default function TourCardPage({ tourPackages = [], pagination = { page: 1
       )}
 
       {/* Pagination Controls */}
-      {pagination.totalPages > 1 && !searchQuery && (
+      {pagination && pagination.totalPages > 1 && !searchQuery && (
         <div className="flex justify-center items-center gap-2 pt-4 font-inter">
           <Link
             href={
@@ -230,6 +256,18 @@ export default function TourCardPage({ tourPackages = [], pagination = { page: 1
           </Link>
         </div>
       )}
+
+      {/* Custom Confirmation Modal */}
+      <ConfirmModal
+        isOpen={deleteModal.open}
+        onClose={() => setDeleteModal({ open: false, id: null, title: "" })}
+        onConfirm={handleConfirmDelete}
+        title="Delete Tour Package"
+        message={`Are you sure you want to delete ${deleteModal.title ? `"${deleteModal.title}"` : "this tour package"}? This action cannot be undone.`}
+        confirmText="Delete Package"
+        variant="danger"
+        loading={isDeleting}
+      />
     </div>
   );
 }

@@ -14,7 +14,7 @@ export default function ClientGalleryHero() {
   };
 
   return (
-    <section className="relative w-full min-h-[75vh] sm:min-h-[80vh] section-hero overflow-hidden bg-[url('/images/banners/contact_hero.jpg')] bg-fixed bg-cover bg-center font-body flex items-center">
+    <section className="relative w-full min-h-[75vh] sm:min-h-[80vh] section-hero overflow-hidden bg-[url('/images/banners/memories_bg.webp')] bg-fixed bg-cover bg-center font-body flex items-center">
       {/* Light gradient overlay matching About Us hero */}
       <div className="absolute inset-0 bg-gradient-to-r from-light/95 via-light/75 to-light/30 sm:via-light/65 sm:to-transparent z-0" />
 

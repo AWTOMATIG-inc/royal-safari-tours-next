@@ -5,6 +5,12 @@ import { Icon } from "@iconify/react";
 export default function QuickPackageInfo({ tourPackage }) {
   if (!tourPackage) return null;
 
+  const locationDisplay =
+    tourPackage.locationName ||
+    (typeof tourPackage.location === "string"
+      ? tourPackage.location
+      : tourPackage.location?.country || tourPackage.location?.name || tourPackage.location?.title || "Bangladesh");
+
   const items = [
     {
       icon: "lucide:clock",
@@ -15,7 +21,7 @@ export default function QuickPackageInfo({ tourPackage }) {
     {
       icon: "lucide:map-pin",
       label: "Location",
-      value: tourPackage.location || "Bangladesh",
+      value: locationDisplay,
       color: "text-accent",
     },
     {

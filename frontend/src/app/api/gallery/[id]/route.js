@@ -1,23 +1,31 @@
-import { db_connect } from "@/database";
-import { GalleryImageModel } from "@/database/models/galleryImageModel";
-import { deleteFile } from "@/lib/deleteFile";
-import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
+import { getForwardHeaders } from "@/lib/proxyHelper";
 
-export async function DELETE(request, context) {
-  const { id } = await context.params;
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
+export async function GET(request, { params }) {
   try {
-    await db_connect();
-    const deleted = await GalleryImageModel.findByIdAndDelete(id);
-    if (!deleted) {
-      return NextResponse.json({ error: "Image not found" }, { status: 404 });
-    }
-    deleteFile("gallery", deleted.filename);
-    revalidatePath("/");
-    revalidatePath("/dashboard/gallery");
-    return NextResponse.json({ message: "Image deleted successfully" }, { status: 200 });
+    const { id } = await params;
+    const headers = getForwardHeaders(request);
+    const res = await fetch(`${BACKEND_URL}/api/v1/gallery/${id}`, { headers, cache: "no-store" });
+    const data = await res.json();
+    return NextResponse.json(data.data || data, { status: res.status });
   } catch (error) {
-    console.log(error);
-    return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to fetch gallery item" }, { status: 500 });
+  }
+}
+
+export async function DELETE(request, { params }) {
+  try {
+    const { id } = await params;
+    const headers = getForwardHeaders(request);
+    const res = await fetch(`${BACKEND_URL}/api/v1/gallery/${id}`, {
+      method: "DELETE",
+      headers,
+    });
+    const data = await res.json();
+    return NextResponse.json(data, { status: res.status });
+  } catch (error) {
+    return NextResponse.json({ error: error.message || "Failed to delete gallery item" }, { status: 500 });
   }
 }

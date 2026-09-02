@@ -9,7 +9,15 @@ import { useState } from "react";
 import { Reveal } from "@/components/animations";
 
 export default function TourHero({ tourPackage, onOpenBooking, onOpenGallery }) {
+  const [activePhotoIndex, setActivePhotoIndex] = useState(0);
+
   if (!tourPackage) return null;
+
+  const locationDisplay =
+    tourPackage.locationName ||
+    (typeof tourPackage.location === "string"
+      ? tourPackage.location
+      : tourPackage.location?.country || tourPackage.location?.name || tourPackage.location?.title || "");
 
   // Gather all photos: featured image + galleryImages + itinerary day images
   const featured = tourPackage.featuredImage || tourPackage.image;
@@ -26,9 +34,6 @@ export default function TourHero({ tourPackage, onOpenBooking, onOpenGallery }) 
   if (photos.length === 0) {
     photos.push("/images/placeholder.jpg");
   }
-
-  // Active photo state (index)
-  const [activePhotoIndex, setActivePhotoIndex] = useState(0);
 
   const hotelRating = Number(tourPackage.hotelRating || tourPackage.rating || 3);
   const regularPrice = Number(tourPackage.price) || 0;
@@ -60,10 +65,10 @@ export default function TourHero({ tourPackage, onOpenBooking, onOpenGallery }) 
           <Link href="/adventure" className="hover:text-primary transition-colors">
             Tours
           </Link>
-          {tourPackage.location && (
+          {locationDisplay && (
             <>
               <span className="text-gray-300">/</span>
-              <span className="text-gray-500">{tourPackage.location}</span>
+              <span className="text-gray-500">{locationDisplay}</span>
             </>
           )}
           <span className="text-gray-300">/</span>
@@ -91,10 +96,10 @@ export default function TourHero({ tourPackage, onOpenBooking, onOpenGallery }) 
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30 pointer-events-none" />
 
               {/* Top Left: Location Badge */}
-              {tourPackage.location && (
+              {locationDisplay && (
                 <div className="absolute top-4 left-4 z-10 bg-black/75 text-white text-xs font-semibold px-3.5 py-1.5 rounded-full border border-white/20 flex items-center gap-1.5 shadow-xs font-body">
                   <Icon icon="lucide:map-pin" className="w-3.5 h-3.5 text-accent" />
-                  <span>{tourPackage.location}</span>
+                  <span>{locationDisplay}</span>
                 </div>
               )}
 
@@ -193,7 +198,7 @@ export default function TourHero({ tourPackage, onOpenBooking, onOpenGallery }) 
                 <span className="text-[10px] uppercase font-bold text-gray-400">Location</span>
                 <span className="font-semibold text-primary flex items-center gap-1 mt-0.5 truncate">
                   <Icon icon="lucide:map-pin" className="w-3.5 h-3.5 text-accent shrink-0" />
-                  <span className="truncate">{tourPackage.location || "Nepal"}</span>
+                  <span className="truncate">{locationDisplay || "Nepal"}</span>
                 </span>
               </div>
 
@@ -235,14 +240,6 @@ export default function TourHero({ tourPackage, onOpenBooking, onOpenGallery }) 
 
             {/* Action Buttons */}
             <div className="space-y-3 pt-2 font-body">
-              <Button
-                onClick={onOpenBooking}
-                variant="primary"
-                className="w-full"
-                icon={<Icon icon="lucide:arrow-right" className="w-4 h-4" />}
-              >
-                Book This Tour
-              </Button>
 
               <Button
                 href={`https://api.whatsapp.com/send?phone=${siteConfig.contact.phone.whatsappRaw}&text=${whatsappMessage}`}

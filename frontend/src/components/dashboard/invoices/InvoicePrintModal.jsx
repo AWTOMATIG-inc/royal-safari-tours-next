@@ -2,7 +2,7 @@
 
 import { Icon } from "@iconify/react";
 import Image from "next/image";
-import royal_logo from "@/assets/logo/royal-logo.png";
+const royal_logo = "/images/branding/royal_logo.png";
 
 export default function InvoicePrintModal({ isOpen, onClose, invoice }) {
   if (!isOpen || !invoice) return null;
@@ -154,7 +154,8 @@ export default function InvoicePrintModal({ isOpen, onClose, invoice }) {
                 <Image
                   src={royal_logo}
                   alt="Royal Safari Tours"
-                  className="w-full h-full object-contain object-left"
+                  fill
+                  className="object-contain object-left"
                   priority
                 />
               </div>

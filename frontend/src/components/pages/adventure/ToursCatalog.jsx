@@ -21,6 +21,17 @@ export default function ToursCatalog({
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
+  const getTourLocStr = (tour) => {
+    if (!tour) return "";
+    if (typeof tour === "string") return tour;
+    if (tour.locationName) return tour.locationName;
+    if (typeof tour.location === "string") return tour.location;
+    if (tour.location && typeof tour.location === "object") {
+      return tour.location.country || tour.location.name || tour.location.title || "";
+    }
+    return "";
+  };
+
   // Extract all unique destination names dynamically from locations & tour packages
   const destinationList = useMemo(() => {
     const locMap = new Map();
@@ -38,12 +49,7 @@ export default function ToursCatalog({
 
     // 2. From actual tour package locations in database
     initialTourPackages.forEach((tour) => {
-      let locStr = "";
-      if (typeof tour.location === "string") {
-        locStr = tour.location;
-      } else if (tour.location && typeof tour.location === "object") {
-        locStr = tour.location.name || tour.location.country || tour.location.title || "";
-      }
+      const locStr = getTourLocStr(tour);
       if (locStr) {
         const trimmed = locStr.trim();
         if (trimmed && !locMap.has(trimmed.toLowerCase())) {
@@ -56,17 +62,9 @@ export default function ToursCatalog({
   }, [locations, initialTourPackages]);
 
   // Helper for matching tour location against target query/location string
-  const isLocationMatch = (tourLocation, targetLocationStr) => {
+  const isLocationMatch = (tour, targetLocationStr) => {
     if (!targetLocationStr || targetLocationStr === "all") return true;
-    if (!tourLocation) return false;
-
-    let tourLocStr = "";
-    if (typeof tourLocation === "string") {
-      tourLocStr = tourLocation;
-    } else if (typeof tourLocation === "object") {
-      tourLocStr = tourLocation.name || tourLocation.country || tourLocation.title || "";
-    }
-
+    const tourLocStr = getTourLocStr(tour);
     if (!tourLocStr) return false;
 
     const tourLoc = tourLocStr.toLowerCase().trim();
@@ -94,13 +92,7 @@ export default function ToursCatalog({
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
       result = result.filter((tour) => {
-        let locStr = "";
-        if (typeof tour.location === "string") {
-          locStr = tour.location;
-        } else if (tour.location && typeof tour.location === "object") {
-          locStr = tour.location.name || tour.location.country || tour.location.title || "";
-        }
-
+        const locStr = getTourLocStr(tour);
         return (
           tour.title?.toLowerCase().includes(q) ||
           locStr.toLowerCase().includes(q) ||
@@ -111,7 +103,7 @@ export default function ToursCatalog({
 
     // 2. Location Filter
     if (selectedLocation && selectedLocation !== "all") {
-      result = result.filter((tour) => isLocationMatch(tour.location, selectedLocation));
+      result = result.filter((tour) => isLocationMatch(tour, selectedLocation));
     }
 
     // 3. Price Filter
@@ -509,7 +501,7 @@ export default function ToursCatalog({
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
                 {paginatedTours.map((tour) => (
-                  <div key={tour._id || tour.id || tour.slug}>
+                  <div key={tour.id || tour.slug}>
                     <TourCard tour_package={tour} />
                   </div>
                 ))}

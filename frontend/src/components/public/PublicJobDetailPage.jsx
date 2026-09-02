@@ -67,6 +67,13 @@ export default function PublicJobDetailPage({ slug }) {
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
+      const ext = file.name.split(".").pop()?.toLowerCase();
+      if (file.type !== "application/pdf" && ext !== "pdf") {
+        toast.error("Only PDF resume files (.pdf) are allowed. Images and Word documents are not permitted.");
+        if (fileInputRef.current) fileInputRef.current.value = "";
+        setResumeFile(null);
+        return;
+      }
       if (file.size > 20 * 1024 * 1024) {
         toast.error("Resume file size must be less than 20MB");
         return;
@@ -443,22 +450,22 @@ export default function PublicJobDetailPage({ slug }) {
                   {/* Resume Upload Box */}
                   <div>
                     <label className="block text-xs font-semibold text-gray-700 mb-1">
-                      Upload Resume / CV (PDF, DOC) *
+                      Upload Resume / CV (PDF Only) *
                     </label>
                     <div
                       onClick={() => fileInputRef.current?.click()}
                       className="border-2 border-dashed border-gray-300 hover:border-[#2cb775] rounded-2xl p-4 text-center cursor-pointer transition-colors bg-sand/50"
                     >
-                      <Icon icon="lucide:upload-cloud" className="w-6 h-6 text-secondary mx-auto mb-1" />
+                      <Icon icon="lucide:file-text" className="w-6 h-6 text-secondary mx-auto mb-1" />
                       <p className="text-xs font-semibold text-primary">
-                        {resumeFile ? resumeFile.name : "Click to browse & upload CV"}
+                        {resumeFile ? resumeFile.name : "Click to browse & upload PDF CV"}
                       </p>
-                      <p className="text-[10px] text-gray-400 mt-0.5">Maximum file size 20MB</p>
+                      <p className="text-[10px] text-gray-400 mt-0.5">Only PDF documents (.pdf) allowed • Max 20MB</p>
                     </div>
                     <input
                       ref={fileInputRef}
                       type="file"
-                      accept=".pdf,.doc,.docx"
+                      accept=".pdf,application/pdf"
                       onChange={handleFileChange}
                       className="hidden"
                     />

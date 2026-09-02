@@ -1,119 +1,69 @@
-import { db_connect } from "@/database";
-import { TourLocationModel } from "@/database/models/tourLocationModel";
-import { deleteFile } from "@/lib/deleteFile";
-import { fileuploader } from "@/lib/fileuploader";
-import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
+import { getForwardHeaders } from "@/lib/proxyHelper";
 
-export async function GET(request, context) {
-  const { id } = await context.params;
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
+export async function GET(request, { params }) {
   try {
-    await db_connect();
-    const tourLocation = await TourLocationModel.findById(id);
-    if (!tourLocation) {
-      return new NextResponse("Tour location not found", { status: 404 });
-    }
-
-    return NextResponse.json(tourLocation, {
-      status: 200,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const { id } = await params;
+    const headers = getForwardHeaders(request);
+    const res = await fetch(`${BACKEND_URL}/api/v1/tour-locations/${id}`, { headers, cache: "no-store" });
+    const data = await res.json();
+    return NextResponse.json(data.data || data, { status: res.status });
   } catch (error) {
-    console.log(error);
-    return NextResponse.json("something went wrong", { status: 500 });
+    return NextResponse.json({ error: "Failed to fetch tour location" }, { status: 500 });
   }
 }
-export async function DELETE(request, context) {
-  const { id } = await context.params;
 
+export async function PUT(request, { params }) {
   try {
-    await db_connect();
-    const deleteTourLocation = await TourLocationModel.findByIdAndDelete(id);
-    if (!deleteTourLocation) {
-      return new NextResponse(
-        { error: "Tour location deletion failed" },
-        { status: 500 },
-      );
-    }
-    deleteFile("locations", deleteTourLocation.image);
+    const { id } = await params;
+    const contentType = request.headers.get("content-type") || "";
+    let bodyPayload;
 
-    const paths = ["/", "/dashboard/tour-locations"];
-    paths.forEach((p) => revalidatePath(p));
-    return NextResponse.json(
-      { message: "Tour location deleted successfully" },
-      {
-        status: 200,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      },
-    );
-  } catch (error) {
-    console.log(error);
-    return NextResponse.json(
-      { error: "something went wrong" },
-      { status: 500 },
-    );
-  }
-}
-export async function PUT(request, context) {
-  const { id } = await context.params;
-  const formData = await request.formData();
-  const { image, country, existingImage } = Object.fromEntries(formData);
-
-  if (!formData.has("country") || (!formData.has("image") && !existingImage)) {
-    return NextResponse.json(
-      { error: "Missing required fields" },
-      { status: 400 },
-    );
-  }
-  let tourLocationData;
-  try {
-    if (image) {
-      const filename = await fileuploader(image, "locations");
-      tourLocationData = {
-        country,
-        image: filename,
-      };
+    if (contentType.includes("application/json")) {
+      bodyPayload = await request.json();
     } else {
-      tourLocationData = {
+      const formData = await request.formData();
+      const country = formData.get("country");
+      const description = formData.get("description");
+      const existingImage = formData.get("existingImage");
+      const imageFile = formData.get("image");
+
+      bodyPayload = {
         country,
-        image: existingImage,
+        description: description || "",
+        image: typeof imageFile === "string" ? imageFile : existingImage || "",
       };
     }
 
-    await db_connect();
-    const editTourLocation = await TourLocationModel.findByIdAndUpdate(
-      id,
-      tourLocationData,
-    );
-    if (!editTourLocation) {
-      return new NextResponse(
-        { error: "tour location deletion failed" },
-        { status: 500 },
-      );
+    const headers = getForwardHeaders(request, { "Content-Type": "application/json" });
+    const res = await fetch(`${BACKEND_URL}/api/v1/tour-locations/${id}`, {
+      method: "PUT",
+      headers,
+      body: JSON.stringify(bodyPayload),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      return NextResponse.json({ error: data.message || data.error || "Failed to update tour location" }, { status: res.status });
     }
-    if (image) {
-      deleteFile("locations", existingImage);
-    }
-    const paths = ["/", "/dashboard/tour-locations"];
-    paths.forEach((p) => revalidatePath(p));
-    return NextResponse.json(
-      { message: "Tour location updated successfully" },
-      {
-        status: 200,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      },
-    );
+    return NextResponse.json(data.data || data, { status: res.status });
   } catch (error) {
-    console.log(error);
-    return NextResponse.json(
-      { error: "something went wrong" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: error.message || "Failed to update tour location" }, { status: 500 });
+  }
+}
+
+export async function DELETE(request, { params }) {
+  try {
+    const { id } = await params;
+    const headers = getForwardHeaders(request);
+    const res = await fetch(`${BACKEND_URL}/api/v1/tour-locations/${id}`, {
+      method: "DELETE",
+      headers,
+    });
+    const data = await res.json();
+    return NextResponse.json(data, { status: res.status });
+  } catch (error) {
+    return NextResponse.json({ error: error.message || "Failed to delete tour location" }, { status: 500 });
   }
 }

@@ -59,7 +59,7 @@ export default function UsersPage({ users = [], pagination = { page: 1, totalPag
         {users.length === 0 ? (
           <div className="p-12 text-center max-w-md mx-auto space-y-4">
             <Image
-              src="/images/dashboard/empty.png"
+              src="/images/placeholders/empty_state.png"
               width={300}
               height={300}
               priority
@@ -82,13 +82,12 @@ export default function UsersPage({ users = [], pagination = { page: 1, totalPag
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 text-gray-700">
-                {users.map((userItem) => {
-                  const userId = userItem._id || userItem.id;
+                {users.map((userItem, idx) => {
+                  const userId = userItem.id || `user-${idx}`;
 
                   const isSelf =
                     Boolean(currentUser) &&
-                    ((currentUser?.id && (userId === currentUser.id || userId === currentUser._id)) ||
-                      (currentUser?._id && (userId === currentUser._id || userId === currentUser.id)) ||
+                    ((currentUser?.id && userId === currentUser.id) ||
                       (currentUser?.email && userItem.email?.toLowerCase() === currentUser.email?.toLowerCase()));
 
                   return (
