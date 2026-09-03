@@ -3,10 +3,8 @@
 import { cookies } from "next/headers";
 import { getBackendUrl } from "@/config/env";
 
-const BACKEND_URL = getBackendUrl();
-
-const getAuthHeaders = (extraHeaders = {}) => {
-  const nextCookies = cookies();
+const getAuthHeaders = async (extraHeaders = {}) => {
+  const nextCookies = await cookies();
   const token = nextCookies.get("token")?.value || nextCookies.get("accessToken")?.value;
   const headers = { ...extraHeaders };
   if (token) {
@@ -18,8 +16,10 @@ const getAuthHeaders = (extraHeaders = {}) => {
 
 export const getMediaByFolderPath = async (folderPath = "") => {
   try {
-    const res = await fetch(`${BACKEND_URL}/api/v1/media?folderPath=${encodeURIComponent(folderPath)}`, {
-      headers: getAuthHeaders(),
+    const backendUrl = getBackendUrl();
+    const headers = await getAuthHeaders();
+    const res = await fetch(`${backendUrl}/api/v1/media?folderPath=${encodeURIComponent(folderPath)}`, {
+      headers,
       cache: "no-store",
     });
     if (!res.ok) throw new Error("Failed to fetch media items");
@@ -40,9 +40,11 @@ export const getMediaByFolderPath = async (folderPath = "") => {
 
 export const createMediaFolder = async (folderName, parentFolderPath = "") => {
   try {
-    const res = await fetch(`${BACKEND_URL}/api/v1/media/folder`, {
+    const backendUrl = getBackendUrl();
+    const headers = await getAuthHeaders({ "Content-Type": "application/json" });
+    const res = await fetch(`${backendUrl}/api/v1/media/folder`, {
       method: "POST",
-      headers: getAuthHeaders({ "Content-Type": "application/json" }),
+      headers,
       body: JSON.stringify({ folderName, parentFolderPath }),
     });
     if (!res.ok) throw new Error("Failed to create folder");
@@ -56,9 +58,11 @@ export const createMediaFolder = async (folderName, parentFolderPath = "") => {
 
 export const renameMediaItem = async (id, name) => {
   try {
-    const res = await fetch(`${BACKEND_URL}/api/v1/media/${id}`, {
+    const backendUrl = getBackendUrl();
+    const headers = await getAuthHeaders({ "Content-Type": "application/json" });
+    const res = await fetch(`${backendUrl}/api/v1/media/${id}`, {
       method: "PATCH",
-      headers: getAuthHeaders({ "Content-Type": "application/json" }),
+      headers,
       body: JSON.stringify({ name }),
     });
     if (!res.ok) throw new Error("Failed to rename media item");
@@ -72,9 +76,11 @@ export const renameMediaItem = async (id, name) => {
 
 export const deleteMediaItem = async (id) => {
   try {
-    const res = await fetch(`${BACKEND_URL}/api/v1/media/${id}`, {
+    const backendUrl = getBackendUrl();
+    const headers = await getAuthHeaders();
+    const res = await fetch(`${backendUrl}/api/v1/media/${id}`, {
       method: "DELETE",
-      headers: getAuthHeaders(),
+      headers,
     });
     if (!res.ok) throw new Error("Failed to delete media item");
     return { success: true };

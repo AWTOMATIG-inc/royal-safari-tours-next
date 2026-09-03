@@ -2,11 +2,10 @@
 
 import { getBackendUrl } from "@/config/env";
 
-const BACKEND_URL = getBackendUrl();
-
 export const getTourLocations = async () => {
   try {
-    const res = await fetch(`${BACKEND_URL}/api/v1/tour-locations`, {
+    const backendUrl = getBackendUrl();
+    const res = await fetch(`${backendUrl}/api/v1/tour-locations`, {
       cache: "no-store",
     });
     if (!res.ok) throw new Error("Failed to fetch tour locations");
@@ -24,7 +23,8 @@ export const getTourLocations = async () => {
 
 export const getTourLocationsByPagination = async (page = 1, limit = 10) => {
   try {
-    const res = await fetch(`${BACKEND_URL}/api/v1/tour-locations?page=${page}&limit=${limit}`, {
+    const backendUrl = getBackendUrl();
+    const res = await fetch(`${backendUrl}/api/v1/tour-locations?page=${page}&limit=${limit}`, {
       cache: "no-store",
     });
     if (!res.ok) throw new Error("Failed to fetch tour locations");
@@ -53,7 +53,8 @@ export const getTourLocationsByPagination = async (page = 1, limit = 10) => {
 
 export const getTourLocationBySlug = async (slug) => {
   try {
-    const res = await fetch(`${BACKEND_URL}/api/v1/tour-locations/${slug}`, {
+    const backendUrl = getBackendUrl();
+    const res = await fetch(`${backendUrl}/api/v1/tour-locations/${slug}`, {
       cache: "no-store",
     });
     if (!res.ok) throw new Error("Failed to fetch tour location");

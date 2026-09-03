@@ -2,12 +2,11 @@
 
 import { getBackendUrl } from "@/config/env";
 
-const BACKEND_URL = getBackendUrl();
-
 export const getTourPackages = async (page = 1, limit = 6, status = "published") => {
   try {
+    const backendUrl = getBackendUrl();
     const publishedQuery = status === "all" ? "" : "&isPublished=true";
-    const res = await fetch(`${BACKEND_URL}/api/v1/tour-packages?page=${page}&limit=${limit}${publishedQuery}`, {
+    const res = await fetch(`${backendUrl}/api/v1/tour-packages?page=${page}&limit=${limit}${publishedQuery}`, {
       cache: "no-store",
     });
     if (!res.ok) throw new Error("Failed to fetch tour packages");
@@ -33,7 +32,8 @@ export const getTourPackages = async (page = 1, limit = 6, status = "published")
 
 export const getTourPackageBySlug = async (slug) => {
   try {
-    const res = await fetch(`${BACKEND_URL}/api/v1/tour-packages/${slug}`, {
+    const backendUrl = getBackendUrl();
+    const res = await fetch(`${backendUrl}/api/v1/tour-packages/${slug}`, {
       cache: "no-store",
     });
     if (!res.ok) throw new Error("Failed to fetch tour package");
@@ -50,8 +50,9 @@ export const getTourPackageBySlug = async (slug) => {
 
 export const getTourPackageByLocation = async (location = "all") => {
   try {
+    const backendUrl = getBackendUrl();
     const locQuery = location && location !== "all" ? `&location=${encodeURIComponent(location)}` : "";
-    const res = await fetch(`${BACKEND_URL}/api/v1/tour-packages?isPublished=true${locQuery}`, {
+    const res = await fetch(`${backendUrl}/api/v1/tour-packages?isPublished=true${locQuery}`, {
       cache: "no-store",
     });
     if (!res.ok) throw new Error("Failed to fetch location packages");
@@ -71,9 +72,10 @@ export const getTourPackageByLocation = async (location = "all") => {
 
 export const getTourPackagesAndLocations = async () => {
   try {
+    const backendUrl = getBackendUrl();
     const [packagesRes, locationsRes] = await Promise.all([
-      fetch(`${BACKEND_URL}/api/v1/tour-packages?isPublished=true`, { cache: "no-store" }),
-      fetch(`${BACKEND_URL}/api/v1/tour-locations`, { cache: "no-store" }),
+      fetch(`${backendUrl}/api/v1/tour-packages?isPublished=true`, { cache: "no-store" }),
+      fetch(`${backendUrl}/api/v1/tour-locations`, { cache: "no-store" }),
     ]);
 
     const packagesData = packagesRes.ok ? await packagesRes.json() : { data: [] };
@@ -104,9 +106,10 @@ export const getTourPackagesAndLocations = async () => {
 
 export const getTourPackageWithSlugAndLocations = async (slug) => {
   try {
+    const backendUrl = getBackendUrl();
     const [packageRes, locationsRes] = await Promise.all([
-      fetch(`${BACKEND_URL}/api/v1/tour-packages/${slug}`, { cache: "no-store" }),
-      fetch(`${BACKEND_URL}/api/v1/tour-locations`, { cache: "no-store" }),
+      fetch(`${backendUrl}/api/v1/tour-packages/${slug}`, { cache: "no-store" }),
+      fetch(`${backendUrl}/api/v1/tour-locations`, { cache: "no-store" }),
     ]);
 
     const packageData = packageRes.ok ? await packageRes.json() : { data: null };
