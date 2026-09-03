@@ -9,7 +9,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 const ITEMS_PER_PAGE = 12;
 
 export default function ClientGalleryPage({ items = [] }) {

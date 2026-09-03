@@ -1,15 +1,15 @@
 import { NextResponse } from "next/server";
 import { getForwardHeaders } from "@/lib/proxyHelper";
-
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+import { getBackendUrl } from "@/config/env";
 
 export async function GET(request) {
   try {
+    const backendUrl = getBackendUrl();
     const { searchParams } = new URL(request.url);
     const queryString = searchParams.toString();
     const url = queryString
-      ? `${BACKEND_URL}/api/v1/testimonials?${queryString}`
-      : `${BACKEND_URL}/api/v1/testimonials`;
+      ? `${backendUrl}/api/v1/testimonials?${queryString}`
+      : `${backendUrl}/api/v1/testimonials`;
 
     const headers = getForwardHeaders(request);
     const res = await fetch(url, { headers, cache: "no-store" });
@@ -22,6 +22,7 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
+    const backendUrl = getBackendUrl();
     const contentType = request.headers.get("content-type") || "";
     let bodyPayload;
 
@@ -42,7 +43,7 @@ export async function POST(request) {
     }
 
     const headers = getForwardHeaders(request, { "Content-Type": "application/json" });
-    const res = await fetch(`${BACKEND_URL}/api/v1/testimonials`, {
+    const res = await fetch(`${backendUrl}/api/v1/testimonials`, {
       method: "POST",
       headers,
       body: JSON.stringify(bodyPayload),

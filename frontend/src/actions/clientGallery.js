@@ -1,8 +1,10 @@
 "use server";
 
+import { getBackendUrl } from "@/config/env";
+
 export const getClientGalleryItems = async (query = {}) => {
   try {
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+    const backendUrl = getBackendUrl();
     const searchParams = new URLSearchParams();
     if (query.destination) searchParams.append("destination", query.destination);
     if (query.search) searchParams.append("search", query.search);

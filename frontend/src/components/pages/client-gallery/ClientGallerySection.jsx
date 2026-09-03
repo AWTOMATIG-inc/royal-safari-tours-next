@@ -6,7 +6,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 const ITEMS_PER_PAGE = 12;
 
 export default function ClientGallerySection({ initialItems = [] }) {
@@ -27,7 +26,7 @@ export default function ClientGallerySection({ initialItems = [] }) {
       return pathStr;
     }
     if (pathStr.startsWith("/uploads/")) {
-      return `${API_BASE}${pathStr}`;
+      return pathStr;
     }
     if (pathStr.startsWith("/api/uploads/")) {
       return pathStr;

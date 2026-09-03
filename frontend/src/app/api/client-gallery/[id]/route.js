@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import { getForwardHeaders } from "@/lib/proxyHelper";
-
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+import { getBackendUrl } from "@/config/env";
 
 export async function DELETE(request, context) {
   const { id } = await context.params;
   try {
+    const backendUrl = getBackendUrl();
     const headers = getForwardHeaders(request);
-    const res = await fetch(`${BACKEND_URL}/api/v1/gallery/${id}`, {
+    const res = await fetch(`${backendUrl}/api/v1/gallery/${id}`, {
       method: "DELETE",
       headers,
     });
@@ -22,13 +22,14 @@ export async function DELETE(request, context) {
 export async function PATCH(request, context) {
   const { id } = await context.params;
   try {
+    const backendUrl = getBackendUrl();
     const contentType = request.headers.get("content-type") || "";
 
     let res;
     if (contentType.includes("multipart/form-data")) {
       const formData = await request.formData();
       const headers = getForwardHeaders(request);
-      res = await fetch(`${BACKEND_URL}/api/v1/gallery/${id}`, {
+      res = await fetch(`${backendUrl}/api/v1/gallery/${id}`, {
         method: "PATCH",
         headers,
         body: formData,
@@ -36,7 +37,7 @@ export async function PATCH(request, context) {
     } else {
       const body = await request.json();
       const headers = getForwardHeaders(request, { "Content-Type": "application/json" });
-      res = await fetch(`${BACKEND_URL}/api/v1/gallery/${id}`, {
+      res = await fetch(`${backendUrl}/api/v1/gallery/${id}`, {
         method: "PATCH",
         headers,
         body: JSON.stringify(body),
