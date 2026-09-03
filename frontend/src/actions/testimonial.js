@@ -2,11 +2,10 @@
 
 import { getBackendUrl } from "@/config/env";
 
-const BACKEND_URL = getBackendUrl();
-
 export const getTestimonials = async () => {
   try {
-    const res = await fetch(`${BACKEND_URL}/api/v1/testimonials?isPublished=true`, {
+    const backendUrl = getBackendUrl();
+    const res = await fetch(`${backendUrl}/api/v1/testimonials?isPublished=true`, {
       cache: "no-store",
     });
     if (!res.ok) throw new Error("Failed to fetch testimonials");
@@ -20,7 +19,8 @@ export const getTestimonials = async () => {
 
 export const getTestimonialById = async (id) => {
   try {
-    const res = await fetch(`${BACKEND_URL}/api/v1/testimonials/${id}`, {
+    const backendUrl = getBackendUrl();
+    const res = await fetch(`${backendUrl}/api/v1/testimonials/${id}`, {
       cache: "no-store",
     });
     if (!res.ok) throw new Error("Failed to fetch testimonial");
@@ -34,7 +34,8 @@ export const getTestimonialById = async (id) => {
 
 export const getTestimonialsByPagination = async (page = 1, limit = 10) => {
   try {
-    const res = await fetch(`${BACKEND_URL}/api/v1/testimonials?page=${page}&limit=${limit}`, {
+    const backendUrl = getBackendUrl();
+    const res = await fetch(`${backendUrl}/api/v1/testimonials?page=${page}&limit=${limit}`, {
       cache: "no-store",
     });
     if (!res.ok) throw new Error("Failed to fetch testimonials");
