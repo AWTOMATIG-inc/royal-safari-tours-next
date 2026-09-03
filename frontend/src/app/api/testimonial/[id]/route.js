@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import { getForwardHeaders } from "@/lib/proxyHelper";
-
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+import { getBackendUrl } from "@/config/env";
 
 export async function GET(request, { params }) {
   try {
+    const backendUrl = getBackendUrl();
     const { id } = await params;
     const headers = getForwardHeaders(request);
-    const res = await fetch(`${BACKEND_URL}/api/v1/testimonials/${id}`, { headers, cache: "no-store" });
+    const res = await fetch(`${backendUrl}/api/v1/testimonials/${id}`, { headers, cache: "no-store" });
     const data = await res.json();
     return NextResponse.json(data.data || data, { status: res.status });
   } catch (error) {
@@ -17,6 +17,7 @@ export async function GET(request, { params }) {
 
 export async function PUT(request, { params }) {
   try {
+    const backendUrl = getBackendUrl();
     const { id } = await params;
     const contentType = request.headers.get("content-type") || "";
     let bodyPayload;
@@ -38,7 +39,7 @@ export async function PUT(request, { params }) {
     }
 
     const headers = getForwardHeaders(request, { "Content-Type": "application/json" });
-    const res = await fetch(`${BACKEND_URL}/api/v1/testimonials/${id}`, {
+    const res = await fetch(`${backendUrl}/api/v1/testimonials/${id}`, {
       method: "PUT",
       headers,
       body: JSON.stringify(bodyPayload),
@@ -52,9 +53,10 @@ export async function PUT(request, { params }) {
 
 export async function DELETE(request, { params }) {
   try {
+    const backendUrl = getBackendUrl();
     const { id } = await params;
     const headers = getForwardHeaders(request);
-    const res = await fetch(`${BACKEND_URL}/api/v1/testimonials/${id}`, {
+    const res = await fetch(`${backendUrl}/api/v1/testimonials/${id}`, {
       method: "DELETE",
       headers,
     });

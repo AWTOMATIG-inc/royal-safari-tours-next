@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import { getForwardHeaders } from "@/lib/proxyHelper";
-
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+import { getBackendUrl } from "@/config/env";
 
 export async function GET(request) {
   try {
+    const backendUrl = getBackendUrl();
     const { searchParams } = new URL(request.url);
     const headers = getForwardHeaders(request);
-    const res = await fetch(`${BACKEND_URL}/api/v1/subscribers?${searchParams.toString()}`, {
+    const res = await fetch(`${backendUrl}/api/v1/subscribers?${searchParams.toString()}`, {
       headers,
       cache: "no-store",
     });
@@ -20,8 +20,9 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
+    const backendUrl = getBackendUrl();
     const body = await request.json();
-    const res = await fetch(`${BACKEND_URL}/api/v1/subscribers`, {
+    const res = await fetch(`${backendUrl}/api/v1/subscribers`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),

@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import { getForwardHeaders } from "@/lib/proxyHelper";
-
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+import { getBackendUrl } from "@/config/env";
 
 export async function DELETE(request, { params }) {
   try {
+    const backendUrl = getBackendUrl();
     const { id } = await params;
     const headers = getForwardHeaders(request);
-    const res = await fetch(`${BACKEND_URL}/api/v1/subscribers/${id}`, {
+    const res = await fetch(`${backendUrl}/api/v1/subscribers/${id}`, {
       method: "DELETE",
       headers,
     });

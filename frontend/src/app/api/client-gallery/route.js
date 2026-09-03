@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import { getForwardHeaders } from "@/lib/proxyHelper";
-
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+import { getBackendUrl } from "@/config/env";
 
 export async function GET(request) {
   try {
+    const backendUrl = getBackendUrl();
     const { searchParams } = new URL(request.url);
     const headers = getForwardHeaders(request);
-    const res = await fetch(`${BACKEND_URL}/api/v1/gallery?${searchParams.toString()}`, {
+    const res = await fetch(`${backendUrl}/api/v1/gallery?${searchParams.toString()}`, {
       headers,
       cache: "no-store",
     });
@@ -21,13 +21,14 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
+    const backendUrl = getBackendUrl();
     const contentType = request.headers.get("content-type") || "";
     let res;
 
     if (contentType.includes("multipart/form-data")) {
       const formData = await request.formData();
       const headers = getForwardHeaders(request);
-      res = await fetch(`${BACKEND_URL}/api/v1/gallery`, {
+      res = await fetch(`${backendUrl}/api/v1/gallery`, {
         method: "POST",
         headers,
         body: formData,
@@ -35,7 +36,7 @@ export async function POST(request) {
     } else {
       const body = await request.json();
       const headers = getForwardHeaders(request, { "Content-Type": "application/json" });
-      res = await fetch(`${BACKEND_URL}/api/v1/gallery`, {
+      res = await fetch(`${backendUrl}/api/v1/gallery`, {
         method: "POST",
         headers,
         body: JSON.stringify(body),
