@@ -17,10 +17,8 @@ dist-ssr
 
 # Local files
 *.local
-
 # Optional cache
 .cache
-
 # OS files
 .DS_Store
 Thumbs.db
