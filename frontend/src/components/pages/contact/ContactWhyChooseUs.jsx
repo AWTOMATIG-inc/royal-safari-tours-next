@@ -28,9 +28,9 @@ const features = [
 
 export default function ContactWhyChooseUs() {
   return (
-    <section className="border-t border-b border-gray-200/80 py-8 sm:py-10 md:py-12 bg-white font-body">
+    <section className="py-8 sm:py-10 md:py-12 bg-white font-body">
       <div className="container">
-        <div className="max-w-5xl mx-auto bg-primary text-white px-5 sm:px-8 md:px-10 py-6 sm:py-8 md:py-10 rounded-3xl shadow-lg">
+        <div className="max-w-7xl mx-auto bg-primary text-white px-5 sm:px-8 md:px-10 py-6 sm:py-8 md:py-10 rounded-3xl shadow-lg">
           <RevealGroup className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-10 font-body">
             {features.map((feature, idx) => (
               <RevealGroup.Item key={idx} className="flex flex-col items-center sm:items-start text-center sm:text-left gap-2 sm:gap-3 font-body">

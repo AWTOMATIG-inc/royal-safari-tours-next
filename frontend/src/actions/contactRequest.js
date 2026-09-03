@@ -1,35 +1,41 @@
 "use server";
 
-import { db_connect } from "@/database";
-import { ContactModel } from "@/database/models/contactModel";
+import { cookies } from "next/headers";
+import { getBackendUrl } from "@/config/env";
+
+const BACKEND_URL = getBackendUrl();
+
+const getAuthHeaders = async (extraHeaders = {}) => {
+  const nextCookies = await cookies();
+  const token = nextCookies.get("token")?.value || nextCookies.get("accessToken")?.value;
+  const headers = { ...extraHeaders };
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+    headers["Cookie"] = `token=${token}; accessToken=${token}`;
+  }
+  return headers;
+};
 
 export const getContactRequests = async (page = 1) => {
   try {
-    const limit = 10;
-    const currentPage = Math.max(1, Number(page) || 1);
-    const skip = (currentPage - 1) * limit;
-     await db_connect();
-    const [contactRequestData, total] = await Promise.all([
-      ContactModel.find().skip(skip).limit(limit).sort({ createdAt: -1 }).lean(),
-      ContactModel.countDocuments(),
-    ]);
-    const contactRequests = JSON.parse(JSON.stringify(contactRequestData));
+    const headers = await getAuthHeaders();
+    const res = await fetch(`${BACKEND_URL}/api/v1/contacts?page=${page}&limit=10`, {
+      headers,
+      cache: "no-store",
+    });
+    if (!res.ok) throw new Error("Failed to fetch contact inquiries");
+    const result = await res.json();
     return {
       success: true,
-      data: contactRequests,
-      pagination: {
-        page: currentPage,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-      },
+      data: result.data || [],
+      pagination: result.meta || { page, limit: 10, total: 0, totalPages: 1 },
     };
   } catch (error) {
     console.error("Get Contact Requests Error:", error);
-
     return {
       success: false,
-      message: "Failed to fetch contact requests",
+      data: [],
+      message: error.message || "Failed to fetch contact requests",
     };
   }
 };

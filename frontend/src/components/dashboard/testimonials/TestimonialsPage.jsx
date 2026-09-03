@@ -1,6 +1,7 @@
 "use client";
 
 import DashboardPageHeader from "@/components/dashboard/DashboardPageHeader";
+import ConfirmModal from "@/components/dashboard/ConfirmModal";
 import Rating from "@/components/Rating";
 import { Icon } from "@iconify/react";
 import Image from "next/image";
@@ -12,20 +13,29 @@ import toast from "react-hot-toast";
 export default function TestimonialsPage({ testimonials = [], pagination = { page: 1, totalPages: 1 } }) {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
+  const [deleteModal, setDeleteModal] = useState({ open: false, id: null, name: "" });
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  const isPrev = Number(pagination.page) === 1;
-  const isNext = Number(pagination.page) === pagination.totalPages;
+  const isPrev = Number(pagination.page || 1) === 1;
+  const isNext = Number(pagination.page || 1) === Number(pagination.totalPages || 1);
 
-  const handleDelete = async (id) => {
-    const confirmed = confirm("Are you sure you want to delete this testimonial?");
-    if (!confirmed) return;
+  const handleOpenDeleteModal = (id, name) => {
+    setDeleteModal({ open: true, id, name });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteModal.id) return;
+    setIsDeleting(true);
     try {
-      const res = await fetch(`/api/testimonial/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/testimonial/${deleteModal.id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Delete failed");
       toast.success("Testimonial deleted successfully!");
+      setDeleteModal({ open: false, id: null, name: "" });
       router.refresh();
     } catch (error) {
       toast.error(error.message);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -59,7 +69,7 @@ export default function TestimonialsPage({ testimonials = [], pagination = { pag
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search testimonials by reviewer, country..."
+            placeholder="Search testimonials..."
             className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-10 pr-9 py-2.5 text-xs text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#2cb775] focus:bg-white transition-all duration-200"
           />
           {searchQuery && (
@@ -80,9 +90,9 @@ export default function TestimonialsPage({ testimonials = [], pagination = { pag
       </div>
 
       {testimonials.length === 0 ? (
-        <div className="bg-white rounded-3xl p-12 text-center border border-gray-100 shadow-sm max-w-md mx-auto my-12 space-y-4">
+        <div className="bg-white rounded-3xl p-12 text-center border border-gray-100 shadow-sm max-w-md mx-auto my-12 space-y-4 font-inter">
           <Image
-            src="/images/dashboard/empty.png"
+            src="/images/placeholders/empty_state.png"
             width={300}
             height={300}
             priority
@@ -90,11 +100,11 @@ export default function TestimonialsPage({ testimonials = [], pagination = { pag
             className="mx-auto opacity-80"
           />
           <p className="text-gray-500 font-medium text-base">
-            No testimonials yet. Click above to add your first customer review.
+            No testimonials found. Click above to add your first review.
           </p>
         </div>
       ) : filteredTestimonials.length === 0 ? (
-        <div className="bg-white rounded-3xl p-12 text-center border border-gray-100 shadow-sm max-w-md mx-auto my-12 space-y-4">
+        <div className="bg-white rounded-3xl p-12 text-center border border-gray-100 shadow-sm max-w-md mx-auto my-12 space-y-4 font-inter">
           <Icon icon="lucide:search-x" className="w-12 h-12 text-gray-300 mx-auto" />
           <p className="text-gray-500 font-medium text-base">
             No testimonials match &quot;{searchQuery}&quot;
@@ -108,7 +118,8 @@ export default function TestimonialsPage({ testimonials = [], pagination = { pag
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {filteredTestimonials.map((item) => {
+          {filteredTestimonials.map((item, idx) => {
+            const itemId = item.id || `testi-${idx}`;
             const avatarSrc = item.avatarImage?.startsWith("http") || item.avatarImage?.startsWith("/")
               ? item.avatarImage
               : `/api/uploads/testimonials/${item.avatarImage}`;
@@ -119,7 +130,7 @@ export default function TestimonialsPage({ testimonials = [], pagination = { pag
 
             return (
               <div
-                key={item._id}
+                key={itemId}
                 className="bg-white rounded-2xl border border-gray-100 shadow-[0_4px_20px_rgba(13,35,30,0.03)] hover:shadow-[0_12px_35px_rgba(13,35,30,0.08)] p-6 space-y-4 transition-all duration-300 flex flex-col justify-between"
               >
                 <div className="space-y-4">
@@ -128,7 +139,7 @@ export default function TestimonialsPage({ testimonials = [], pagination = { pag
                       <div className="relative w-12 h-12 rounded-full overflow-hidden border border-gray-200 shrink-0 bg-gray-50">
                         <Image
                           src={avatarSrc}
-                          alt={item.name}
+                          alt={item.name || "Testimonial Author"}
                           fill
                           sizes="48px"
                           className="object-cover"
@@ -161,14 +172,14 @@ export default function TestimonialsPage({ testimonials = [], pagination = { pag
 
                   <div className="flex items-center gap-1.5">
                     <Link
-                      href={`/dashboard/testimonials/edit/${item._id}`}
+                      href={`/dashboard/testimonials/edit/${itemId}`}
                       className="p-2 rounded-lg bg-gray-50 text-gray-600 hover:bg-[#2cb775]/10 hover:text-[#2cb775] transition-colors"
                       title="Edit testimonial"
                     >
                       <Icon icon="lucide:pencil" className="w-4 h-4" />
                     </Link>
                     <button
-                      onClick={() => handleDelete(item._id)}
+                      onClick={() => handleOpenDeleteModal(itemId, item.name)}
                       className="p-2 rounded-lg bg-gray-50 text-gray-500 hover:bg-rose-50 hover:text-rose-600 transition-colors cursor-pointer"
                       title="Delete testimonial"
                     >
@@ -230,6 +241,18 @@ export default function TestimonialsPage({ testimonials = [], pagination = { pag
           </Link>
         </div>
       )}
+
+      {/* Custom Confirmation Modal */}
+      <ConfirmModal
+        isOpen={deleteModal.open}
+        onClose={() => setDeleteModal({ open: false, id: null, name: "" })}
+        onConfirm={handleConfirmDelete}
+        title="Delete Testimonial"
+        message={`Are you sure you want to delete ${deleteModal.name ? `"${deleteModal.name}"'s testimonial` : "this testimonial"}? This action cannot be undone.`}
+        confirmText="Delete Testimonial"
+        variant="danger"
+        loading={isDeleting}
+      />
     </div>
   );
 }

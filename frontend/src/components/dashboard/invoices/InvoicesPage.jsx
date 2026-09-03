@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { getInvoices, deleteInvoiceAction } from "@/actions/invoice";
 import InvoiceModal from "./InvoiceModal";
 import InvoicePrintModal from "./InvoicePrintModal";
+import ConfirmModal from "@/components/dashboard/ConfirmModal";
 
 export default function InvoicesPage() {
   const { user } = useAuth();
@@ -58,17 +59,29 @@ export default function InvoicesPage() {
     setIsPrintModalOpen(true);
   };
 
-  const handleDeleteInvoice = async (id, invoiceNumber) => {
-    if (!window.confirm(`Are you sure you want to delete invoice ${invoiceNumber}?`)) {
-      return;
-    }
+  const [deleteModal, setDeleteModal] = useState({ open: false, id: null, number: "" });
+  const [isDeleting, setIsDeleting] = useState(false);
 
-    const res = await deleteInvoiceAction(id);
-    if (res.success) {
-      toast.success("Invoice deleted successfully");
-      fetchInvoices();
-    } else {
-      toast.error(res.message || "Failed to delete invoice");
+  const handleOpenDeleteModal = (id, invoiceNumber) => {
+    setDeleteModal({ open: true, id, number: invoiceNumber });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteModal.id) return;
+    setIsDeleting(true);
+    try {
+      const res = await deleteInvoiceAction(deleteModal.id);
+      if (res.success) {
+        toast.success("Invoice deleted successfully");
+        setDeleteModal({ open: false, id: null, number: "" });
+        fetchInvoices();
+      } else {
+        toast.error(res.message || "Failed to delete invoice");
+      }
+    } catch (err) {
+      toast.error(err.message || "Failed to delete invoice");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -343,7 +356,7 @@ export default function InvoicesPage() {
                           {/* Delete (Admin Only) */}
                           {isAdmin && (
                             <button
-                              onClick={() => handleDeleteInvoice(inv.id, inv.invoiceNumber)}
+                              onClick={() => handleOpenDeleteModal(inv.id, inv.invoiceNumber)}
                               className="p-1.5 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors cursor-pointer"
                               title="Delete Invoice"
                             >
@@ -374,6 +387,18 @@ export default function InvoicesPage() {
         isOpen={isPrintModalOpen}
         onClose={() => setIsPrintModalOpen(false)}
         invoice={printingInvoice}
+      />
+
+      {/* Custom Confirmation Modal */}
+      <ConfirmModal
+        isOpen={deleteModal.open}
+        onClose={() => setDeleteModal({ open: false, id: null, number: "" })}
+        onConfirm={handleConfirmDelete}
+        title="Delete Invoice"
+        message={`Are you sure you want to delete invoice ${deleteModal.number ? `"${deleteModal.number}"` : "this invoice"}? This action cannot be undone.`}
+        confirmText="Delete Invoice"
+        variant="danger"
+        loading={isDeleting}
       />
     </div>
   );

@@ -1,74 +1,34 @@
-import { db_connect } from "@/database";
-import { SubscriberModel } from "@/database/models/subscribeModel";
-import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
+import { getForwardHeaders } from "@/lib/proxyHelper";
 
-export async function POST(request) {
-  const body = await request.json();
-  if (!body.email) {
-    return NextResponse.json({ error: "Email is required" }, { status: 400 });
-  }
-  if (!body.name) {
-    return NextResponse.json({ error: "Name is required" }, { status: 400 });
-  }
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
-  try {
-    await db_connect();
-    const isEmail = await SubscriberModel.findOne({ email: body.email });
-    if (isEmail) {
-      return NextResponse.json(
-        { error: "Email already subscribed" },
-        { status: 409 },
-      );
-    }
-    const subsciberData = await SubscriberModel.create({
-      email: body.email,
-      name: body.name,
-    });
-
-    if (!subsciberData) {
-      return NextResponse.json({ error: "Subscribe failed" }, { status: 500 });
-    }
-    const paths = ["/dashboard/subscribers"];
-    paths.forEach((p) => revalidatePath(p));
-    return NextResponse.json(subsciberData, {
-      status: 200,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-  } catch (error) {
-    console.log(error);
-    return NextResponse.json(
-      { error: "something went wrong" },
-      { status: 500 },
-    );
-  }
-}
 export async function GET(request) {
   try {
-    await db_connect();
-    const subscribeData = await SubscriberModel.find()
-      .sort({ createdAt: -1 })
-      .limit(10);
-    if (!subscribeData) {
-      return NextResponse.json(
-        { error: "Subscriber fetch failed" },
-        { status: 500 },
-      );
-    }
-
-    return NextResponse.json(subscribeData, {
-      status: 200,
-      headers: {
-        "Content-Type": "application/json",
-      },
+    const { searchParams } = new URL(request.url);
+    const headers = getForwardHeaders(request);
+    const res = await fetch(`${BACKEND_URL}/api/v1/subscribers?${searchParams.toString()}`, {
+      headers,
+      cache: "no-store",
     });
+    const data = await res.json();
+    return NextResponse.json(data.data || [], { status: res.status });
   } catch (error) {
-    console.log(error);
-    return NextResponse.json(
-      { error: "something went wrong" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Failed to fetch subscribers" }, { status: 500 });
+  }
+}
+
+export async function POST(request) {
+  try {
+    const body = await request.json();
+    const res = await fetch(`${BACKEND_URL}/api/v1/subscribers`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    return NextResponse.json(data.data || data, { status: res.status });
+  } catch (error) {
+    return NextResponse.json({ error: "Failed to subscribe" }, { status: 500 });
   }
 }

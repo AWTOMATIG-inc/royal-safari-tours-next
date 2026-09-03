@@ -1,43 +1,49 @@
 import { prisma } from "../../utils/prisma";
 
 const generateInvoiceNumber = async (): Promise<string> => {
-  // Find all invoices with RST- prefix to determine current highest number
-  const existingInvoices = await prisma.invoice.findMany({
+  // Find only the most recently created invoice with RST- prefix
+  const latestInvoice = await prisma.invoice.findFirst({
     where: {
       invoiceNumber: {
         startsWith: "RST-",
       },
+    },
+    orderBy: {
+      createdAt: "desc",
     },
     select: {
       invoiceNumber: true,
     },
   });
 
-  let maxNum = 1000;
+  let nextNum = 1001;
 
-  for (const inv of existingInvoices) {
-    const match = inv.invoiceNumber.match(/^RST-(\d+)$/);
+  if (latestInvoice?.invoiceNumber) {
+    const match = latestInvoice.invoiceNumber.match(/^RST-(\d+)$/);
     if (match) {
-      const num = parseInt(match[1], 10);
-      if (!isNaN(num) && num > maxNum) {
-        maxNum = num;
+      const parsed = parseInt(match[1], 10);
+      if (!isNaN(parsed) && parsed >= 1000) {
+        nextNum = parsed + 1;
       }
     }
   }
 
-  let nextNum = maxNum + 1;
-
-  // Verify uniqueness in database
-  while (true) {
-    const candidate = `RST-${nextNum}`;
+  let candidate = `RST-${nextNum}`;
+  let attempts = 0;
+  while (attempts < 20) {
     const existing = await prisma.invoice.findUnique({
       where: { invoiceNumber: candidate },
+      select: { id: true },
     });
     if (!existing) {
       return candidate;
     }
     nextNum++;
+    candidate = `RST-${nextNum}`;
+    attempts++;
   }
+
+  return `RST-${Date.now()}`;
 };
 
 const createInvoice = async (userId: string, payload: any) => {
@@ -225,10 +231,10 @@ const updateInvoice = async (userId: string, userRole: string, id: string, paylo
     throw new Error("You do not have permission to update this invoice");
   }
 
-  const discount = payload.discount !== undefined ? Number(payload.discount) : existingInvoice.discount;
-  const amountPaid = payload.amountPaid !== undefined ? Number(payload.amountPaid) : existingInvoice.amountPaid;
+  const discount = payload.discount !== undefined ? Number(payload.discount) : Number(existingInvoice.discount || 0);
+  const amountPaid = payload.amountPaid !== undefined ? Number(payload.amountPaid) : Number(existingInvoice.amountPaid || 0);
 
-  let subTotal = existingInvoice.subTotal;
+  let subTotal = Number(existingInvoice.subTotal || 0);
 
   // Transaction for updating items and invoice fields
   const updatedInvoice = await prisma.$transaction(async (tx) => {

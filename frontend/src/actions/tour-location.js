@@ -1,72 +1,69 @@
 "use server";
-import { db_connect } from "@/database";
-import { TourLocationModel } from "@/database/models/tourLocationModel";
-export const getTourLocationsByPagination = async (page = 1) => {
+
+import { getBackendUrl } from "@/config/env";
+
+const BACKEND_URL = getBackendUrl();
+
+export const getTourLocations = async () => {
   try {
-    const limit = 10;
-    const currentPage = Math.max(1, Number(page) || 1);
-    const skip = (currentPage - 1) * limit;
-    await db_connect();
-    const [tourLocationData, total] = await Promise.all([
-      TourLocationModel.find()
-        .skip(skip)
-        .limit(limit)
-        .sort({ createdAt: -1 })
-        .lean(),
-      TourLocationModel.countDocuments(),
-    ]);
-    const tourLocations = JSON.parse(JSON.stringify(tourLocationData));
-    return {
-      success: true,
-      data: tourLocations,
-      pagination: {
-        page: currentPage,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-      },
-    };
+    const res = await fetch(`${BACKEND_URL}/api/v1/tour-locations`, {
+      cache: "no-store",
+    });
+    if (!res.ok) throw new Error("Failed to fetch tour locations");
+    const result = await res.json();
+    return { data: result.data || [], success: true };
   } catch (error) {
     console.error("Get Tour Locations Error:", error);
-
     return {
       success: false,
-      message: "Failed to fetch tour locations",
+      data: [],
+      message: error.message || "Failed to fetch tour locations",
     };
   }
 };
 
-export const getTourLocations = async () => {
+export const getTourLocationsByPagination = async (page = 1, limit = 10) => {
   try {
-    await db_connect();
-    const tourLocationData = await TourLocationModel.find()
-      .sort({ createdAt: -1 })
-      .lean();
-   
-    const tourLocations = JSON.parse(JSON.stringify(tourLocationData));
-    return { data: tourLocations, success: true };
+    const res = await fetch(`${BACKEND_URL}/api/v1/tour-locations?page=${page}&limit=${limit}`, {
+      cache: "no-store",
+    });
+    if (!res.ok) throw new Error("Failed to fetch tour locations");
+    const result = await res.json();
+    const data = result.data || [];
+    const pagination = result.meta || {
+      page,
+      limit,
+      total: data.length,
+      totalPages: Math.ceil(data.length / limit) || 1,
+    };
+    return {
+      success: true,
+      data,
+      pagination,
+    };
   } catch (error) {
     console.error("Get Tour Locations Error:", error);
     return {
       success: false,
-      message: "Failed to fetch tour locations",
+      data: [],
+      message: error.message || "Failed to fetch tour locations",
     };
   }
 };
 
 export const getTourLocationBySlug = async (slug) => {
   try {
-    await db_connect();
-    const tourLocationData = await TourLocationModel.findOne({ slug: slug })
-      .sort({ createdAt: -1 })
-      .lean();
-      const tourLocation = JSON.parse(JSON.stringify(tourLocationData));
-    return { data:tourLocation, success: true };
+    const res = await fetch(`${BACKEND_URL}/api/v1/tour-locations/${slug}`, {
+      cache: "no-store",
+    });
+    if (!res.ok) throw new Error("Failed to fetch tour location");
+    const result = await res.json();
+    return { data: result.data, success: true };
   } catch (error) {
     console.error("Get Tour Location by Slug Error:", error);
     return {
       success: false,
-      message: "Failed to fetch tour location",
+      message: error.message || "Failed to fetch tour location",
     };
   }
 };

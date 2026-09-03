@@ -11,9 +11,9 @@ export default function TourGallerySection({ tourPackage, onOpenGalleryAt }) {
     tourPackage.image?.startsWith("/")
       ? tourPackage.image
       : `/api/uploads/tour-packages/${tourPackage.image}`,
-    "/images/banners/camping.webp",
-    "/images/banners/contact_office.png",
-    "/images/banners/contact.webp",
+    "/images/banners/travel_inspiration.webp",
+    "/images/banners/about_hero.webp",
+    "/images/banners/contact_hero.webp",
   ].filter(Boolean);
 
   return (

@@ -5,7 +5,11 @@ import { Pool } from "pg";
 import bcrypt from "bcrypt";
 
 const connectionString = process.env.DIRECT_URL || process.env.DATABASE_URL || process.env.DB_URI;
-const pool = new Pool({ connectionString });
+const pool = new Pool({
+  connectionString,
+  max: 5,
+  idleTimeoutMillis: 30000,
+});
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
@@ -13,13 +17,15 @@ async function main() {
   console.log("🌱 Starting HRM Master Database Seeding...");
 
   // 1. Seed Super Admin Account
-  const adminEmail = "admin@gmail.com";
+  const adminEmail = process.env.ADMIN_EMAIL || process.env.SEED_ADMIN_EMAIL || "admin@royalsafari.tours";
+  const rawPassword = process.env.ADMIN_PASSWORD || process.env.SEED_ADMIN_PASSWORD || "Admin@123";
+
   const existingUser = await prisma.user.findUnique({
     where: { email: adminEmail },
   });
 
   if (!existingUser) {
-    const hashedPassword = await bcrypt.hash("Admin@123", 12);
+    const hashedPassword = await bcrypt.hash(rawPassword, 12);
     const adminUser = await prisma.user.create({
       data: {
         name: "Super Admin",

@@ -53,7 +53,7 @@ export default function SubscribersPage({ subscribers = [], pagination = { page:
         {subscribers.length === 0 ? (
           <div className="p-12 text-center max-w-md mx-auto space-y-4">
             <Image
-              src="/images/dashboard/empty.png"
+              src="/images/placeholders/empty_state.png"
               width={300}
               height={300}
               priority
@@ -77,7 +77,7 @@ export default function SubscribersPage({ subscribers = [], pagination = { page:
               </thead>
               <tbody className="divide-y divide-gray-100 text-gray-700">
                 {subscribers.map((item, idx) => {
-                  const subId = item._id || item.id;
+                  const subId = item.id || `sub-${idx}`;
                   const sl = (pagination.page - 1) * 10 + idx + 1;
 
                   return (

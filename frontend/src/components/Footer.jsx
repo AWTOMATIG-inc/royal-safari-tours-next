@@ -1,7 +1,6 @@
 "use client";
 
-import logo from "@/assets/logo/royal-safari-2.png";
-import royal_logo from "@/assets/logo/royal-logo.png";
+import royal_logo from "../../public/images/branding/royal_logo.png";
 import { Icon } from "@iconify/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -41,6 +40,8 @@ export default function Footer() {
                 loading="eager"
                 src={royal_logo}
                 alt="Royal Safari Tours"
+                width={200}
+                height={60}
                 className="w-28 sm:w-32 h-auto object-contain"
               />
             </Link>

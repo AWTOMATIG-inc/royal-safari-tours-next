@@ -1,6 +1,8 @@
 "use client";
 
 import DashboardPageHeader from "@/components/dashboard/DashboardPageHeader";
+import ConfirmModal from "@/components/dashboard/ConfirmModal";
+import MediaGalleryModal from "@/components/dashboard/media/MediaGalleryModal";
 import { Icon } from "@iconify/react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -13,6 +15,7 @@ const ITEMS_PER_PAGE = 12;
 export default function ClientGalleryPage({ items = [] }) {
   const router = useRouter();
   const fileInputRef = useRef(null);
+  const editFileInputRef = useRef(null);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDestination, setSelectedDestination] = useState("All");
@@ -26,6 +29,7 @@ export default function ClientGalleryPage({ items = [] }) {
   // Modal states
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -83,7 +87,7 @@ export default function ClientGalleryPage({ items = [] }) {
   // Create Client Gallery Item
   const handleCreateSubmit = async (e) => {
     e.preventDefault();
-    if (!selectedFile) {
+    if (!selectedFile && !previewUrl) {
       toast.error("Please select an image to upload!");
       return;
     }
@@ -94,17 +98,32 @@ export default function ClientGalleryPage({ items = [] }) {
 
     setLoading(true);
     try {
-      const data = new FormData();
-      data.append("image", selectedFile);
-      data.append("title", formData.title);
-      data.append("caption", formData.caption);
-      data.append("destination", formData.destination);
-      data.append("packageId", formData.packageId);
+      let res;
+      if (selectedFile) {
+        const data = new FormData();
+        data.append("image", selectedFile);
+        data.append("title", formData.title);
+        data.append("caption", formData.caption || "");
+        data.append("destination", formData.destination || "");
+        data.append("packageId", formData.packageId || "");
 
-      const res = await fetch("/api/client-gallery", {
-        method: "POST",
-        body: data,
-      });
+        res = await fetch("/api/client-gallery", {
+          method: "POST",
+          body: data,
+        });
+      } else {
+        res = await fetch("/api/client-gallery", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            imageUrl: previewUrl,
+            title: formData.title,
+            caption: formData.caption || "",
+            destination: formData.destination || "",
+            packageId: formData.packageId || "",
+          }),
+        });
+      }
 
       if (!res.ok) {
         const errorData = await res.json();
@@ -132,6 +151,7 @@ export default function ClientGalleryPage({ items = [] }) {
       packageId: item.packageId || "",
     });
     setPreviewUrl(getFullImageUrl(item.imageUrl));
+    setSelectedFile(null);
     setIsEditModalOpen(true);
   };
 
@@ -145,19 +165,34 @@ export default function ClientGalleryPage({ items = [] }) {
 
     setLoading(true);
     try {
-      const data = new FormData();
-      if (selectedFile) {
-        data.append("image", selectedFile);
-      }
-      data.append("title", formData.title);
-      data.append("caption", formData.caption);
-      data.append("destination", formData.destination);
-      data.append("packageId", formData.packageId);
+      const itemId = selectedItem?.id;
+      let res;
 
-      const res = await fetch(`/api/client-gallery/${selectedItem.id}`, {
-        method: "PATCH",
-        body: data,
-      });
+      if (selectedFile) {
+        const data = new FormData();
+        data.append("image", selectedFile);
+        data.append("title", formData.title);
+        data.append("caption", formData.caption || "");
+        data.append("destination", formData.destination || "");
+        data.append("packageId", formData.packageId || "");
+
+        res = await fetch(`/api/client-gallery/${itemId}`, {
+          method: "PATCH",
+          body: data,
+        });
+      } else {
+        res = await fetch(`/api/client-gallery/${itemId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            imageUrl: previewUrl,
+            title: formData.title,
+            caption: formData.caption || "",
+            destination: formData.destination || "",
+            packageId: formData.packageId || "",
+          }),
+        });
+      }
 
       if (!res.ok) throw new Error("Update failed");
 
@@ -172,22 +207,47 @@ export default function ClientGalleryPage({ items = [] }) {
     }
   };
 
-  // Delete Client Gallery Item
-  const handleDelete = async (id) => {
-    const confirmed = confirm("Are you sure you want to delete this client photo?");
-    if (!confirmed) return;
+  const [deleteModal, setDeleteModal] = useState({ open: false, id: null, title: "" });
+  const [isDeleting, setIsDeleting] = useState(false);
 
+  const handleOpenDeleteModal = (id, title) => {
+    setDeleteModal({ open: true, id, title });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteModal.id) return;
+    setIsDeleting(true);
     try {
-      const res = await fetch(`/api/client-gallery/${id}`, {
+      const res = await fetch(`/api/client-gallery/${deleteModal.id}`, {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("Delete failed");
       toast.success("Client photo deleted!");
+      setDeleteModal({ open: false, id: null, title: "" });
       router.refresh();
     } catch (error) {
       toast.error(error.message);
+    } finally {
+      setIsDeleting(false);
     }
   };
+
+  // Filter items
+  const filteredItems = useMemo(() => {
+    return items.filter((item) => {
+      const q = searchQuery.toLowerCase().trim();
+      const matchesSearch =
+        !q ||
+        (item.title || "").toLowerCase().includes(q) ||
+        (item.caption || "").toLowerCase().includes(q) ||
+        (item.destination || "").toLowerCase().includes(q);
+
+      const matchesDest =
+        selectedDestination === "All" || item.destination === selectedDestination;
+
+      return matchesSearch && matchesDest;
+    });
+  }, [items, searchQuery, selectedDestination]);
 
   // Pagination calculation
   const totalPages = Math.ceil(filteredItems.length / ITEMS_PER_PAGE) || 1;
@@ -202,29 +262,15 @@ export default function ClientGalleryPage({ items = [] }) {
     }
   };
 
-  // Filter items
-  const filteredItems = items.filter((item) => {
-    const q = searchQuery.toLowerCase().trim();
-    const matchesSearch =
-      !q ||
-      (item.title || "").toLowerCase().includes(q) ||
-      (item.caption || "").toLowerCase().includes(q) ||
-      (item.destination || "").toLowerCase().includes(q);
-
-    const matchesDest =
-      selectedDestination === "All" || item.destination === selectedDestination;
-
-    return matchesSearch && matchesDest;
-  });
-
   return (
     <div className="max-w-8xl mx-auto space-y-6 font-inter">
-      {/* Page Header */}
+      {/* Page Header with working action handler */}
       <DashboardPageHeader
         title="Clients Gallery"
         description="Showcase client & traveler photo stories, expedition highlights, and destination moments."
         actionText="Upload Client Photo"
-        onAction={() => {
+        actionIcon="lucide:plus"
+        onActionClick={() => {
           resetForm();
           setIsAddModalOpen(true);
         }}
@@ -255,7 +301,7 @@ export default function ClientGalleryPage({ items = [] }) {
           )}
         </div>
 
-        {/* Destination Tabs */}
+        {/* Right: Destination Tabs */}
         {destinations.length > 1 && (
           <div className="flex items-center gap-1.5 overflow-x-auto py-1 max-w-xl scrollbar-none font-inter">
             {destinations.map((dest) => (
@@ -290,7 +336,7 @@ export default function ClientGalleryPage({ items = [] }) {
               resetForm();
               setIsAddModalOpen(true);
             }}
-            className="mt-2 px-5 py-2.5 rounded-xl bg-[#0D231E] hover:bg-[#2cb775] text-white text-xs font-semibold transition-colors duration-300 inline-flex items-center gap-2 cursor-pointer"
+            className="mt-2 px-5 py-2.5 rounded-xl bg-[#0D231E] hover:bg-secondary text-white text-xs font-semibold transition-colors duration-300 inline-flex items-center gap-2 cursor-pointer shadow-xs"
           >
             <Icon icon="lucide:upload" className="w-4 h-4" />
             <span>Upload First Client Photo</span>
@@ -308,78 +354,97 @@ export default function ClientGalleryPage({ items = [] }) {
                 <div className="relative aspect-[4/3] w-full bg-sand overflow-hidden">
                   <Image
                     src={getFullImageUrl(item.imageUrl)}
-                    alt={item.title || "Client photo"}
+                    alt={item.title || "Client Photo"}
                     fill
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
                   />
 
-                  {/* Destination Badge */}
+                  {/* Destination Tag */}
                   {item.destination && (
-                    <div className="absolute bottom-3 left-3 z-10">
-                      <span className="bg-[#0D231E]/80 backdrop-blur-md text-white px-2.5 py-1 rounded-lg text-[10px] font-medium tracking-wide">
-                        📍 {item.destination}
+                    <div className="absolute top-2.5 left-2.5 z-10">
+                      <span className="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-xs text-[10px] font-semibold text-white tracking-wide uppercase border border-white/10">
+                        {item.destination}
                       </span>
                     </div>
                   )}
+
+                  {/* Quick Action Overlay on Hover */}
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center gap-2">
+                    <button
+                      onClick={() => handleEditClick(item)}
+                      className="p-2 rounded-xl bg-white text-primary hover:bg-secondary hover:text-white transition-colors cursor-pointer shadow-sm"
+                      title="Edit photo details"
+                    >
+                      <Icon icon="lucide:edit-3" className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleOpenDeleteModal(item.id, item.title)}
+                      className="p-2 rounded-xl bg-white text-rose-600 hover:bg-rose-600 hover:text-white transition-colors cursor-pointer shadow-sm"
+                      title="Delete photo"
+                    >
+                      <Icon icon="lucide:trash-2" className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
 
-                {/* Info Block */}
-                <div className="p-4 flex-1 flex flex-col justify-between space-y-3 font-inter">
+                {/* Content */}
+                <div className="p-4 space-y-2 flex-1 flex flex-col justify-between">
                   <div>
-                    <h4 className="text-sm font-bold text-[#0D231E] line-clamp-1 group-hover:text-[#2cb775] transition-colors">
+                    <h4 className="text-sm font-bold text-primary truncate leading-snug">
                       {item.title}
                     </h4>
                     {item.caption && (
-                      <p className="text-xs text-gray-500 line-clamp-2 mt-1 font-light">
-                        "{item.caption}"
+                      <p className="text-xs text-gray-500 line-clamp-2 mt-1 font-light leading-relaxed">
+                        {item.caption}
                       </p>
                     )}
                   </div>
 
-                  {/* Actions Row */}
-                  <div className="pt-3 border-t border-gray-100 flex items-center justify-end gap-2">
-                    {/* Edit Button */}
-                    <button
-                      onClick={() => handleEditClick(item)}
-                      className="p-2 rounded-lg bg-gray-50 text-gray-600 hover:bg-secondary/10 hover:text-secondary transition-colors cursor-pointer"
-                      title="Edit Photo"
-                    >
-                      <Icon icon="lucide:pencil" className="w-4 h-4" />
-                    </button>
-                    {/* Delete Button */}
-                    <button
-                      onClick={() => handleDelete(item.id)}
-                      className="p-2 rounded-lg bg-gray-50 text-gray-500 hover:bg-rose-50 hover:text-rose-600 transition-colors cursor-pointer"
-                      title="Delete Photo"
-                    >
-                      <Icon icon="lucide:trash-2" className="w-4 h-4" />
-                    </button>
+                  {/* Date & Package info */}
+                  <div className="pt-3 border-t border-gray-100 flex items-center justify-between text-[11px] text-gray-400">
+                    <span className="flex items-center gap-1">
+                      <Icon icon="lucide:calendar" className="w-3.5 h-3.5" />
+                      {new Date(item.createdAt).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    </span>
+                    {item.package && (
+                      <span className="text-secondary font-medium truncate max-w-[120px]">
+                        {item.package.title}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
             ))}
           </div>
 
-          {/* Admin Client Gallery Pagination Controls */}
+          {/* Pagination Controls */}
           {totalPages > 1 && (
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-gray-100 font-inter bg-white p-4 rounded-2xl border border-gray-100 shadow-[0_4px_20px_rgba(13,35,30,0.03)]">
-              <span className="text-xs text-gray-500">
-                Showing <strong className="text-primary font-bold">{(currentPage - 1) * ITEMS_PER_PAGE + 1}</strong>–
-                <strong className="text-primary font-bold">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-gray-100 font-inter">
+              <p className="text-xs text-gray-500">
+                Showing{" "}
+                <span className="font-semibold text-primary">
+                  {(currentPage - 1) * ITEMS_PER_PAGE + 1}
+                </span>{" "}
+                to{" "}
+                <span className="font-semibold text-primary">
                   {Math.min(currentPage * ITEMS_PER_PAGE, filteredItems.length)}
-                </strong>{" "}
-                of <strong className="text-primary font-bold">{filteredItems.length}</strong> client photos
-              </span>
+                </span>{" "}
+                of <span className="font-semibold text-primary">{filteredItems.length}</span>{" "}
+                client photos
+              </p>
 
-              <div className="flex items-center gap-1.5 font-inter">
+              <div className="flex items-center gap-2">
                 <button
                   type="button"
                   disabled={currentPage === 1}
                   onClick={() => handlePageChange(currentPage - 1)}
                   className="px-3.5 py-2 rounded-xl border border-gray-200 text-xs font-semibold text-primary hover:bg-gray-100 disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer"
                 >
-                  Prev
+                  Previous
                 </button>
 
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
@@ -426,22 +491,36 @@ export default function ClientGalleryPage({ items = [] }) {
             </div>
 
             <form onSubmit={handleCreateSubmit} className="space-y-4 font-inter">
-              {/* File Upload Dropzone */}
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-gray-700">Image File *</label>
+              {/* Image Selection: Drag/Drop or Media Gallery */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-semibold text-gray-700">Photo Asset *</label>
+                  <button
+                    type="button"
+                    onClick={() => setIsMediaModalOpen(true)}
+                    className="text-xs font-bold text-secondary hover:underline flex items-center gap-1 cursor-pointer"
+                  >
+                    <Icon icon="lucide:folder-open" className="w-3.5 h-3.5" />
+                    <span>Choose from Media Gallery</span>
+                  </button>
+                </div>
+
                 <div
                   onClick={() => fileInputRef.current?.click()}
-                  className="border-2 border-dashed border-gray-200 hover:border-secondary rounded-2xl p-4 text-center cursor-pointer transition-colors bg-sand/50"
+                  className="border-2 border-dashed border-gray-200 hover:border-secondary rounded-2xl p-4 text-center cursor-pointer transition-colors bg-sand/50 group"
                 >
                   {previewUrl ? (
-                    <div className="relative aspect-[16/9] w-full rounded-xl overflow-hidden">
+                    <div className="relative aspect-[16/9] w-full rounded-xl overflow-hidden shadow-inner">
                       <Image src={previewUrl} alt="Preview" fill className="object-cover" />
+                      <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-semibold">
+                        Click to change photo
+                      </div>
                     </div>
                   ) : (
-                    <div className="py-4 space-y-2">
-                      <Icon icon="lucide:upload-cloud" className="w-8 h-8 text-gray-400 mx-auto" />
-                      <p className="text-xs font-medium text-gray-600">Click to choose image file</p>
-                      <p className="text-[10px] text-gray-400">JPG, PNG, WebP up to 10MB</p>
+                    <div className="py-5 space-y-2">
+                      <Icon icon="lucide:upload-cloud" className="w-9 h-9 text-gray-400 mx-auto group-hover:text-secondary transition-colors" />
+                      <p className="text-xs font-semibold text-gray-700">Click to upload from device</p>
+                      <p className="text-[10px] text-gray-400">JPG, PNG, WebP up to 10MB or choose from library</p>
                     </div>
                   )}
                 </div>
@@ -456,14 +535,14 @@ export default function ClientGalleryPage({ items = [] }) {
 
               {/* Title */}
               <div>
-                <label className="text-xs font-semibold text-gray-700">Title *</label>
+                <label className="text-xs font-semibold text-gray-700">Photo Title *</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Sajek Valley Sunrise Memories"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full mt-1 bg-sand border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs text-primary focus:outline-none focus:border-secondary"
+                  className="w-full mt-1 bg-sand/50 border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs text-primary focus:outline-none focus:border-secondary"
                 />
               </div>
 
@@ -475,7 +554,7 @@ export default function ClientGalleryPage({ items = [] }) {
                   placeholder="e.g. Sajek Valley, Cox's Bazar, Nepal"
                   value={formData.destination}
                   onChange={(e) => setFormData({ ...formData, destination: e.target.value })}
-                  className="w-full mt-1 bg-sand border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs text-primary focus:outline-none focus:border-secondary"
+                  className="w-full mt-1 bg-sand/50 border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs text-primary focus:outline-none focus:border-secondary"
                 />
               </div>
 
@@ -487,7 +566,7 @@ export default function ClientGalleryPage({ items = [] }) {
                   placeholder="Enter caption or traveler story..."
                   value={formData.caption}
                   onChange={(e) => setFormData({ ...formData, caption: e.target.value })}
-                  className="w-full mt-1 bg-sand border border-gray-200 rounded-xl p-3 text-xs text-primary focus:outline-none focus:border-secondary"
+                  className="w-full mt-1 bg-sand/50 border border-gray-200 rounded-xl p-3 text-xs text-primary focus:outline-none focus:border-secondary resize-none"
                 />
               </div>
 
@@ -503,7 +582,7 @@ export default function ClientGalleryPage({ items = [] }) {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="px-5 py-2 rounded-xl text-xs font-semibold bg-[#0D231E] hover:bg-[#2cb775] text-white transition-colors cursor-pointer"
+                  className="px-5 py-2.5 rounded-xl text-xs font-bold bg-[#0D231E] hover:bg-secondary text-white transition-all duration-300 cursor-pointer shadow-xs disabled:opacity-50"
                 >
                   {loading ? "Uploading..." : "Upload Photo"}
                 </button>
@@ -529,22 +608,36 @@ export default function ClientGalleryPage({ items = [] }) {
 
             <form onSubmit={handleEditSubmit} className="space-y-4 font-inter">
               {/* Image Preview / Replacement */}
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-gray-700">Image (Click to replace)</label>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-semibold text-gray-700">Image Asset</label>
+                  <button
+                    type="button"
+                    onClick={() => setIsMediaModalOpen(true)}
+                    className="text-xs font-bold text-secondary hover:underline flex items-center gap-1 cursor-pointer"
+                  >
+                    <Icon icon="lucide:folder-open" className="w-3.5 h-3.5" />
+                    <span>Choose from Media Gallery</span>
+                  </button>
+                </div>
+
                 <div
-                  onClick={() => fileInputRef.current?.click()}
-                  className="border-2 border-dashed border-gray-200 hover:border-secondary rounded-2xl p-3 text-center cursor-pointer transition-colors bg-sand/50"
+                  onClick={() => editFileInputRef.current?.click()}
+                  className="border-2 border-dashed border-gray-200 hover:border-secondary rounded-2xl p-3 text-center cursor-pointer transition-colors bg-sand/50 group"
                 >
                   {previewUrl && (
-                    <div className="relative aspect-[16/9] w-full rounded-xl overflow-hidden">
+                    <div className="relative aspect-[16/9] w-full rounded-xl overflow-hidden shadow-inner">
                       <Image src={previewUrl} alt="Preview" fill className="object-cover" />
+                      <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-semibold">
+                        Click to replace photo
+                      </div>
                     </div>
                   )}
-                  <p className="text-[11px] text-gray-500 mt-2">Click to select replacement image</p>
+                  <p className="text-[11px] text-gray-500 mt-2">Click to select replacement image from device</p>
                 </div>
                 <input
                   type="file"
-                  ref={fileInputRef}
+                  ref={editFileInputRef}
                   onChange={handleFileSelect}
                   accept="image/*"
                   className="hidden"
@@ -559,7 +652,7 @@ export default function ClientGalleryPage({ items = [] }) {
                   required
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full mt-1 bg-sand border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs text-primary focus:outline-none focus:border-secondary"
+                  className="w-full mt-1 bg-sand/50 border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs text-primary focus:outline-none focus:border-secondary"
                 />
               </div>
 
@@ -570,7 +663,7 @@ export default function ClientGalleryPage({ items = [] }) {
                   type="text"
                   value={formData.destination}
                   onChange={(e) => setFormData({ ...formData, destination: e.target.value })}
-                  className="w-full mt-1 bg-sand border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs text-primary focus:outline-none focus:border-secondary"
+                  className="w-full mt-1 bg-sand/50 border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs text-primary focus:outline-none focus:border-secondary"
                 />
               </div>
 
@@ -581,7 +674,7 @@ export default function ClientGalleryPage({ items = [] }) {
                   rows="3"
                   value={formData.caption}
                   onChange={(e) => setFormData({ ...formData, caption: e.target.value })}
-                  className="w-full mt-1 bg-sand border border-gray-200 rounded-xl p-3 text-xs text-primary focus:outline-none focus:border-secondary"
+                  className="w-full mt-1 bg-sand/50 border border-gray-200 rounded-xl p-3 text-xs text-primary focus:outline-none focus:border-secondary resize-none"
                 />
               </div>
 
@@ -597,7 +690,7 @@ export default function ClientGalleryPage({ items = [] }) {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="px-5 py-2 rounded-xl text-xs font-semibold bg-[#0D231E] hover:bg-[#2cb775] text-white transition-colors cursor-pointer"
+                  className="px-5 py-2.5 rounded-xl text-xs font-bold bg-[#0D231E] hover:bg-secondary text-white transition-all duration-300 cursor-pointer shadow-xs disabled:opacity-50"
                 >
                   {loading ? "Saving..." : "Update Photo"}
                 </button>
@@ -606,6 +699,31 @@ export default function ClientGalleryPage({ items = [] }) {
           </div>
         </div>
       )}
+
+      {/* Media Gallery Selector Modal */}
+      <MediaGalleryModal
+        isOpen={isMediaModalOpen}
+        onClose={() => setIsMediaModalOpen(false)}
+        onSelectImage={(url) => {
+          setPreviewUrl(url);
+          setSelectedFile(null); // using URL from media gallery
+          setIsMediaModalOpen(false);
+        }}
+        title="Select Client Gallery Photo"
+        initialSelected={previewUrl}
+      />
+
+      {/* Custom Confirmation Modal */}
+      <ConfirmModal
+        isOpen={deleteModal.open}
+        onClose={() => setDeleteModal({ open: false, id: null, title: "" })}
+        onConfirm={handleConfirmDelete}
+        title="Delete Client Photo"
+        message={`Are you sure you want to delete ${deleteModal.title ? `"${deleteModal.title}"` : "this photo"}? This action cannot be undone.`}
+        confirmText="Delete Photo"
+        variant="danger"
+        loading={isDeleting}
+      />
     </div>
   );
 }

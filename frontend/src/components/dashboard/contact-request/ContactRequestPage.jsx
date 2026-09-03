@@ -1,6 +1,7 @@
 "use client";
 
 import DashboardPageHeader from "@/components/dashboard/DashboardPageHeader";
+import ConfirmModal from "@/components/dashboard/ConfirmModal";
 import { Icon } from "@iconify/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -12,36 +13,46 @@ export default function ContactRequestPage({ contactRequests = [], pagination = 
   const router = useRouter();
   const [selectedReq, setSelectedReq] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [deleteModal, setDeleteModal] = useState({ open: false, id: null, name: "" });
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const isPrev = Number(pagination.page) === 1;
   const isNext = Number(pagination.page) === pagination.totalPages;
 
-  const handleDelete = async (id) => {
-    const userConfirmed = confirm("Are you sure you want to delete this contact request?");
-    if (!userConfirmed) return;
+  const handleOpenDeleteModal = (id, name) => {
+    setDeleteModal({ open: true, id, name });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteModal.id) return;
+    setIsDeleting(true);
     try {
-      const response = await fetch(`/api/contact/${id}`, {
+      const response = await fetch(`/api/contact/${deleteModal.id}`, {
         method: "DELETE",
       });
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
       toast.success("Contact request deleted successfully!");
-      if (selectedReq?._id === id) setSelectedReq(null);
+      if (selectedReq?.id === deleteModal.id) {
+        setSelectedReq(null);
+      }
+      setDeleteModal({ open: false, id: null, name: "" });
       router.refresh();
     } catch (error) {
       toast.error(error.message);
       console.error("Delete operation error:", error);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
   const handleStatus = async (id, status) => {
     try {
-      const formData = new FormData();
-      formData.append("status", status);
       const response = await fetch(`/api/contact/${id}`, {
-        method: "PUT",
-        body: formData,
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
       });
 
       if (!response.ok) {
@@ -118,7 +129,7 @@ export default function ContactRequestPage({ contactRequests = [], pagination = 
         {contactRequests.length === 0 ? (
           <div className="p-12 text-center max-w-md mx-auto space-y-4">
             <Image
-              src="/images/dashboard/empty.png"
+              src="/images/placeholders/empty_state.png"
               width={300}
               height={300}
               priority
@@ -159,63 +170,66 @@ export default function ContactRequestPage({ contactRequests = [], pagination = 
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 text-gray-700">
-                {filteredRequests.map((req) => (
-                  <tr key={req._id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="py-4 px-5 font-bold text-[#0D231E] whitespace-nowrap">
-                      {req.name}
-                    </td>
-                    <td className="py-4 px-5 text-gray-600 whitespace-nowrap">
-                      {req.email}
-                    </td>
-                    <td className="py-4 px-5 text-gray-600 font-mono whitespace-nowrap">
-                      {req.phone || "—"}
-                    </td>
-                    <td className="py-4 px-5 font-medium text-[#2cb775] whitespace-nowrap">
-                      {req.destination || "—"}
-                    </td>
-                    <td className="py-4 px-5 text-gray-600 whitespace-nowrap font-mono">
-                      {req.date || "—"}
-                    </td>
-                    <td className="py-4 px-5 text-gray-600 whitespace-nowrap font-semibold">
-                      {req.people ? `${req.people} Person(s)` : "—"}
-                    </td>
-                    <td className="py-4 px-5 max-w-[180px] truncate text-gray-600" title={req.message}>
-                      {req.message}
-                    </td>
-                    <td className="py-4 px-5">
-                      <select
-                        onChange={(e) => handleStatus(req._id, e.target.value)}
-                        defaultValue={req.status || "New"}
-                        className="bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1 text-xs font-semibold text-[#0D231E] focus:outline-none focus:border-[#2cb775] cursor-pointer"
-                      >
-                        <option value="New">New</option>
-                        <option value="Contacted">Contacted</option>
-                        <option value="Follow-up">Follow-up</option>
-                        <option value="Converted">Converted</option>
-                        <option value="Closed">Closed</option>
-                        <option value="pending">Pending</option>
-                      </select>
-                    </td>
-                    <td className="py-4 px-5 text-right whitespace-nowrap">
-                      <div className="flex items-center justify-end gap-1.5">
-                        <button
-                          onClick={() => setSelectedReq(req)}
-                          className="p-2 rounded-lg bg-gray-50 text-gray-600 hover:bg-[#2cb775]/10 hover:text-[#2cb775] transition-colors cursor-pointer"
-                          title="View Details"
+                {filteredRequests.map((req, idx) => {
+                  const reqId = req.id || `req-${idx}`;
+                  return (
+                    <tr key={reqId} className="hover:bg-gray-50/50 transition-colors">
+                      <td className="py-4 px-5 font-bold text-[#0D231E] whitespace-nowrap">
+                        {req.name}
+                      </td>
+                      <td className="py-4 px-5 text-gray-600 whitespace-nowrap">
+                        {req.email}
+                      </td>
+                      <td className="py-4 px-5 text-gray-600 font-mono whitespace-nowrap">
+                        {req.phone || "—"}
+                      </td>
+                      <td className="py-4 px-5 font-medium text-[#2cb775] whitespace-nowrap">
+                        {req.destination || "—"}
+                      </td>
+                      <td className="py-4 px-5 text-gray-600 whitespace-nowrap font-mono">
+                        {req.date || "—"}
+                      </td>
+                      <td className="py-4 px-5 text-gray-600 whitespace-nowrap font-semibold">
+                        {req.people ? `${req.people} Person(s)` : "—"}
+                      </td>
+                      <td className="py-4 px-5 max-w-[180px] truncate text-gray-600" title={req.message}>
+                        {req.message}
+                      </td>
+                      <td className="py-4 px-5">
+                        <select
+                          onChange={(e) => handleStatus(reqId, e.target.value)}
+                          defaultValue={req.status || "New"}
+                          className="bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1 text-xs font-semibold text-[#0D231E] focus:outline-none focus:border-[#2cb775] cursor-pointer"
                         >
-                          <Icon icon="lucide:eye" className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(req._id)}
-                          className="p-2 rounded-lg bg-gray-50 text-gray-500 hover:bg-rose-50 hover:text-rose-600 transition-colors cursor-pointer"
-                          title="Delete request"
-                        >
-                          <Icon icon="lucide:trash-2" className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                          <option value="New">New</option>
+                          <option value="Contacted">Contacted</option>
+                          <option value="Follow-up">Follow-up</option>
+                          <option value="Converted">Converted</option>
+                          <option value="Closed">Closed</option>
+                          <option value="pending">Pending</option>
+                        </select>
+                      </td>
+                      <td className="py-4 px-5 text-right whitespace-nowrap">
+                        <div className="flex items-center justify-end gap-1.5">
+                          <button
+                            onClick={() => setSelectedReq(req)}
+                            className="p-2 rounded-lg bg-gray-50 text-gray-600 hover:bg-[#2cb775]/10 hover:text-[#2cb775] transition-colors cursor-pointer"
+                            title="View Details"
+                          >
+                            <Icon icon="lucide:eye" className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleOpenDeleteModal(reqId, req.name)}
+                            className="p-2 rounded-lg bg-gray-50 text-gray-500 hover:bg-rose-50 hover:text-rose-600 transition-colors cursor-pointer"
+                            title="Delete request"
+                          >
+                            <Icon icon="lucide:trash-2" className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -333,6 +347,18 @@ export default function ContactRequestPage({ contactRequests = [], pagination = 
           </Link>
         </div>
       )}
+
+      {/* Custom Confirmation Modal */}
+      <ConfirmModal
+        isOpen={deleteModal.open}
+        onClose={() => setDeleteModal({ open: false, id: null, name: "" })}
+        onConfirm={handleConfirmDelete}
+        title="Delete Contact Request"
+        message={`Are you sure you want to delete ${deleteModal.name ? `inquiry from "${deleteModal.name}"` : "this contact request"}? This action cannot be undone.`}
+        confirmText="Delete Request"
+        variant="danger"
+        loading={isDeleting}
+      />
     </div>
   );
 }

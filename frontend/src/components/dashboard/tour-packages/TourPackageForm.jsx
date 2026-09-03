@@ -59,6 +59,7 @@ export default function TourPackageForm({ tourPackage, locations = [] }) {
     register,
     handleSubmit,
     setValue,
+    watch,
     formState: { errors },
   } = useForm({
     defaultValues: {
@@ -77,23 +78,28 @@ export default function TourPackageForm({ tourPackage, locations = [] }) {
   // FIX EDIT FORM PRE-POPULATION BUG
   useEffect(() => {
     if (tourPackage) {
+      const locString =
+        typeof tourPackage.location === "object" && tourPackage.location?.country
+          ? tourPackage.location.country
+          : tourPackage.locationName || (typeof tourPackage.location === "string" ? tourPackage.location : "");
+
       reset({
         title: tourPackage.title || "",
-        location: tourPackage.location || "",
+        location: locString,
         price: tourPackage.price ?? "",
         discountPrice: tourPackage.discountPrice ?? "",
-        hotelRating: tourPackage.hotelRating || tourPackage.rating || 3,
+        hotelRating: tourPackage.hotelRating || tourPackage.rating || 4,
         duration: tourPackage.duration || "",
         description: tourPackage.description || "",
         additionalInfo: tourPackage.additionalInfo || "",
       });
 
-      if (tourPackage.itinerary) setItinerary(tourPackage.itinerary);
-      if (tourPackage.inclusions) setInclusions(tourPackage.inclusions);
-      if (tourPackage.exclusions) setExclusions(tourPackage.exclusions);
-      if (tourPackage.hotels) setHotels(tourPackage.hotels);
-      if (tourPackage.transportation) setTransportation(tourPackage.transportation);
-      if (tourPackage.galleryImages) setGalleryImages(tourPackage.galleryImages);
+      if (tourPackage.itinerary && Array.isArray(tourPackage.itinerary)) setItinerary(tourPackage.itinerary);
+      if (tourPackage.inclusions && Array.isArray(tourPackage.inclusions)) setInclusions(tourPackage.inclusions);
+      if (tourPackage.exclusions && Array.isArray(tourPackage.exclusions)) setExclusions(tourPackage.exclusions);
+      if (tourPackage.hotels && Array.isArray(tourPackage.hotels)) setHotels(tourPackage.hotels);
+      if (tourPackage.transportation && Array.isArray(tourPackage.transportation)) setTransportation(tourPackage.transportation);
+      if (tourPackage.galleryImages && Array.isArray(tourPackage.galleryImages)) setGalleryImages(tourPackage.galleryImages);
       if (tourPackage.featuredImage || tourPackage.image) {
         setFeaturedImagePath(tourPackage.featuredImage || tourPackage.image);
       }
@@ -202,7 +208,8 @@ export default function TourPackageForm({ tourPackage, locations = [] }) {
         hotels: hotels.filter((h) => h.city.trim() !== "" && h.hotelName.trim() !== ""),
       };
 
-      const url = isEdit ? `/api/tour-package/${tourPackage._id}` : "/api/tour-package";
+      const packageId = tourPackage?.id;
+      const url = isEdit ? `/api/tour-package/${packageId}` : "/api/tour-package";
       const method = isEdit ? "PUT" : "POST";
 
       const res = await fetch(url, {
@@ -213,7 +220,7 @@ export default function TourPackageForm({ tourPackage, locations = [] }) {
 
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.error || "Operation failed");
+        throw new Error(errorData.error || errorData.message || "Operation failed");
       }
 
       toast.success(isEdit ? "Tour package updated!" : "Tour package created!");
@@ -278,7 +285,7 @@ export default function TourPackageForm({ tourPackage, locations = [] }) {
               >
                 <option value="">Select a location</option>
                 {locations.map((loc) => (
-                  <option key={loc._id || loc.id} value={loc.country}>
+                  <option key={loc.id} value={loc.country}>
                     {loc.country}
                   </option>
                 ))}

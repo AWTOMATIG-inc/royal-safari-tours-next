@@ -638,8 +638,8 @@ export default function RecruitmentPage() {
                             }}
                             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0D231E] hover:bg-[#2cb775] text-white text-xs font-bold transition-all duration-300 shadow-xs cursor-pointer"
                           >
-                            <Icon icon="lucide:user-check" className="w-3.5 h-3.5 text-secondary" />
-                            <span>Review & Q&A Answers</span>
+                            <Icon icon="lucide:eye" className="w-3.5 h-3.5 text-secondary" />
+                            <span>View Application</span>
                           </button>
                         </td>
                       </tr>
@@ -696,10 +696,38 @@ export default function RecruitmentPage() {
             {/* Candidate Quick Details Card */}
             <div className="p-4 rounded-2xl bg-sand/70 border border-gray-200 space-y-3 font-body">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-200/80 pb-3 font-body">
-                <div>
-                  <h4 className="text-sm font-bold text-[#0D231E]">{selectedApp.applicantName}</h4>
-                  <p className="text-xs text-gray-600 font-mono mt-0.5">{selectedApp.applicantEmail} • {selectedApp.applicantPhone}</p>
+                <div className="space-y-2 font-body">
+                  <div className="flex items-center gap-2 flex-wrap font-body">
+                    <h4 className="text-base font-bold text-[#0D231E]">{selectedApp.applicantName}</h4>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-semibold font-mono">
+                      Applied {formatDateStr(selectedApp.appliedAt)}
+                    </span>
+                  </div>
+
+                  {/* Prominent Contact Info Pills */}
+                  <div className="flex flex-wrap items-center gap-2 font-body">
+                    <a
+                      href={`mailto:${selectedApp.applicantEmail}`}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold transition-colors border border-blue-200 cursor-pointer"
+                      title="Click to send email"
+                    >
+                      <Icon icon="lucide:mail" className="w-4 h-4 text-blue-600" />
+                      <span className="font-mono">{selectedApp.applicantEmail}</span>
+                      <Icon icon="lucide:external-link" className="w-3 h-3 text-blue-400" />
+                    </a>
+
+                    <a
+                      href={`tel:${selectedApp.applicantPhone}`}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold transition-colors border border-emerald-200 cursor-pointer"
+                      title="Click to call phone"
+                    >
+                      <Icon icon="lucide:phone" className="w-4 h-4 text-[#2cb775]" />
+                      <span className="font-mono">{selectedApp.applicantPhone}</span>
+                      <Icon icon="lucide:external-link" className="w-3 h-3 text-emerald-500" />
+                    </a>
+                  </div>
                 </div>
+
                 {selectedApp.resumeUrl && (
                   <a
                     href={getImageUrl(selectedApp.resumeUrl)}

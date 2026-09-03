@@ -3,7 +3,7 @@ import { Role } from "@prisma/client";
 import { auth } from "../../middlewares/auth";
 import { authorize } from "../../middlewares/authorize";
 import { validateRequest } from "../../middlewares/validateRequest";
-import { uploadDocumentFile } from "../../middlewares/hrmUpload";
+import { uploadResumeFile } from "../../middlewares/hrmUpload";
 import * as jobPostController from "./jobPost.controller";
 import * as jobPostValidation from "./jobPost.validation";
 
@@ -16,10 +16,10 @@ router.get("/public", jobPostController.getPublicJobs);
 // GET /api/v1/jobs/public/:slug (Job details by slug)
 router.get("/public/:slug", jobPostController.getPublicJobBySlug);
 
-// POST /api/v1/jobs/public/:slug/apply (Submit application with resume upload)
+// POST /api/v1/jobs/public/:slug/apply (Submit application with resume upload - PDF Only)
 router.post(
   "/public/:slug/apply",
-  uploadDocumentFile.single("resume"),
+  uploadResumeFile.single("resume"),
   validateRequest(jobPostValidation.submitJobApplicationSchema),
   jobPostController.submitJobApplication
 );

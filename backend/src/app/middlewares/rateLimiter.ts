@@ -67,3 +67,9 @@ export const strictRateLimiter = rateLimiter({
   maxRequests: 5,
   message: "Too many attempts. Account may be temporarily locked. Try again in 15 minutes.",
 });
+
+export const apiRateLimiter = rateLimiter({
+  windowMs: 15 * 60 * 1000,
+  maxRequests: 1000,
+  message: "Too many requests from this IP. Please try again later.",
+});

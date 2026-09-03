@@ -3,6 +3,7 @@
 import { Icon } from "@iconify/react";
 import Image from "next/image";
 import Link from "next/link";
+import { getImageUrl } from "@/lib/imageUrl";
 
 export default function TourCard({
   tour_package,
@@ -12,10 +13,14 @@ export default function TourCard({
 }) {
   if (!tour_package) return null;
 
-  const imageUrl = tour_package.featuredImage || tour_package.image;
-  const fullImageUrl = imageUrl?.startsWith("/")
-    ? imageUrl
-    : `/api/uploads/tour-packages/${imageUrl}`;
+  const rawImage = tour_package.featuredImage || tour_package.image;
+  const fullImageUrl = getImageUrl(rawImage, "/images/banners/home_hero.webp");
+
+  const locationDisplay =
+    tour_package.locationName ||
+    (typeof tour_package.location === "string"
+      ? tour_package.location
+      : tour_package.location?.country || tour_package.location?.name || tour_package.location?.title || "");
 
   const linkHref = tour_package.slug ? `/packages/${tour_package.slug}` : "#";
   const numRating = Number(tour_package.rating) || 5.0;
@@ -28,7 +33,7 @@ export default function TourCard({
       <Image
         fill
         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-        src={fullImageUrl || "/images/placeholder.jpg"}
+        src={fullImageUrl}
         alt={tour_package.title || "Tour Expedition"}
         className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out will-change-transform"
       />
@@ -37,10 +42,10 @@ export default function TourCard({
       <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60 pointer-events-none" />
 
       {/* Top Left: Location Badge */}
-      {tour_package.location && (
-        <div className="absolute top-3.5 left-3.5 z-10 bg-black/75 text-white text-[11px] font-medium px-3 py-1 rounded-full border border-white/20 flex items-center gap-1.5 shadow-xs font-body">
+      {locationDisplay && (
+        <div className="absolute top-3.5 left-3.5 z-10 bg-black/75 text-white text-[11px] font-medium px-3 py-1 rounded-full border border-white/20 flex items-center gap-1.5 shadow-xs font-body uppercase tracking-wider">
           <Icon icon="lucide:map-pin" className="w-3 h-3 text-accent" />
-          <span>{tour_package.location}</span>
+          <span>{locationDisplay}</span>
         </div>
       )}
 

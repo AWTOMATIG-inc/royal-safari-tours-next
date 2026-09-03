@@ -4,41 +4,29 @@ import SectionHeading from "@/components/SectionHeading";
 import { Icon } from "@iconify/react";
 import Image from "next/image";
 import Link from "next/link";
+import { getImageUrl } from "@/lib/imageUrl";
 import { RevealGroup } from "@/components/animations";
 
 const defaultImages = {
-  sundarbans: "/images/banners/camping.webp",
-  sreemangal: "/images/banners/about.webp",
-  "cox's bazar": "/images/banners/banner2.webp",
-  sajek: "/images/banners/contact_hero.jpg",
-  bangladesh: "/images/banners/camping.webp",
+  sundarbans: "/images/banners/travel_inspiration.webp",
+  sreemangal: "/images/banners/about_hero.webp",
+  "cox's bazar": "/images/banners/about_preview.webp",
+  sajek: "/images/banners/contact_hero.png",
+  bangladesh: "/images/banners/travel_inspiration.webp",
 };
 
 const getDestinationImageUrl = (item) => {
-  const title = item.country || item.title || item.name || "";
+  const title = typeof item.country === "string" ? item.country : item.title || item.name || "";
   const rawImage = item.image || item.banner;
-
-  if (!rawImage) {
-    return defaultImages[title.toLowerCase()] || "/images/banners/camping.webp";
-  }
-
-  if (typeof rawImage === "string") {
-    const trimmed = rawImage.trim();
-    if (trimmed.startsWith("/") || trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
-      return trimmed;
-    }
-    return `/api/uploads/locations/${trimmed}`;
-  }
-
-  return defaultImages[title.toLowerCase()] || "/images/banners/camping.webp";
+  return getImageUrl(rawImage, defaultImages[title.toLowerCase()] || "/images/banners/travel_inspiration.webp");
 };
 
 export default function FeaturedDestinations({ locations = [] }) {
   const displayLocations = locations.length > 0 ? locations.slice(0, 4) : [
-    { _id: "1", country: "Sundarbans", title: "Sundarbans", description: "The world's largest mangrove forest, home of the Royal Bengal Tiger.", banner: "/images/banners/camping.webp", slug: "sundarbans" },
-    { _id: "2", country: "Sreemangal", title: "Sreemangal", description: "Rolling green tea valleys, organic gardens, and rainforest trails.", banner: "/images/banners/about.webp", slug: "sreemangal" },
-    { _id: "3", country: "Cox's Bazar", title: "Cox's Bazar", description: "The longest unbroken natural sea beach in the world.", banner: "/images/banners/banner2.webp", slug: "coxs-bazar" },
-    { _id: "4", country: "Sajek Valley", title: "Sajek Valley", description: "Mist-covered mountain peaks in the Chittagong Hill Tracts.", banner: "/images/banners/contact_hero.jpg", slug: "sajek-valley" },
+    { id: "1", country: "Sundarbans", title: "Sundarbans", description: "The world's largest mangrove forest, home of the Royal Bengal Tiger.", banner: "/images/banners/travel_inspiration.webp", slug: "sundarbans" },
+    { id: "2", country: "Sreemangal", title: "Sreemangal", description: "Rolling green tea valleys, organic gardens, and rainforest trails.", banner: "/images/banners/about_hero.webp", slug: "sreemangal" },
+    { id: "3", country: "Cox's Bazar", title: "Cox's Bazar", description: "The longest unbroken natural sea beach in the world.", banner: "/images/banners/about_preview.webp", slug: "coxs-bazar" },
+    { id: "4", country: "Sajek Valley", title: "Sajek Valley", description: "Mist-covered mountain peaks in the Chittagong Hill Tracts.", banner: "/images/banners/contact_hero.webp", slug: "sajek-valley" },
   ];
 
   return (
@@ -68,12 +56,13 @@ export default function FeaturedDestinations({ locations = [] }) {
 
         {/* Clean Balanced Grid */}
         <RevealGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-          {displayLocations.map((item) => {
-            const title = item.country || item.title || item.name || "Destination";
+          {displayLocations.map((item, idx) => {
+            const title = typeof item.country === "string" ? item.country : item.title || item.name || "Destination";
             const imageSrc = getDestinationImageUrl(item);
+            const itemId = item.id || `dest-${idx}`;
 
             return (
-              <RevealGroup.Item key={item._id}>
+              <RevealGroup.Item key={itemId}>
                 <Link
                   href={`/adventure?destination=${encodeURIComponent(title)}`}
                   className="group relative rounded-3xl overflow-hidden aspect-[4/5] bg-black/5 shadow-sm hover:shadow-xl transition-transform transition-colors duration-300 hover:-translate-y-1 transform-gpu flex flex-col justify-end p-6 sm:p-7 md:p-8 border border-gray-200/80 w-full h-full block"

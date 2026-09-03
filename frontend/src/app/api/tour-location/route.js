@@ -1,84 +1,56 @@
-import { db_connect } from "@/database";
-import { TourLocationModel } from "@/database/models/tourLocationModel";
-import { fileuploader } from "@/lib/fileuploader";
-import { verifyToken } from "@/lib/jwt";
-import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
-export async function POST(request) {
-  const formData = await request.formData();
-  await db_connect();
-  if (!formData.has("country") || !formData.has("image")) {
-    return NextResponse.json(
-      { error: "Missing required fields" },
-      { status: 400 },
-    );
-  }
-  const { image, country } = Object.fromEntries(formData);
-  try {
-    const filename = await fileuploader(image, "locations");
-    if (!filename) {
-      return NextResponse.json(
-        { error: "File upload failed" },
-        { status: 500 },
-      );
-    }
-    const existingLocation = await TourLocationModel.findOne({
-      country: country.toLowerCase(),
-    });
+import { getForwardHeaders } from "@/lib/proxyHelper";
 
-    if (existingLocation) {
-      return NextResponse.json(
-        { error: "Location already exists" },
-        { status: 400 },
-      );
-    }
-    const token = request.cookies.get("token")?.value;
-    const user = await verifyToken(token);
-    const tourLocation = await TourLocationModel.create({
-      country: country.toLowerCase(),
-      image: filename,
-    });
-    if (!tourLocation) {
-      return NextResponse.json(
-        { error: "tour location creation failed" },
-        { status: 500 },
-      );
-    }
-    const paths = ["/","/dashboard/tour-locations"];
-
-    paths.forEach((p) => revalidatePath(p));
-    return NextResponse.json(tourLocation, {
-      status: 200,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-  } catch (error) {
-    console.log(error);
-    return NextResponse.json(
-      { error: "something went wrong" },
-      { status: 500 },
-    );
-  }
-}
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 export async function GET(request) {
   try {
-    await db_connect();
-    const tourLocations = await TourLocationModel.find().sort({
-      createdAt: -1,
+    const { searchParams } = new URL(request.url);
+    const headers = getForwardHeaders(request);
+    const res = await fetch(`${BACKEND_URL}/api/v1/tour-locations?${searchParams.toString()}`, {
+      headers,
+      cache: "no-store",
     });
-    return NextResponse.json(tourLocations, {
-      status: 200,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const data = await res.json();
+    return NextResponse.json(data.data || [], { status: res.status });
   } catch (error) {
-    console.log(error);
-    return NextResponse.json(
-      { error: "something went wrong" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Failed to fetch locations" }, { status: 500 });
+  }
+}
+
+export async function POST(request) {
+  try {
+    const contentType = request.headers.get("content-type") || "";
+    let body;
+
+    if (contentType.includes("application/json")) {
+      body = await request.json();
+    } else {
+      const formData = await request.formData();
+      const country = formData.get("country");
+      const description = formData.get("description");
+      const image = formData.get("image");
+      body = {
+        country,
+        description: description || "",
+        image: typeof image === "string" ? image : "",
+      };
+    }
+
+    const headers = getForwardHeaders(request, { "Content-Type": "application/json" });
+    const res = await fetch(`${BACKEND_URL}/api/v1/tour-locations`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(body),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      return NextResponse.json({ error: data.message || data.error || "Failed to create location" }, { status: res.status });
+    }
+    return NextResponse.json(data.data || data, { status: res.status });
+  } catch (error) {
+    console.error("POST Location Error:", error);
+    return NextResponse.json({ error: "Failed to create location" }, { status: 500 });
   }
 }

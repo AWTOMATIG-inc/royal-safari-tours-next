@@ -4,7 +4,7 @@ import Button from "@/components/Button";
 import { siteConfig } from "@/config/siteConfig";
 import { Icon } from "@iconify/react";
 import { useState } from "react";
-import BookingModal from "./BookingModal";
+import { useRouter } from "next/navigation";
 import FinalBookingCTA from "./FinalBookingCTA";
 import QuickPackageInfo from "./QuickPackageInfo";
 import TourAdditionalInfo from "./TourAdditionalInfo";
@@ -14,10 +14,10 @@ import TourHotelsSection from "./TourHotelsSection";
 import TourInclusionsExclusions from "./TourInclusionsExclusions";
 import TourItineraryCards from "./TourItineraryCards";
 import TourOverview from "./TourOverview";
-import TourReviews from "./TourReviews";
+import StickyBookingBar from "./StickyBookingBar";
 
 export default function TourDetailsClientPage({ tourPackage }) {
-  const [isBookingOpen, setIsBookingOpen] = useState(false);
+  const router = useRouter();
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [galleryIndex, setGalleryIndex] = useState(0);
 
@@ -32,6 +32,16 @@ export default function TourDetailsClientPage({ tourPackage }) {
   const handleOpenGalleryAt = (index = 0) => {
     setGalleryIndex(index);
     setIsGalleryOpen(true);
+  };
+
+  const handleNavigateToCheckout = () => {
+    const pkgSlug = tourPackage.slug || tourPackage.id;
+    const query = new URLSearchParams({
+      package: pkgSlug,
+      guests: String(guestCount || 1),
+      date: selectedDate || "",
+    });
+    router.push(`/checkout?${query.toString()}`);
   };
 
   const hotelRating = Number(tourPackage.hotelRating || tourPackage.rating || 3);
@@ -49,7 +59,7 @@ export default function TourDetailsClientPage({ tourPackage }) {
       {/* 1. Interactive Hero Photography Gallery Banner (Matching Screenshot Layout) */}
       <TourHero
         tourPackage={tourPackage}
-        onOpenBooking={() => setIsBookingOpen(true)}
+        onOpenBooking={handleNavigateToCheckout}
         onOpenGallery={(idx) => handleOpenGalleryAt(idx || 0)}
       />
 
@@ -180,23 +190,12 @@ export default function TourDetailsClientPage({ tourPackage }) {
                 {/* Booking CTA Buttons */}
                 <div className="space-y-3 pt-2 font-body">
                   <Button
-                    onClick={() => setIsBookingOpen(true)}
+                    onClick={handleNavigateToCheckout}
                     variant="primary"
-                    className="w-full justify-center text-sm py-3.5"
+                    className="w-full justify-center text-sm py-3.5 cursor-pointer"
                     icon={<Icon icon="lucide:arrow-right" className="w-4 h-4" />}
                   >
                     Book Now
-                  </Button>
-
-                  <Button
-                    href={`https://api.whatsapp.com/send?phone=${siteConfig.contact.phone.whatsappRaw}&text=${whatsappMessage}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    variant="outline"
-                    className="w-full justify-center text-xs py-3"
-                    icon={<Icon icon="akar-icons:whatsapp-fill" className="w-4 h-4 text-whatsapp" />}
-                  >
-                    Message Us
                   </Button>
                 </div>
               </div>
@@ -225,7 +224,18 @@ export default function TourDetailsClientPage({ tourPackage }) {
         </div>
       </div>
 
-      
+      {/* 4. Bottom Full-Width Reservation Banner */}
+      <FinalBookingCTA
+        tourPackage={tourPackage}
+        onOpenBooking={handleNavigateToCheckout}
+      />
+      {/* 6. High-Res Photo Gallery Lightbox Modal */}
+      <TourGalleryModal
+        tourPackage={tourPackage}
+        isOpen={isGalleryOpen}
+        initialIndex={galleryIndex}
+        onClose={() => setIsGalleryOpen(false)}
+      />
     </main>
   );
 }

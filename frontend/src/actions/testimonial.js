@@ -1,52 +1,58 @@
 "use server";
-import { db_connect } from "@/database";
-import { TestimonialModel } from "@/database/models/testimonialModel";
+
+import { getBackendUrl } from "@/config/env";
+
+const BACKEND_URL = getBackendUrl();
 
 export const getTestimonials = async () => {
   try {
-    await db_connect();
-    const data = await TestimonialModel.find().sort({ createdAt: -1 }).lean();
-    return { success: true, data: JSON.parse(JSON.stringify(data)) };
+    const res = await fetch(`${BACKEND_URL}/api/v1/testimonials?isPublished=true`, {
+      cache: "no-store",
+    });
+    if (!res.ok) throw new Error("Failed to fetch testimonials");
+    const result = await res.json();
+    return { success: true, data: result.data || [] };
   } catch (error) {
     console.error("Get Testimonials Error:", error);
-    return { success: false, message: "Failed to fetch testimonials" };
+    return { success: false, data: [], message: error.message || "Failed to fetch testimonials" };
   }
 };
 
 export const getTestimonialById = async (id) => {
   try {
-    await db_connect();
-    const data = await TestimonialModel.findById(id).lean();
-    if (!data) return { success: false, message: "Testimonial not found" };
-    return { success: true, data: JSON.parse(JSON.stringify(data)) };
+    const res = await fetch(`${BACKEND_URL}/api/v1/testimonials/${id}`, {
+      cache: "no-store",
+    });
+    if (!res.ok) throw new Error("Failed to fetch testimonial");
+    const result = await res.json();
+    return { success: true, data: result.data };
   } catch (error) {
     console.error("Get Testimonial By ID Error:", error);
-    return { success: false, message: "Failed to fetch testimonial" };
+    return { success: false, message: error.message || "Failed to fetch testimonial" };
   }
 };
 
-export const getTestimonialsByPagination = async (page = 1) => {
+export const getTestimonialsByPagination = async (page = 1, limit = 10) => {
   try {
-    const limit = 10;
-    const currentPage = Math.max(1, Number(page) || 1);
-    const skip = (currentPage - 1) * limit;
-    await db_connect();
-    const [testimonialData, total] = await Promise.all([
-      TestimonialModel.find().skip(skip).limit(limit).sort({ createdAt: -1 }).lean(),
-      TestimonialModel.countDocuments(),
-    ]);
+    const res = await fetch(`${BACKEND_URL}/api/v1/testimonials?page=${page}&limit=${limit}`, {
+      cache: "no-store",
+    });
+    if (!res.ok) throw new Error("Failed to fetch testimonials");
+    const result = await res.json();
+    const data = result.data || [];
+    const pagination = result.meta || {
+      page,
+      limit,
+      total: data.length,
+      totalPages: Math.ceil(data.length / limit) || 1,
+    };
     return {
       success: true,
-      data: JSON.parse(JSON.stringify(testimonialData)),
-      pagination: {
-        page: currentPage,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-      },
+      data,
+      pagination,
     };
   } catch (error) {
     console.error("Get Testimonials Paginated Error:", error);
-    return { success: false, message: "Failed to fetch testimonials" };
+    return { success: false, data: [], message: error.message || "Failed to fetch testimonials" };
   }
 };

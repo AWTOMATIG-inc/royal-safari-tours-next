@@ -11,7 +11,7 @@ export default function FinalCTA() {
       <div className="container">
         
         {/* Background Banner with Rounded Corners */}
-        <div className="relative rounded-3xl overflow-hidden shadow-xl bg-[url('/images/banners/banner2.webp')] bg-cover bg-center py-16 px-5 sm:py-24 sm:px-10 md:py-32 md:px-16 flex items-center justify-center">
+        <div className="relative rounded-3xl overflow-hidden shadow-xl bg-[url('/images/banners/travel_inspiration.webp')] bg-cover bg-center py-16 px-5 sm:py-24 sm:px-10 md:py-32 md:px-16 flex items-center justify-center">
           
           {/* Subtle dark overlay */}
           <div className="absolute inset-0 bg-primary/65 backdrop-blur-xs" />

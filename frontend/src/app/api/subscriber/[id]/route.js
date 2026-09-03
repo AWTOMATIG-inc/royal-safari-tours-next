@@ -1,35 +1,19 @@
-import { db_connect } from "@/database";
-import { SubscriberModel } from "@/database/models/subscribeModel";
-import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
+import { getForwardHeaders } from "@/lib/proxyHelper";
 
-export async function DELETE(request, context) {
-  const { id } = await context.params;
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
+export async function DELETE(request, { params }) {
   try {
-    await db_connect();
-    const subscriberData = await SubscriberModel.findByIdAndDelete(id);
-    if (!subscriberData) {
-      return NextResponse.json(
-        { error: "Subscriber not found" },
-        { status: 404 },
-      );
-    }
-    const paths = ["/dashboard/subscribers"];
-    paths.forEach((p) => revalidatePath(p));
-    return NextResponse.json(
-      { message: "Subscriber deleted successfully" },
-      {
-        status: 200,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      },
-    );
+    const { id } = await params;
+    const headers = getForwardHeaders(request);
+    const res = await fetch(`${BACKEND_URL}/api/v1/subscribers/${id}`, {
+      method: "DELETE",
+      headers,
+    });
+    const data = await res.json();
+    return NextResponse.json(data, { status: res.status });
   } catch (error) {
-    console.log(error);
-    return NextResponse.json(
-      { error: "something went wrong" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: error.message || "Failed to delete subscriber" }, { status: 500 });
   }
 }

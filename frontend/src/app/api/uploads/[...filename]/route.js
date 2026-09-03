@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 import path from "path";
 
 /**
- * Case-insensitive file finder for Linux VPS compatibility
+ * Case-insensitive file finder for cross-platform & Linux compatibility
  */
 function getExistingFileCaseInsensitive(directory, filename) {
   if (!fs.existsSync(directory)) return null;
@@ -33,16 +33,24 @@ export async function GET(req, context) {
       return new NextResponse("Not Found", { status: 404 });
     }
 
-    const subfolder = filenameArr[0];
-    const imagefile = filenameArr.slice(1).join("/");
+    const rawSubfolder = filenameArr[0] || "";
+    const rawImagefile = filenameArr.slice(1).join("/");
+    let subfolder = rawSubfolder;
+    let imagefile = rawImagefile;
+    try {
+      subfolder = decodeURIComponent(rawSubfolder);
+      imagefile = decodeURIComponent(rawImagefile);
+    } catch (_e) {}
 
-    // Multi-candidate search paths for frontend/uploads directory
+    // Comprehensive search paths across frontend, backend, and root uploads directories
     const cwd = process.cwd();
     const candidatePaths = [
       path.join(cwd, "uploads", subfolder, imagefile),
       path.join(cwd, "frontend", "uploads", subfolder, imagefile),
+      path.join(cwd, "backend", "uploads", subfolder, imagefile),
       path.resolve(cwd, "..", "uploads", subfolder, imagefile),
       path.resolve(cwd, "..", "frontend", "uploads", subfolder, imagefile),
+      path.resolve(cwd, "..", "backend", "uploads", subfolder, imagefile),
     ];
 
     let foundPath = null;
@@ -56,44 +64,44 @@ export async function GET(req, context) {
     // Fallback selection if exact uploaded file does not exist on disk
     if (!foundPath) {
       const nameLower = (imagefile || "").toLowerCase();
-      const collectionsDir = path.join(cwd, "public", "images", "adventure", "collections");
+      const experiencesDir = path.join(cwd, "public", "images", "experiences");
       const bannersDir = path.join(cwd, "public", "images", "banners");
+      const placeholdersDir = path.join(cwd, "public", "images", "placeholders");
 
       if (subfolder === "locations") {
         if (nameLower.includes("thailand")) {
-          foundPath = getExistingFileCaseInsensitive(collectionsDir, "swing.webp");
+          foundPath = getExistingFileCaseInsensitive(experiencesDir, "rope_swing.webp");
         } else if (nameLower.includes("nepal")) {
-          foundPath = getExistingFileCaseInsensitive(collectionsDir, "climbing.webp");
+          foundPath = getExistingFileCaseInsensitive(experiencesDir, "climbing.webp");
         } else if (nameLower.includes("srilanka") || nameLower.includes("sri-lanka")) {
-          foundPath = getExistingFileCaseInsensitive(collectionsDir, "riding.webp");
+          foundPath = getExistingFileCaseInsensitive(experiencesDir, "horseback_riding.webp");
         } else if (nameLower.includes("maldives")) {
-          foundPath = getExistingFileCaseInsensitive(collectionsDir, "Boating.webp") || getExistingFileCaseInsensitive(collectionsDir, "boating.webp");
+          foundPath = getExistingFileCaseInsensitive(experiencesDir, "boating.webp");
         } else if (nameLower.includes("china")) {
-          foundPath = getExistingFileCaseInsensitive(collectionsDir, "hiking.webp");
+          foundPath = getExistingFileCaseInsensitive(experiencesDir, "hiking.webp");
         } else if (nameLower.includes("brazil")) {
-          foundPath = getExistingFileCaseInsensitive(collectionsDir, "horse.webp") || getExistingFileCaseInsensitive(bannersDir, "camping.webp");
+          foundPath = getExistingFileCaseInsensitive(experiencesDir, "horse_riding.webp") || getExistingFileCaseInsensitive(bannersDir, "camping.webp");
         } else {
-          foundPath = getExistingFileCaseInsensitive(bannersDir, "camping.webp") || getExistingFileCaseInsensitive(collectionsDir, "hiking.webp");
+          foundPath = getExistingFileCaseInsensitive(experiencesDir, "camping.webp") || getExistingFileCaseInsensitive(experiencesDir, "hiking.webp");
         }
       } else if (subfolder === "tour-packages") {
         const hash = imagefile ? imagefile.charCodeAt(0) : 0;
-        const candidates = ["hiking.webp", "camping.webp", "riding.webp", "Boating.webp", "cycling.webp", "kayaking.webp"];
+        const candidates = ["hiking.webp", "camping.webp", "horse_riding.webp", "boating.webp", "cycling.webp", "kayaking.webp", "bamboo_rafting.webp", "canyoning.webp"];
         const selected = candidates[hash % candidates.length];
-        foundPath = getExistingFileCaseInsensitive(collectionsDir, selected);
-      } else if (subfolder === "testimonials") {
-        const avatarDir = path.join(cwd, "public", "images");
-        foundPath = getExistingFileCaseInsensitive(avatarDir, "avatar.jpg");
-      } else if (subfolder === "gallery") {
+        foundPath = getExistingFileCaseInsensitive(experiencesDir, selected);
+      } else if (subfolder === "testimonials" || subfolder === "avatars" || subfolder === "user") {
+        foundPath = getExistingFileCaseInsensitive(placeholdersDir, "avatar_placeholder.jpg");
+      } else if (subfolder === "gallery" || subfolder === "photos") {
         const hash = imagefile ? imagefile.charCodeAt(0) : 0;
-        const slides = ["banner2.webp", "camping.webp", "banner1.webp", "about-banner.webp"];
+        const slides = ["home_hero.webp", "about_hero.webp", "about_preview.webp", "travel_inspiration.webp", "memories_bg.webp", "client_gallery_hero.webp"];
         const selected = slides[hash % slides.length];
         foundPath = getExistingFileCaseInsensitive(bannersDir, selected);
       }
 
       // Ultimate safe fallback guarantee
       if (!foundPath) {
-        foundPath = getExistingFileCaseInsensitive(bannersDir, "banner1.webp") ||
-                    getExistingFileCaseInsensitive(collectionsDir, "hiking.webp");
+        foundPath = getExistingFileCaseInsensitive(bannersDir, "home_hero.webp") ||
+                    getExistingFileCaseInsensitive(experiencesDir, "hiking.webp");
       }
     }
 

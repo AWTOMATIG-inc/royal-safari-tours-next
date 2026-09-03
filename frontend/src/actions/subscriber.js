@@ -1,33 +1,41 @@
 "use server";
-import { db_connect } from "@/database";
-import { SubscriberModel } from "@/database/models/subscribeModel";
+
+import { cookies } from "next/headers";
+import { getBackendUrl } from "@/config/env";
+
+const BACKEND_URL = getBackendUrl();
+
+const getAuthHeaders = async (extraHeaders = {}) => {
+  const nextCookies = await cookies();
+  const token = nextCookies.get("token")?.value || nextCookies.get("accessToken")?.value;
+  const headers = { ...extraHeaders };
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+    headers["Cookie"] = `token=${token}; accessToken=${token}`;
+  }
+  return headers;
+};
+
 export const getSubscribers = async (page = 1) => {
   try {
-    const limit = 10;
-    const currentPage = Math.max(1, Number(page) || 1);
-    const skip = (currentPage - 1) * limit;
-     await db_connect();
-    const [subscriberData, total] = await Promise.all([
-      SubscriberModel.find().skip(skip).limit(limit).sort({ createdAt: -1 }).lean(),
-      SubscriberModel.countDocuments(),
-    ]);
-    const subscribers = JSON.parse(JSON.stringify(subscriberData));
+    const headers = await getAuthHeaders();
+    const res = await fetch(`${BACKEND_URL}/api/v1/subscribers?page=${page}&limit=10`, {
+      headers,
+      cache: "no-store",
+    });
+    if (!res.ok) throw new Error("Failed to fetch subscribers");
+    const result = await res.json();
     return {
       success: true,
-      data: subscribers,
-      pagination: {
-        page: currentPage,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-      },
+      data: result.data || [],
+      pagination: result.meta || { page, limit: 10, total: 0, totalPages: 1 },
     };
   } catch (error) {
     console.error("Get Subscribers Error:", error);
-
     return {
       success: false,
-      message: "Failed to fetch subscribers",
+      data: [],
+      message: error.message || "Failed to fetch subscribers",
     };
   }
 };

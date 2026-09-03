@@ -67,6 +67,16 @@ function documentFileFilter(_req: Express.Request, file: Express.Multer.File, cb
   }
 }
 
+function resumeFileFilter(_req: Express.Request, file: Express.Multer.File, cb: multer.FileFilterCallback) {
+  const ext = path.extname(file.originalname).toLowerCase();
+  const validMimes = ["application/pdf", "application/x-pdf", "application/acrobat"];
+  if (validMimes.includes(file.mimetype) && ext === ".pdf") {
+    cb(null, true);
+  } else {
+    cb(new Error("Invalid file type. Only authentic PDF documents (.pdf) are allowed for resume uploads. Images and Word documents are not permitted."));
+  }
+}
+
 export const uploadPhoto = multer({
   storage: photoStorage,
   limits: { fileSize: 5 * 1024 * 1024 },
@@ -77,4 +87,10 @@ export const uploadDocumentFile = multer({
   storage: documentStorage,
   limits: { fileSize: 20 * 1024 * 1024 },
   fileFilter: documentFileFilter,
+});
+
+export const uploadResumeFile = multer({
+  storage: documentStorage,
+  limits: { fileSize: 20 * 1024 * 1024 },
+  fileFilter: resumeFileFilter,
 });

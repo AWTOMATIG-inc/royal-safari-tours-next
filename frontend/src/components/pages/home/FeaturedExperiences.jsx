@@ -5,6 +5,7 @@ import { Icon } from "@iconify/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
+import { getImageUrl } from "@/lib/imageUrl";
 import { Reveal } from "@/components/animations";
 
 const defaultPackages = [
@@ -14,7 +15,7 @@ const defaultPackages = [
     location: "Sundarbans",
     duration: "4 Days / 3 Nights",
     price: 25000,
-    banner: "/images/banners/camping.webp",
+    banner: "/images/banners/travel_inspiration.webp",
     slug: "sundarbans-safari",
     shortDescription: "Navigate pristine riverways, track Bengal tigers, and experience evening wilderness silence.",
   },
@@ -24,7 +25,7 @@ const defaultPackages = [
     location: "Sreemangal",
     duration: "3 Days / 2 Nights",
     price: 18500,
-    banner: "/images/banners/about.webp",
+    banner: "/images/banners/about_hero.webp",
     slug: "sreemangal-tea-trek",
     shortDescription: "Bespoke tea tasting, organic forest walks, and stays in luxury boutique eco-lodges.",
   },
@@ -34,7 +35,7 @@ const defaultPackages = [
     location: "Sajek Valley",
     duration: "3 Days / 2 Nights",
     price: 21000,
-    banner: "/images/banners/contact_hero.jpg",
+    banner: "/images/banners/contact_hero.png",
     slug: "sajek-cloud-retreat",
     shortDescription: "Watch morning cloud seas roll over mountain ridge-lines in executive comfort.",
   },
@@ -44,7 +45,7 @@ const defaultPackages = [
     location: "Cox's Bazar",
     duration: "5 Days / 4 Nights",
     price: 32000,
-    banner: "/images/banners/banner1.webp",
+    banner: "/images/banners/about_preview.webp",
     slug: "coxs-bazar-escape",
     shortDescription: "Experience private beachfront villas, island hopping, and sunset catamaran cruises.",
   },
@@ -54,28 +55,15 @@ const defaultPackages = [
     location: "Sylhet",
     duration: "3 Days / 2 Nights",
     price: 19500,
-    banner: "/images/banners/contact.webp",
+    banner: "/images/banners/contact_hero.webp",
     slug: "sylhet-water-forest",
     shortDescription: "Glide through Ratargul swamp forest and discover hidden hill stream waterfalls.",
   },
 ];
 
 const getExperienceImageUrl = (item) => {
-  const rawImage = item.image || item.banner;
-
-  if (!rawImage) {
-    return "/images/banners/camping.webp";
-  }
-
-  if (typeof rawImage === "string") {
-    const trimmed = rawImage.trim();
-    if (trimmed.startsWith("/") || trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
-      return trimmed;
-    }
-    return `/api/uploads/tour-packages/${trimmed}`;
-  }
-
-  return "/images/banners/camping.webp";
+  const rawImage = item.featuredImage || item.image || item.banner;
+  return getImageUrl(rawImage, "/images/banners/home_hero.webp");
 };
 
 export default function FeaturedExperiences({ tourPackages = [] }) {
@@ -233,14 +221,19 @@ export default function FeaturedExperiences({ tourPackages = [] }) {
           >
             {packagesList.map((item, idx) => {
               const title = item.title || "Luxury Expedition";
-              const location = item.location || "Bangladesh";
+              const locationDisplay =
+                item.locationName ||
+                (typeof item.location === "string"
+                  ? item.location
+                  : item.location?.country || item.location?.name || item.location?.title || "Bangladesh");
               const duration = item.duration || "Multi-Day Expedition";
               const imageSrc = getExperienceImageUrl(item);
-              const slug = item.slug || item._id;
+              const itemId = item.id || `exp-${idx}`;
+              const slug = item.slug || item.id;
 
               return (
                 <div
-                  key={item._id || idx}
+                  key={itemId}
                   className="snap-start flex-shrink-0 w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] group/card relative rounded-3xl bg-sand border border-primary/10 shadow-xs hover:shadow-lg hover:border-secondary/40 overflow-hidden transition-all duration-500 flex flex-col justify-between"
                 >
                   <div>
@@ -258,7 +251,7 @@ export default function FeaturedExperiences({ tourPackages = [] }) {
                       {/* Floating Location Tag */}
                       <div className="absolute top-4 left-4 px-3.5 py-1.5 rounded-full bg-black/75 text-white text-[11px] font-medium tracking-wider uppercase flex items-center gap-1.5 border border-white/20 font-body">
                         <Icon icon="lucide:map-pin" className="w-3.5 h-3.5 text-accent" />
-                        <span>{location}</span>
+                        <span>{locationDisplay}</span>
                       </div>
                     </div>
 

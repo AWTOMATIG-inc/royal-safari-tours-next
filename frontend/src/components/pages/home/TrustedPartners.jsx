@@ -6,12 +6,12 @@ import { useState, useRef, useEffect } from "react";
 import { Reveal } from "@/components/animations";
 
 const partners = [
-  { name: "Grand Sultan Sylhet", logo: "/images/sponsors/Grand-Sultan-Sylhet.png" },
-  { name: "Fly Far International", logo: "/images/sponsors/Fly-far-international.png" },
-  { name: "Himalayan Club Tours", logo: "/images/sponsors/Himalayan-Club-tours.png" },
-  { name: "Kaani Group Maldives", logo: "/images/sponsors/Kaani-Group.png" },
-  { name: "Ramada by Wyndham", logo: "/images/sponsors/Ramada-Wyndham.png" },
-  { name: "Travel Champ", logo: "/images/sponsors/Travel-Champ.png" },
+  { name: "Grand Sultan Sylhet", logo: "/images/partners/grand_sultan.png" },
+  { name: "Fly Far International", logo: "/images/partners/fly_far.png" },
+  { name: "Himalayan Club Tours", logo: "/images/partners/himalayan_club.png" },
+  { name: "Kaani Group Maldives", logo: "/images/partners/kaani_group.png" },
+  { name: "Ramada by Wyndham", logo: "/images/partners/ramada_wyndham.png" },
+  { name: "Travel Champ", logo: "/images/partners/travel_champ.png" },
 ];
 
 export default function TrustedPartners() {

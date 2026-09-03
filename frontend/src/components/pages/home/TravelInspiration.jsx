@@ -12,7 +12,7 @@ const destinationItems = [
     title: "Sundarbans Tiger Reserve",
     category: "Mangrove Safaris",
     location: "Khulna Region",
-    image: "/images/banners/camping.webp",
+    image: "/images/banners/travel_inspiration.webp",
     duration: "4 Days",
     tag: "UNESCO Sanctuary",
     description: "Deep jungle boat safaris, Royal Bengal tiger tracking, and river twilight stillness.",
@@ -22,7 +22,7 @@ const destinationItems = [
     title: "Sreemangal Tea Estates",
     category: "Tea Valleys",
     location: "Sylhet Division",
-    image: "/images/banners/about.webp",
+    image: "/images/banners/about_hero.webp",
     duration: "3 Days",
     tag: "Boutique Eco-Lodge",
     description: "Organic tea garden trails, Lawachara rainforest treks, and artisanal tea tasting.",
@@ -32,7 +32,7 @@ const destinationItems = [
     title: "Cox's Bazar Long Coast",
     category: "Coastal Seas",
     location: "Bay of Bengal",
-    image: "/images/banners/banner2.webp",
+    image: "/images/banners/about_preview.webp",
     duration: "3 Days",
     tag: "Unbroken Ocean Front",
     description: "Private beachside dining, coastal cruises, and natural sea horizon sunsets.",
@@ -42,7 +42,7 @@ const destinationItems = [
     title: "Sajek Valley Cloud Ridge",
     category: "Cloud Valleys",
     location: "Chittagong Hill Tracts",
-    image: "/images/banners/contact_hero.jpg",
+    image: "/images/banners/contact_hero.png",
     duration: "3 Days",
     tag: "Peak Ridge Stay",
     description: "Watch morning cloud seas roll over bamboo forest ridges in executive comfort.",
@@ -52,7 +52,7 @@ const destinationItems = [
     title: "Ratargul Swamp Forest",
     category: "Mangrove Safaris",
     location: "Sylhet Division",
-    image: "/images/banners/banner1.webp",
+    image: "/images/banners/travel_inspiration.webp",
     duration: "2 Days",
     tag: "Freshwater Sanctuary",
     description: "Glide silently on small wooden boats through South Asia's premier freshwater swamp.",
@@ -62,7 +62,7 @@ const destinationItems = [
     title: "Tanguar Haor Wetland",
     category: "Tea Valleys",
     location: "Sunamganj",
-    image: "/images/banners/footer-banner.webp",
+    image: "/images/banners/footer_cta.webp",
     duration: "3 Days",
     tag: "Houseboat Living",
     description: "Luxury premium houseboat cruises across pristine crystal water mirrors.",
@@ -82,7 +82,7 @@ export default function TravelInspiration() {
   return (
     <section className="relative w-full bg-black text-white font-body">
       {/* 1. Fixed Parallax Hero Inspiration Banner */}
-      <div className="relative py-24 sm:py-32 md:py-40 overflow-hidden bg-[url('/images/banners/memories.webp')] bg-fixed bg-cover bg-center text-center">
+      <div className="relative py-24 sm:py-32 md:py-40 overflow-hidden bg-[url('/images/banners/memories_bg.webp')] bg-fixed bg-cover bg-center text-center">
         {/* Dark Overlay */}
         <div className="absolute inset-0 bg-primary/75 backdrop-blur-xs" />
 
