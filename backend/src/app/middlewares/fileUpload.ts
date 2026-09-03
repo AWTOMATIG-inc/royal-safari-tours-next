@@ -17,7 +17,21 @@ const storage = multer.diskStorage({
   },
 });
 
+const ALLOWED_AVATAR_MIMES = [
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/webp",
+];
+
 export const upload = multer({
   storage,
   limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    if (ALLOWED_AVATAR_MIMES.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error("Invalid file type. Only JPEG, PNG, and WebP images are allowed for avatars."));
+    }
+  },
 });

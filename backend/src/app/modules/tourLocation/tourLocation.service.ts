@@ -1,4 +1,6 @@
 import { prisma } from "../../utils/prisma";
+import path from "path";
+import fs from "fs";
 
 export const createLocation = async (data: any) => {
   const country = data.country || data.name || "Untitled Location";
@@ -100,6 +102,23 @@ export const updateLocation = async (id: string, data: any) => {
 };
 
 export const deleteLocation = async (id: string) => {
+  const item = await prisma.tourLocation.findUnique({ where: { id } });
+  if (item && item.image) {
+    const baseUploadsDir = process.env.UPLOADS_DIR
+      ? path.resolve(process.env.UPLOADS_DIR)
+      : path.resolve(process.cwd(), "uploads");
+
+    const relPath = item.image.replace(/^\/?(api\/)?uploads\//, "");
+    const fullPath = path.resolve(baseUploadsDir, relPath);
+    if (fullPath.startsWith(baseUploadsDir) && fs.existsSync(fullPath) && fs.statSync(fullPath).isFile()) {
+      try {
+        fs.unlinkSync(fullPath);
+      } catch (err) {
+        console.error("Error unlinking tour location image:", err);
+      }
+    }
+  }
+
   return await prisma.tourLocation.delete({
     where: { id },
   });

@@ -5,6 +5,7 @@ import { Icon } from "@iconify/react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Reveal } from "@/components/animations";
+import { getImageUrl } from "@/lib/imageUrl";
 
 export default function CustomerStories() {
   const [stories, setStories] = useState([]);
@@ -27,6 +28,7 @@ export default function CustomerStories() {
         setLoading(false);
       }
     };
+
     fetchTestimonials();
   }, []);
 
@@ -47,8 +49,7 @@ export default function CustomerStories() {
   const getAvatarSrc = (item) => {
     const raw = item?.avatarImage || item?.avatar;
     if (!raw) return "/images/placeholders/avatar_placeholder.jpg";
-    if (raw.startsWith("http") || raw.startsWith("/")) return raw;
-    return `/api/uploads/testimonials/${raw}`;
+    return getImageUrl(raw, "/images/placeholders/avatar_placeholder.jpg");
   };
 
   const reviewText = currentStory?.feedback || currentStory?.reviewText || "";

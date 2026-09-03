@@ -13,6 +13,7 @@ export const navigationConfig = {
     { id: 2, label: "About Us", link: "/about-us" },
     { id: 3, label: "Gallery", link: "/client-gallery" },
     { id: 4, label: "Contact Us", link: "/contact" },
+    { id: 5, label: "Careers", link: "/jobs" },
   ],  
 
   footerDestinations: [

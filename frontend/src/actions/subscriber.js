@@ -1,8 +1,9 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { getBackendUrl } from "@/config/env";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const BACKEND_URL = getBackendUrl();
 
 const getAuthHeaders = async (extraHeaders = {}) => {
   const nextCookies = await cookies();

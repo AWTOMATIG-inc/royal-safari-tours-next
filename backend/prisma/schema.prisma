@@ -185,7 +185,7 @@ model EmployeeLeaveBalance {
   employeeId  String
   employee    Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   leaveTypeId String
-  leaveType   LeaveType @relation(fields: [leaveTypeId], references: [id], onDelete: Cascade)
+  leaveType   LeaveType @relation(fields: [leaveTypeId], references: [id], onDelete: Restrict)
   year        Int
   totalDays   Int
   usedDays    Int       @default(0)
@@ -193,6 +193,8 @@ model EmployeeLeaveBalance {
   updatedAt   DateTime  @updatedAt
 
   @@unique([employeeId, leaveTypeId, year])
+  @@index([employeeId])
+  @@index([leaveTypeId])
 }
 
 // Leave Application / Request Model
@@ -201,7 +203,7 @@ model LeaveApplication {
   employeeId      String
   employee        Employee    @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   leaveTypeId     String
-  leaveType       LeaveType   @relation(fields: [leaveTypeId], references: [id], onDelete: Cascade)
+  leaveType       LeaveType   @relation(fields: [leaveTypeId], references: [id], onDelete: Restrict)
   startDate       DateTime
   endDate         DateTime
   totalDays       Int
@@ -211,6 +213,10 @@ model LeaveApplication {
   rejectionReason String?
   appliedAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
+
+  @@index([employeeId])
+  @@index([leaveTypeId])
+  @@index([status])
 }
 
 // Attendance Policy / Shift Work Hours Configuration Model
@@ -248,6 +254,8 @@ model Attendance {
   updatedAt            DateTime         @updatedAt
 
   @@unique([employeeId, date])
+  @@index([employeeId])
+  @@index([date])
 }
 
 // Recruitment Job Post Model
@@ -275,7 +283,7 @@ model JobPost {
 model JobApplication {
   id              String               @id @default(uuid())
   jobPostId       String
-  jobPost         JobPost              @relation(fields: [jobPostId], references: [id], onDelete: Cascade)
+  jobPost         JobPost              @relation(fields: [jobPostId], references: [id], onDelete: Restrict)
   applicantName   String
   applicantEmail  String
   applicantPhone  String
@@ -291,6 +299,8 @@ model JobApplication {
   updatedAt       DateTime             @updatedAt
 
   @@unique([jobPostId, applicantEmail])
+  @@index([jobPostId])
+  @@index([status])
 }
 
 // Invoice / Money Receipt Master Model
@@ -304,11 +314,11 @@ model Invoice {
   invoiceDate   DateTime      @default(now())
   dueDate       DateTime?
   paymentTerms  String        @default("Advanced") // e.g. "Advanced", "Full Payment", "Partial", "Due"
-  subTotal      Float
-  discount      Float         @default(0)
-  totalAmount   Float
-  amountPaid    Float         @default(0)
-  balanceDue    Float
+  subTotal      Decimal       @db.Decimal(12, 2)
+  discount      Decimal       @default(0) @db.Decimal(12, 2)
+  totalAmount   Decimal       @db.Decimal(12, 2)
+  amountPaid    Decimal       @default(0) @db.Decimal(12, 2)
+  balanceDue    Decimal       @db.Decimal(12, 2)
   notes         String?       @default("Booking Money are not Re-fundable")
   
   // Creator relation
@@ -319,6 +329,11 @@ model Invoice {
   
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
+
+  @@index([createdById])
+  @@index([invoiceDate])
+  @@index([clientName])
+  @@index([clientPhone])
 }
 
 // Invoice Line Item Model
@@ -329,9 +344,11 @@ model InvoiceItem {
   itemDescription String   // e.g. "Malaysia & Thailand Tour - 7Nights & 8Days..."
   subDescription  String?  // e.g. "Room - (Single Occupancy)"
   quantity        Int      @default(1)
-  rate            Float    // Unit Price in BDT
-  amount          Float    // quantity * rate
+  rate            Decimal  @db.Decimal(12, 2) // Unit Price in BDT
+  amount          Decimal  @db.Decimal(12, 2) // quantity * rate
   createdAt       DateTime @default(now())
+
+  @@index([invoiceId])
 }
 
 // Tour Location Master Model
@@ -356,8 +373,8 @@ model TourPackage {
   image            String?
   featuredImage    String?
   galleryImages    String[]
-  price            Float
-  discountPrice    Float?
+  price            Decimal            @db.Decimal(12, 2)
+  discountPrice    Decimal?           @db.Decimal(12, 2)
   duration         String             // e.g. "5 Days / 4 Nights"
   locationId       String?
   location         TourLocation?      @relation(fields: [locationId], references: [id], onDelete: SetNull)
@@ -377,6 +394,10 @@ model TourPackage {
   gallery          GalleryItem[]
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @updatedAt
+
+  @@index([locationId])
+  @@index([isFeatured])
+  @@index([isPublished])
 }
 
 // Package Daily Itinerary Breakdown Model
@@ -391,6 +412,8 @@ model PackageItinerary {
   sortOrder   Int         @default(0)
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
+
+  @@index([packageId])
 }
 
 // Package Hotel Stay Configuration Model
@@ -404,6 +427,8 @@ model PackageHotel {
   rating    Int         @default(4)
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
+
+  @@index([packageId])
 }
 
 // Traveler Testimonial / Review Model
@@ -480,4 +505,7 @@ model GalleryItem {
   isPublished Boolean       @default(true)
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
+
+  @@index([locationId])
+  @@index([packageId])
 }

@@ -49,11 +49,10 @@ export default function ContactRequestPage({ contactRequests = [], pagination = 
 
   const handleStatus = async (id, status) => {
     try {
-      const formData = new FormData();
-      formData.append("status", status);
       const response = await fetch(`/api/contact/${id}`, {
-        method: "PUT",
-        body: formData,
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
       });
 
       if (!response.ok) {

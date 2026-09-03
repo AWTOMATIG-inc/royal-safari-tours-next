@@ -288,42 +288,44 @@ export const updateLeaveApplicationStatus = async (
     },
   });
 
-  if (payload.status === LeaveStatus.APPROVED && application.status !== LeaveStatus.APPROVED) {
-    if (balance) {
-      await prisma.employeeLeaveBalance.update({
-        where: { id: balance.id },
-        data: {
-          usedDays: balance.usedDays + application.totalDays,
-        },
-      });
+  return await prisma.$transaction(async (tx) => {
+    if (payload.status === LeaveStatus.APPROVED && application.status !== LeaveStatus.APPROVED) {
+      if (balance) {
+        await tx.employeeLeaveBalance.update({
+          where: { id: balance.id },
+          data: {
+            usedDays: balance.usedDays + application.totalDays,
+          },
+        });
+      }
+    } else if (application.status === LeaveStatus.APPROVED && payload.status !== LeaveStatus.APPROVED) {
+      if (balance) {
+        await tx.employeeLeaveBalance.update({
+          where: { id: balance.id },
+          data: {
+            usedDays: Math.max(0, balance.usedDays - application.totalDays),
+          },
+        });
+      }
     }
-  } else if (application.status === LeaveStatus.APPROVED && payload.status !== LeaveStatus.APPROVED) {
-    if (balance) {
-      await prisma.employeeLeaveBalance.update({
-        where: { id: balance.id },
-        data: {
-          usedDays: Math.max(0, balance.usedDays - application.totalDays),
-        },
-      });
-    }
-  }
 
-  return await prisma.leaveApplication.update({
-    where: { id },
-    data: {
-      status: payload.status,
-      approvedById: adminUserId,
-      rejectionReason: payload.rejectionReason ? payload.rejectionReason.trim() : null,
-    },
-    include: {
-      leaveType: true,
-      employee: {
-        include: {
-          department: true,
-          designation: true,
+    return await tx.leaveApplication.update({
+      where: { id },
+      data: {
+        status: payload.status,
+        approvedById: adminUserId,
+        rejectionReason: payload.rejectionReason ? payload.rejectionReason.trim() : null,
+      },
+      include: {
+        leaveType: true,
+        employee: {
+          include: {
+            department: true,
+            designation: true,
+          },
         },
       },
-    },
+    });
   });
 };
 

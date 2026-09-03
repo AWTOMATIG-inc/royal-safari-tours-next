@@ -21,7 +21,10 @@ export default function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const { user } = useAuth();
-  const isAdmin = user ? user?.role === "admin" : false;
+  const isAdmin = user
+    ? ["ADMIN", "SUPER_ADMIN", "HR_MANAGER"].includes(user?.role?.toUpperCase()) ||
+      user?.role?.toLowerCase() === "admin"
+    : false;
   const searchInputRef = useRef(null);
 
   // Monitor page scroll to apply sticky shrink transitions

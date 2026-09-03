@@ -1,4 +1,6 @@
 import { prisma } from "../../utils/prisma";
+import path from "path";
+import fs from "fs";
 
 export const createPackage = async (data: any) => {
   const title = data.title || "Untitled Package";
@@ -72,6 +74,7 @@ export const getAllPackages = async (query: {
   search?: string;
   location?: string;
   isFeatured?: boolean;
+  isPublished?: boolean;
   page?: number;
   limit?: number;
 }) => {
@@ -95,6 +98,10 @@ export const getAllPackages = async (query: {
 
   if (typeof query.isFeatured === "boolean") {
     where.isFeatured = query.isFeatured;
+  }
+
+  if (typeof query.isPublished === "boolean") {
+    where.isPublished = query.isPublished;
   }
 
   const page = query.page || 1;
@@ -227,6 +234,32 @@ export const updatePackage = async (id: string, data: any) => {
 };
 
 export const deletePackage = async (id: string) => {
+  const item = await prisma.tourPackage.findUnique({ where: { id } });
+  if (item) {
+    const baseUploadsDir = process.env.UPLOADS_DIR
+      ? path.resolve(process.env.UPLOADS_DIR)
+      : path.resolve(process.cwd(), "uploads");
+
+    const cleanupFile = (urlOrName?: string | null) => {
+      if (!urlOrName) return;
+      const relPath = urlOrName.replace(/^\/?(api\/)?uploads\//, "");
+      const fullPath = path.resolve(baseUploadsDir, relPath);
+      if (fullPath.startsWith(baseUploadsDir) && fs.existsSync(fullPath) && fs.statSync(fullPath).isFile()) {
+        try {
+          fs.unlinkSync(fullPath);
+        } catch (err) {
+          console.error("Error unlinking tour package image:", err);
+        }
+      }
+    };
+
+    cleanupFile(item.image);
+    cleanupFile(item.featuredImage);
+    if (Array.isArray(item.galleryImages)) {
+      item.galleryImages.forEach((img: string) => cleanupFile(img));
+    }
+  }
+
   return await prisma.tourPackage.delete({
     where: { id },
   });

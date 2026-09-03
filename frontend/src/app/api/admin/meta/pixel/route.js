@@ -24,10 +24,23 @@ export async function GET(request) {
           success: false,
           error: {
             code: "UNAUTHORIZED",
-            message: "Admin authorization required to access Meta Ads analytics.",
+            message: "Authentication required to access Meta Ads analytics.",
           },
         },
         { status: 401 }
+      );
+    }
+
+    if (!["SUPER_ADMIN", "ADMIN"].includes(admin.role)) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: "FORBIDDEN",
+            message: "Access forbidden. Admin role required.",
+          },
+        },
+        { status: 403 }
       );
     }
 

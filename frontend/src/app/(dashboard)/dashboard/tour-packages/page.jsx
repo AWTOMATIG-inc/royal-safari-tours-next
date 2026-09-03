@@ -3,7 +3,7 @@ import TourCardPage from "@/components/dashboard/tour-packages/TourCardPage";
 
 export default async function TourPackages({ searchParams }) {
   const { page } = await searchParams;
-  const results = await getTourPackages(page);
+  const results = await getTourPackages(page, 50, "all");
 
   return (
     <div>

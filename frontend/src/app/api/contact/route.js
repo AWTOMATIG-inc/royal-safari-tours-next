@@ -20,7 +20,25 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
-    const body = await request.json();
+    const contentType = request.headers.get("content-type") || "";
+    let body;
+
+    if (contentType.includes("multipart/form-data")) {
+      const formData = await request.formData();
+      body = {
+        name: formData.get("name") || "Guest",
+        email: formData.get("email") || "",
+        phone: formData.get("phone") || "",
+        message: formData.get("message") || "",
+        destination: formData.get("destination") || formData.get("tourPackage") || null,
+        travelDate: formData.get("date") || formData.get("travelDate") || null,
+        guestCount: formData.get("people") ? parseInt(formData.get("people"), 10) : 1,
+        notes: formData.get("notes") || null,
+      };
+    } else {
+      body = await request.json();
+    }
+
     const res = await fetch(`${BACKEND_URL}/api/v1/contacts`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -29,6 +47,7 @@ export async function POST(request) {
     const data = await res.json();
     return NextResponse.json(data.data || data, { status: res.status });
   } catch (error) {
-    return NextResponse.json({ error: "Failed to submit contact inquiry" }, { status: 500 });
+    console.error("[Contact Route Error]:", error);
+    return NextResponse.json({ error: error.message || "Failed to submit contact inquiry" }, { status: 500 });
   }
 }

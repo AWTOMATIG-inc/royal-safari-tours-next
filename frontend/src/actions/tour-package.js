@@ -1,10 +1,13 @@
 "use server";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+import { getBackendUrl } from "@/config/env";
 
-export const getTourPackages = async (page = 1, limit = 6) => {
+const BACKEND_URL = getBackendUrl();
+
+export const getTourPackages = async (page = 1, limit = 6, status = "published") => {
   try {
-    const res = await fetch(`${BACKEND_URL}/api/v1/tour-packages?page=${page}&limit=${limit}`, {
+    const publishedQuery = status === "all" ? "" : "&isPublished=true";
+    const res = await fetch(`${BACKEND_URL}/api/v1/tour-packages?page=${page}&limit=${limit}${publishedQuery}`, {
       cache: "no-store",
     });
     if (!res.ok) throw new Error("Failed to fetch tour packages");
@@ -47,8 +50,8 @@ export const getTourPackageBySlug = async (slug) => {
 
 export const getTourPackageByLocation = async (location = "all") => {
   try {
-    const query = location && location !== "all" ? `?location=${encodeURIComponent(location)}` : "";
-    const res = await fetch(`${BACKEND_URL}/api/v1/tour-packages${query}`, {
+    const locQuery = location && location !== "all" ? `&location=${encodeURIComponent(location)}` : "";
+    const res = await fetch(`${BACKEND_URL}/api/v1/tour-packages?isPublished=true${locQuery}`, {
       cache: "no-store",
     });
     if (!res.ok) throw new Error("Failed to fetch location packages");
@@ -69,7 +72,7 @@ export const getTourPackageByLocation = async (location = "all") => {
 export const getTourPackagesAndLocations = async () => {
   try {
     const [packagesRes, locationsRes] = await Promise.all([
-      fetch(`${BACKEND_URL}/api/v1/tour-packages`, { cache: "no-store" }),
+      fetch(`${BACKEND_URL}/api/v1/tour-packages?isPublished=true`, { cache: "no-store" }),
       fetch(`${BACKEND_URL}/api/v1/tour-locations`, { cache: "no-store" }),
     ]);
 

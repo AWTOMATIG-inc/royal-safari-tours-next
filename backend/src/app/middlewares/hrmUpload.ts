@@ -69,10 +69,11 @@ function documentFileFilter(_req: Express.Request, file: Express.Multer.File, cb
 
 function resumeFileFilter(_req: Express.Request, file: Express.Multer.File, cb: multer.FileFilterCallback) {
   const ext = path.extname(file.originalname).toLowerCase();
-  if (file.mimetype === "application/pdf" || ext === ".pdf") {
+  const validMimes = ["application/pdf", "application/x-pdf", "application/acrobat"];
+  if (validMimes.includes(file.mimetype) && ext === ".pdf") {
     cb(null, true);
   } else {
-    cb(new Error("Invalid file type. Only PDF documents (.pdf) are allowed for resume uploads. Images and Word documents are not permitted."));
+    cb(new Error("Invalid file type. Only authentic PDF documents (.pdf) are allowed for resume uploads. Images and Word documents are not permitted."));
   }
 }
 

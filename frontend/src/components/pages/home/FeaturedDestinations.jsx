@@ -23,10 +23,10 @@ const getDestinationImageUrl = (item) => {
 
 export default function FeaturedDestinations({ locations = [] }) {
   const displayLocations = locations.length > 0 ? locations.slice(0, 4) : [
-    { id: "1", country: "Sundarbans", title: "Sundarbans", description: "The world's largest mangrove forest, home of the Royal Bengal Tiger.", banner: "/images/banners/camping.webp", slug: "sundarbans" },
-    { id: "2", country: "Sreemangal", title: "Sreemangal", description: "Rolling green tea valleys, organic gardens, and rainforest trails.", banner: "/images/banners/about.webp", slug: "sreemangal" },
-    { id: "3", country: "Cox's Bazar", title: "Cox's Bazar", description: "The longest unbroken natural sea beach in the world.", banner: "/images/banners/banner2.webp", slug: "coxs-bazar" },
-    { id: "4", country: "Sajek Valley", title: "Sajek Valley", description: "Mist-covered mountain peaks in the Chittagong Hill Tracts.", banner: "/images/banners/contact_hero.jpg", slug: "sajek-valley" },
+    { id: "1", country: "Sundarbans", title: "Sundarbans", description: "The world's largest mangrove forest, home of the Royal Bengal Tiger.", banner: "/images/banners/travel_inspiration.webp", slug: "sundarbans" },
+    { id: "2", country: "Sreemangal", title: "Sreemangal", description: "Rolling green tea valleys, organic gardens, and rainforest trails.", banner: "/images/banners/about_hero.webp", slug: "sreemangal" },
+    { id: "3", country: "Cox's Bazar", title: "Cox's Bazar", description: "The longest unbroken natural sea beach in the world.", banner: "/images/banners/about_preview.webp", slug: "coxs-bazar" },
+    { id: "4", country: "Sajek Valley", title: "Sajek Valley", description: "Mist-covered mountain peaks in the Chittagong Hill Tracts.", banner: "/images/banners/contact_hero.webp", slug: "sajek-valley" },
   ];
 
   return (

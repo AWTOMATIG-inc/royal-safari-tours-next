@@ -1,28 +1,45 @@
 import nodemailer from "nodemailer";
 import config from "../../config";
-import { generateOTPEmailHTML } from "./emailTemplate";
+import {
+  generateOTPEmailHTML,
+  generateAdminBookingAlertEmailHTML,
+  generateGuestBookingConfirmationEmailHTML,
+  generateApplicantConfirmationEmailHTML,
+  generateAdminJobApplicationAlertEmailHTML,
+} from "./emailTemplate";
 
-export async function sendOTPEmail(
-  toEmail: string,
-  plainOtp: string,
-  userName: string
-): Promise<boolean> {
+// Helper to create Gmail SMTP transporter
+function getTransporter() {
   const gmailUser = config.gmailUser;
   const gmailPassword = config.gmailAppPassword;
 
   if (!gmailUser || !gmailPassword) {
-    throw new Error(
-      "GMAIL_USER and GMAIL_APP_PASSWORD must be configured in environment variables."
-    );
+    return null;
   }
 
-  const transporter = nodemailer.createTransport({
+  return nodemailer.createTransport({
     service: "gmail",
     auth: {
       user: gmailUser,
       pass: gmailPassword,
     },
   });
+}
+
+// ----------------------------------------------------------------------------
+// 1. Send OTP 2FA Code Email
+// ----------------------------------------------------------------------------
+export async function sendOTPEmail(
+  toEmail: string,
+  plainOtp: string,
+  userName: string
+): Promise<boolean> {
+  const gmailUser = config.gmailUser;
+  const transporter = getTransporter();
+
+  if (!transporter || !gmailUser) {
+    throw new Error("GMAIL_USER and GMAIL_APP_PASSWORD must be configured in environment variables.");
+  }
 
   const htmlContent = generateOTPEmailHTML(
     plainOtp,
@@ -48,39 +65,32 @@ export async function sendOTPEmail(
   }
 }
 
+// ----------------------------------------------------------------------------
+// 2. Send Applicant Confirmation Email (HR)
+// ----------------------------------------------------------------------------
 export async function sendApplicantConfirmationEmail(
   toEmail: string,
   applicantName: string,
   jobTitle: string
 ): Promise<boolean> {
   const gmailUser = config.gmailUser;
-  const gmailPassword = config.gmailAppPassword;
+  const transporter = getTransporter();
 
-  if (!gmailUser || !gmailPassword) return false;
+  if (!transporter || !gmailUser || !toEmail) return false;
 
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: { user: gmailUser, pass: gmailPassword },
-  });
+  const htmlContent = generateApplicantConfirmationEmailHTML(applicantName, jobTitle);
 
   const mailOptions = {
     from: `"Royal Safari Tours Recruitment" <${gmailUser}>`,
     to: toEmail,
     subject: `Application Received: ${jobTitle} - Royal Safari Tours`,
-    html: `
-      <div style="font-family: Arial, sans-serif; padding: 20px; color: #0D231E;">
-        <h2 style="color: #0D231E;">Application Submitted Successfully!</h2>
-        <p>Dear <strong>${applicantName}</strong>,</p>
-        <p>Thank you for applying for the position of <strong>${jobTitle}</strong> at Royal Safari Tours.</p>
-        <p>We have successfully received your job application and custom questionnaire responses. Our recruitment team will review your profile and reach out if your qualifications match our requirements.</p>
-        <br/>
-        <p>Best regards,<br/><strong>Royal Safari Tours HR Team</strong></p>
-      </div>
-    `,
+    html: htmlContent,
+    text: `Dear ${applicantName},\n\nThank you for applying for the position of ${jobTitle} at Royal Safari Tours. We have received your application and will review your qualifications.\n\nBest regards,\nRoyal Safari Tours HR Team`,
   };
 
   try {
-    await transporter.sendMail(mailOptions);
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`[HR Applicant Confirmation] Dispatched to ${toEmail} | Message ID: ${info.messageId}`);
     return true;
   } catch (error: any) {
     console.error("[Applicant Email Error]", error.message);
@@ -88,6 +98,9 @@ export async function sendApplicantConfirmationEmail(
   }
 }
 
+// ----------------------------------------------------------------------------
+// 3. Send Admin Alert for New Candidate Application (HR)
+// ----------------------------------------------------------------------------
 export async function sendAdminNewApplicationEmail(
   applicantName: string,
   applicantEmail: string,
@@ -95,41 +108,121 @@ export async function sendAdminNewApplicationEmail(
   jobTitle: string
 ): Promise<boolean> {
   const gmailUser = config.gmailUser;
-  const gmailPassword = config.gmailAppPassword;
+  const transporter = getTransporter();
 
-  if (!gmailUser || !gmailPassword) return false;
+  if (!transporter || !gmailUser) return false;
 
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: { user: gmailUser, pass: gmailPassword },
-  });
-
-  const adminEmail = gmailUser || "info.royalsafaritours@gmail.com";
+  const adminEmail = gmailUser;
+  const htmlContent = generateAdminJobApplicationAlertEmailHTML(
+    applicantName,
+    applicantEmail,
+    applicantPhone,
+    jobTitle
+  );
 
   const mailOptions = {
     from: `"Royal Safari Tours ATS" <${gmailUser}>`,
     to: adminEmail,
+    replyTo: applicantEmail || gmailUser,
     subject: `[New Applicant Alert] ${applicantName} applied for ${jobTitle}`,
-    html: `
-      <div style="font-family: Arial, sans-serif; padding: 20px; color: #0D231E;">
-        <h2 style="color: #0D231E;">New Candidate Application Received</h2>
-        <p>A new candidate has submitted an application for <strong>${jobTitle}</strong>.</p>
-        <table style="width: 100%; max-width: 500px; border-collapse: collapse; margin-top: 15px; background: #f9f9f9; padding: 15px; border-radius: 8px;">
-          <tr><td style="padding: 8px; font-weight: bold;">Candidate Name:</td><td style="padding: 8px;">${applicantName}</td></tr>
-          <tr><td style="padding: 8px; font-weight: bold;">Email:</td><td style="padding: 8px;">${applicantEmail}</td></tr>
-          <tr><td style="padding: 8px; font-weight: bold;">Phone:</td><td style="padding: 8px;">${applicantPhone}</td></tr>
-          <tr><td style="padding: 8px; font-weight: bold;">Applied Position:</td><td style="padding: 8px;">${jobTitle}</td></tr>
-        </table>
-        <p style="margin-top: 20px;">Log in to the Admin Dashboard to review candidate custom answers and manage shortlisting.</p>
-      </div>
-    `,
+    html: htmlContent,
+    text: `New Candidate Alert: ${applicantName} applied for ${jobTitle}.\nEmail: ${applicantEmail}\nPhone: ${applicantPhone}\n\nPlease review in Admin Dashboard.`,
   };
 
   try {
-    await transporter.sendMail(mailOptions);
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`[HR Admin Notification] Dispatched to ${adminEmail} | Message ID: ${info.messageId}`);
     return true;
   } catch (error: any) {
     console.error("[Admin Email Error]", error.message);
+    return false;
+  }
+}
+
+// ----------------------------------------------------------------------------
+// 4. Send Admin Notification for Tour Bookings & Contact Inquiries
+// ----------------------------------------------------------------------------
+export async function sendContactInquiryNotificationEmail(contactData: {
+  name: string;
+  email: string;
+  phone: string;
+  message: string;
+  destination?: string | null;
+  travelDate?: string | null;
+  guestCount?: number | null;
+  notes?: string | null;
+}): Promise<boolean> {
+  const gmailUser = config.gmailUser;
+  const transporter = getTransporter();
+
+  if (!transporter || !gmailUser) {
+    console.warn("[Contact Email Warning] Gmail credentials not set. Skipping email notification.");
+    return false;
+  }
+
+  const adminEmail = gmailUser;
+  const isBooking = Boolean(
+    contactData.destination ||
+      (contactData.message && contactData.message.toLowerCase().includes("booking"))
+  );
+  const subjectType = isBooking ? "Tour Booking Request" : "New Contact Inquiry";
+  const htmlContent = generateAdminBookingAlertEmailHTML(contactData);
+
+  const mailOptions = {
+    from: `"Royal Safari Tours Inquiries" <${gmailUser}>`,
+    to: adminEmail,
+    replyTo: contactData.email || gmailUser,
+    subject: `[${subjectType}] From: ${contactData.name || "Valued Guest"} (${contactData.phone || "No Phone"})`,
+    html: htmlContent,
+    text: `New ${subjectType} from ${contactData.name || "Guest"}\nPhone: ${contactData.phone}\nEmail: ${contactData.email}\nDestination: ${contactData.destination || "N/A"}\nDate: ${contactData.travelDate || "Flexible"}\nGuests: ${contactData.guestCount || 1}\nMessage: ${contactData.message}`,
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`[Contact Email Notification] Dispatched to admin (${adminEmail}) | Message ID: ${info.messageId}`);
+    return true;
+  } catch (error: any) {
+    console.error("[Contact Email Error] Failed to send email to admin:", error.message);
+    return false;
+  }
+}
+
+// ----------------------------------------------------------------------------
+// 5. Send Guest Booking / Inquiry Confirmation Receipt
+// ----------------------------------------------------------------------------
+export async function sendGuestInquiryConfirmationEmail(
+  guestEmail: string,
+  guestName: string,
+  destination?: string | null,
+  travelDate?: string | null,
+  guestCount?: number | null
+): Promise<boolean> {
+  const gmailUser = config.gmailUser;
+  const transporter = getTransporter();
+
+  if (!transporter || !gmailUser || !guestEmail) return false;
+
+  const htmlContent = generateGuestBookingConfirmationEmailHTML(
+    guestName,
+    destination,
+    travelDate,
+    guestCount
+  );
+
+  const mailOptions = {
+    from: `"Royal Safari Tours" <${gmailUser}>`,
+    to: guestEmail,
+    subject: "Thank You for Reserving with Royal Safari Tours",
+    html: htmlContent,
+    text: `Hello ${guestName || "Valued Traveler"},\n\nThank you for reaching out to Royal Safari Tours regarding ${destination || "your expedition"}.\nWe have received your reservation inquiry and our travel concierge will contact you shortly.\n\nWarm regards,\nRoyal Safari Tours`,
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`[Guest Confirmation Email] Dispatched to ${guestEmail} | Message ID: ${info.messageId}`);
+    return true;
+  } catch (error: any) {
+    console.error("[Guest Confirmation Email Error]:", error.message);
     return false;
   }
 }

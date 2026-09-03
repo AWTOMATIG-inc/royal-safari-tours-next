@@ -1,6 +1,6 @@
 import multer from "multer";
 import { Request, Response, NextFunction } from "express";
-import { optimizeAndSaveImage, OptimizedImageResult } from "../utils/imageOptimizer";
+import { optimizeAndSaveImage, saveGenericFile, OptimizedImageResult } from "../utils/imageOptimizer";
 
 // Configure Multer to keep upload files in Memory Buffer
 const memoryStorage = multer.memoryStorage();
@@ -17,7 +17,7 @@ const allowedMimeTypes = [
 export const multerUpload = multer({
   storage: memoryStorage,
   limits: {
-    fileSize: 15 * 1024 * 1024, // 15MB limit
+    fileSize: 20 * 1024 * 1024, // 20MB limit
   },
   fileFilter: (_req, file, cb) => {
     if (allowedMimeTypes.includes(file.mimetype)) {
@@ -29,7 +29,7 @@ export const multerUpload = multer({
 });
 
 /**
- * Express Middleware to handle single or multiple Sharp image uploads
+ * Express Middleware to handle single or multiple uploads (Images via Sharp, PDFs saved directly)
  */
 export async function processUploadedImages(
   req: Request & { optimizedFiles?: OptimizedImageResult[] },
@@ -64,6 +64,9 @@ export async function processUploadedImages(
       if (file.mimetype.startsWith("image/")) {
         const optimized = await optimizeAndSaveImage(file.buffer, categorySubfolder, file.originalname);
         results.push(optimized);
+      } else {
+        const saved = await saveGenericFile(file.buffer, categorySubfolder, file.originalname, file.mimetype);
+        results.push(saved);
       }
     }
 

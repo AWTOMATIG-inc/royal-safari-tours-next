@@ -28,11 +28,14 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       const accessTokenMaxAge = isPersistent ? 365 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
       const refreshTokenMaxAge = isPersistent ? 365 * 24 * 60 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000;
 
+      const isProduction = process.env.NODE_ENV === "production";
+
       res.cookie("token", result.accessToken, {
         httpOnly: true,
         path: "/",
         maxAge: accessTokenMaxAge,
         sameSite: "lax",
+        secure: isProduction,
       });
 
       res.cookie("refreshToken", result.refreshToken, {
@@ -40,6 +43,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         path: "/",
         maxAge: refreshTokenMaxAge,
         sameSite: "lax",
+        secure: isProduction,
       });
 
       res.status(StatusCodes.OK).json({
@@ -95,11 +99,14 @@ export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
     const accessTokenMaxAge = isPersistent ? 365 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
     const refreshTokenMaxAge = isPersistent ? 365 * 24 * 60 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000;
 
+    const isProduction = process.env.NODE_ENV === "production";
+
     res.cookie("token", accessToken, {
       httpOnly: true,
       path: "/",
       maxAge: accessTokenMaxAge,
       sameSite: "lax",
+      secure: isProduction,
     });
 
     res.cookie("refreshToken", refreshToken, {
@@ -107,6 +114,7 @@ export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
       path: "/",
       maxAge: refreshTokenMaxAge,
       sameSite: "lax",
+      secure: isProduction,
     });
 
     res.status(StatusCodes.OK).json({
@@ -184,12 +192,14 @@ export const refreshToken = async (req: Request, res: Response): Promise<void> =
     const result = await authService.refreshTokenService(token);
 
     const accessTokenMaxAge = 24 * 60 * 60 * 1000;
+    const isProduction = process.env.NODE_ENV === "production";
 
     res.cookie("token", result.accessToken, {
       httpOnly: true,
       path: "/",
       maxAge: accessTokenMaxAge,
       sameSite: "lax",
+      secure: isProduction,
     });
 
     res.status(StatusCodes.OK).json({
@@ -210,17 +220,20 @@ export const refreshToken = async (req: Request, res: Response): Promise<void> =
 
 export const logout = async (_req: Request, res: Response): Promise<void> => {
   try {
+    const isProduction = process.env.NODE_ENV === "production";
     res.cookie("token", "", {
       httpOnly: true,
       path: "/",
       maxAge: 0,
       sameSite: "lax",
+      secure: isProduction,
     });
     res.cookie("refreshToken", "", {
       httpOnly: true,
       path: "/",
       maxAge: 0,
       sameSite: "lax",
+      secure: isProduction,
     });
     res.status(StatusCodes.OK).json({
       success: true,

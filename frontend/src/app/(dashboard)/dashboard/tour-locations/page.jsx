@@ -8,7 +8,7 @@ export default async function TourLocation({ searchParams }) {
   return (
     <div>
       <TourLocationCardPage
-        tourPackages={results?.data || []}
+        locations={results?.data || []}
         pagination={results?.pagination}
       />
     </div>

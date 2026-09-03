@@ -8,7 +8,6 @@ export default function robots() {
         '/api/',
         '/login/',
         '/register/',
-        '/product/cart-view/',
       ],
     },
     sitemap: 'https://royalsafari.tours/sitemap.xml',

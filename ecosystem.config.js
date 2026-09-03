@@ -4,13 +4,20 @@ module.exports = {
       name: "royal-safari-frontend",
       cwd: "/home/khalidh/royal-safari-tours-next/frontend",
       script: "npm",
-      args: "start -- -p 3006",
+      args: "start",
+      env: {
+        NODE_ENV: "production",
+        PORT: 3006,
+      },
     },
     {
       name: "royal-safari-backend",
       cwd: "/home/khalidh/royal-safari-tours-next/backend",
-      script: "npm",
-      args: "start -- -p 5001",
+      script: "dist/server.js",
+      env: {
+        NODE_ENV: "production",
+        PORT: 5001,
+      },
     },
   ],
 };

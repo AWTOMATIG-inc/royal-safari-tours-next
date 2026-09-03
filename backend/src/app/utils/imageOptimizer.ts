@@ -96,3 +96,63 @@ export async function optimizeAndSaveImage(
     mimeType: "image/webp",
   };
 }
+
+/**
+ * Save generic document files (such as PDF) without Sharp processing
+ */
+export async function saveGenericFile(
+  buffer: Buffer,
+  categorySubfolder: string = "media",
+  originalFilename?: string,
+  mimeType: string = "application/pdf"
+): Promise<OptimizedImageResult> {
+  const baseUploadsDir = process.env.UPLOADS_DIR
+    ? path.resolve(process.env.UPLOADS_DIR)
+    : path.join(process.cwd(), "uploads");
+
+  const sanitizedSubfolder = categorySubfolder
+    .replace(/\\/g, "/")
+    .replace(/\.\./g, "")
+    .replace(/^\/+|\/+$/g, "");
+  const targetDir = path.resolve(baseUploadsDir, sanitizedSubfolder);
+
+  if (!targetDir.toLowerCase().startsWith(baseUploadsDir.toLowerCase())) {
+    throw new Error("Invalid destination folder: Path traversal detected");
+  }
+
+  if (!fs.existsSync(targetDir)) {
+    fs.mkdirSync(targetDir, { recursive: true });
+  }
+
+  const parsed = path.parse(originalFilename || "document.pdf");
+  const ext = parsed.ext || (mimeType === "application/pdf" ? ".pdf" : "");
+  const cleanName = parsed.name
+    .trim()
+    .replace(/[^a-zA-Z0-9_\-\s]/g, "")
+    .replace(/\s+/g, "_") || "document";
+
+  let filename = `${cleanName}${ext}`;
+  if (fs.existsSync(path.join(targetDir, filename))) {
+    let counter = 1;
+    while (fs.existsSync(path.join(targetDir, `${cleanName}_${counter}${ext}`))) {
+      counter++;
+    }
+    filename = `${cleanName}_${counter}${ext}`;
+  }
+
+  const filePath = path.join(targetDir, filename);
+  await fs.promises.writeFile(filePath, buffer);
+  const stats = await fs.promises.stat(filePath);
+  const url = `/uploads/${sanitizedSubfolder}/${filename}`;
+
+  return {
+    filename,
+    thumbFilename: null,
+    url,
+    thumbUrl: null,
+    size: stats.size,
+    width: null,
+    height: null,
+    mimeType,
+  };
+}

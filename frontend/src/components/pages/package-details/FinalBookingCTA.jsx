@@ -14,7 +14,7 @@ export default function FinalBookingCTA({ tourPackage, onOpenBooking }) {
   return (
     <section className="relative section-lg bg-black text-white overflow-hidden font-body">
       <Image
-        src="/images/banners/contact.webp"
+        src="/images/banners/contact_hero.webp"
         alt="Wilderness Adventure"
         fill
         className="object-cover opacity-40"

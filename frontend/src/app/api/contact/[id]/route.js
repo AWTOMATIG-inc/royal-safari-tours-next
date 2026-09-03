@@ -15,10 +15,25 @@ export async function GET(request, { params }) {
   }
 }
 
-export async function PATCH(request, { params }) {
+async function handleStatusUpdate(request, params) {
   try {
     const { id } = await params;
-    const body = await request.json();
+    let body = {};
+
+    const contentType = request.headers.get("content-type") || "";
+    if (contentType.includes("application/json")) {
+      body = await request.json();
+    } else if (contentType.includes("multipart/form-data") || contentType.includes("application/x-www-form-urlencoded")) {
+      const formData = await request.formData();
+      body = { status: formData.get("status") };
+    } else {
+      try {
+        body = await request.json();
+      } catch {
+        body = {};
+      }
+    }
+
     const headers = getForwardHeaders(request, { "Content-Type": "application/json" });
     const res = await fetch(`${BACKEND_URL}/api/v1/contacts/${id}/status`, {
       method: "PATCH",
@@ -30,6 +45,14 @@ export async function PATCH(request, { params }) {
   } catch (error) {
     return NextResponse.json({ error: error.message || "Failed to update contact status" }, { status: 500 });
   }
+}
+
+export async function PATCH(request, { params }) {
+  return handleStatusUpdate(request, params);
+}
+
+export async function PUT(request, { params }) {
+  return handleStatusUpdate(request, params);
 }
 
 export async function DELETE(request, { params }) {

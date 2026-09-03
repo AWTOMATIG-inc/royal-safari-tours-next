@@ -231,10 +231,10 @@ const updateInvoice = async (userId: string, userRole: string, id: string, paylo
     throw new Error("You do not have permission to update this invoice");
   }
 
-  const discount = payload.discount !== undefined ? Number(payload.discount) : existingInvoice.discount;
-  const amountPaid = payload.amountPaid !== undefined ? Number(payload.amountPaid) : existingInvoice.amountPaid;
+  const discount = payload.discount !== undefined ? Number(payload.discount) : Number(existingInvoice.discount || 0);
+  const amountPaid = payload.amountPaid !== undefined ? Number(payload.amountPaid) : Number(existingInvoice.amountPaid || 0);
 
-  let subTotal = existingInvoice.subTotal;
+  let subTotal = Number(existingInvoice.subTotal || 0);
 
   // Transaction for updating items and invoice fields
   const updatedInvoice = await prisma.$transaction(async (tx) => {

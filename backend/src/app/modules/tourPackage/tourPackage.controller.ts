@@ -23,10 +23,11 @@ export const getAllPackages = async (req: Request, res: Response) => {
     const search = typeof req.query.search === "string" ? req.query.search : undefined;
     const location = typeof req.query.location === "string" ? req.query.location : undefined;
     const isFeatured = req.query.isFeatured === "true" ? true : req.query.isFeatured === "false" ? false : undefined;
+    const isPublished = req.query.isPublished === "true" ? true : req.query.isPublished === "false" ? false : undefined;
     const page = req.query.page ? parseInt(req.query.page as string) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit as string) : 50;
 
-    const result = await packageService.getAllPackages({ search, location, isFeatured, page, limit });
+    const result = await packageService.getAllPackages({ search, location, isFeatured, isPublished, page, limit });
     res.status(StatusCodes.OK).json({
       success: true,
       message: "Tour packages fetched successfully",

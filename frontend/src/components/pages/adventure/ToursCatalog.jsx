@@ -29,6 +29,8 @@ export default function ToursCatalog({
     if (tour.location && typeof tour.location === "object") {
       return tour.location.country || tour.location.name || tour.location.title || "";
     }
+    if (tour.country) return tour.country;
+    if (tour.destination) return tour.destination;
     return "";
   };
 
@@ -64,22 +66,32 @@ export default function ToursCatalog({
   // Helper for matching tour location against target query/location string
   const isLocationMatch = (tour, targetLocationStr) => {
     if (!targetLocationStr || targetLocationStr === "all") return true;
-    const tourLocStr = getTourLocStr(tour);
-    if (!tourLocStr) return false;
-
-    const tourLoc = tourLocStr.toLowerCase().trim();
     const targetLoc = targetLocationStr.toLowerCase().trim();
+    if (!targetLoc) return true;
 
-    if (tourLoc === targetLoc || tourLoc.includes(targetLoc) || targetLoc.includes(tourLoc)) {
+    const tourLocStr = getTourLocStr(tour);
+    const tourTitle = typeof tour === "object" ? (tour.title || "") : "";
+    const combinedText = `${tourLocStr} ${tourTitle}`.toLowerCase().trim();
+
+    if (!combinedText) return false;
+
+    if (combinedText.includes(targetLoc) || (tourLocStr && targetLoc.includes(tourLocStr.toLowerCase().trim()))) {
       return true;
     }
 
-    // Multi-word token overlap check (e.g. "Cox's Bazar" matching "Cox's Bazar Beach")
+    // Normalized match (e.g. "Srilanka" matches "Sri Lanka")
+    const normTarget = targetLoc.replace(/[^a-z0-9]/g, "");
+    const normTour = combinedText.replace(/[^a-z0-9]/g, "");
+    if (normTarget && (normTour.includes(normTarget) || normTarget.includes(normTour))) {
+      return true;
+    }
+
+    // Multi-word token overlap check
     const targetTokens = targetLoc.split(/[\s,]+/).filter((w) => w.length > 2);
-    const tourTokens = tourLoc.split(/[\s,]+/).filter((w) => w.length > 2);
+    const tourTokens = combinedText.split(/[\s,]+/).filter((w) => w.length > 2);
 
     return (
-      targetTokens.some((t) => tourLoc.includes(t)) ||
+      targetTokens.some((t) => combinedText.includes(t)) ||
       tourTokens.some((t) => targetLoc.includes(t))
     );
   };
@@ -250,7 +262,7 @@ export default function ToursCatalog({
           </button>
 
           {destinationList.map((locName) => {
-            const count = initialTourPackages.filter((t) => isLocationMatch(t.location, locName)).length;
+            const count = initialTourPackages.filter((t) => isLocationMatch(t, locName)).length;
             const isSelected = selectedLocation?.toLowerCase() === locName.toLowerCase();
 
             return (

@@ -1,8 +1,12 @@
 import { prisma } from "../../utils/prisma";
 import { ContactStatus } from "@prisma/client";
+import {
+  sendContactInquiryNotificationEmail,
+  sendGuestInquiryConfirmationEmail,
+} from "../auth/emailSender";
 
 export const createContact = async (data: any) => {
-  return await prisma.contactInquiry.create({
+  const contact = await prisma.contactInquiry.create({
     data: {
       name: data.name || "Anonymous",
       email: data.email || "",
@@ -15,6 +19,25 @@ export const createContact = async (data: any) => {
       notes: data.notes || null,
     },
   });
+
+  // Non-blocking async email notifications to admin and guest
+  Promise.allSettled([
+    sendContactInquiryNotificationEmail({
+      name: contact.name,
+      email: contact.email,
+      phone: contact.phone,
+      message: contact.message,
+      destination: contact.destination,
+      travelDate: contact.travelDate,
+      guestCount: contact.guestCount,
+      notes: contact.notes,
+    }),
+    contact.email && contact.email.includes("@")
+      ? sendGuestInquiryConfirmationEmail(contact.email, contact.name, contact.destination, contact.travelDate, contact.guestCount)
+      : Promise.resolve(false),
+  ]).catch((err) => console.error("[Contact Email Background Error]:", err));
+
+  return contact;
 };
 
 export const getAllContacts = async (query: { search?: string; status?: ContactStatus; page?: number; limit?: number }) => {

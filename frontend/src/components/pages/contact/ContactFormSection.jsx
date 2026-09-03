@@ -324,7 +324,7 @@ export default function ContactFormSection() {
 
           {/* Right Column: Office Card */}
           <Reveal variant="fadeLeft" className="w-full relative lg:mt-[10%] xl:mt-[12%] font-body">
-            <div className="relative w-full min-h-[380px] sm:min-h-[400px] lg:min-h-0 lg:aspect-[4/3] rounded-3xl overflow-hidden shadow-xs border border-gray-200/80">
+            <div className="relative w-full min-h-[580px] sm:min-h-[400px] lg:min-h-0 lg:aspect-[9/9] rounded-3xl overflow-hidden shadow-xs border border-gray-200/80">
               <Image
                 src="/images/banners/contact_office.png"
                 alt="Green valley stream cottage"

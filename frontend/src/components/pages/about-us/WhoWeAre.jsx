@@ -50,7 +50,7 @@ export default function WhoWeAre() {
               {/* Main Image */}
               <div className="relative aspect-[10/9] w-full overflow-hidden rounded-3xl shadow-lg border border-gray-200/80">
                 <Image
-                  src="/images/banners/about_hero.webp"
+                  src="/images/banners/about_banner.webp"
                   alt="Exploring the wilderness of Bangladesh"
                   fill
                   sizes="(max-width: 1024px) 100vw, 50vw"
