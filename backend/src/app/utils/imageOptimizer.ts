@@ -1,4 +1,4 @@
-import sharp from "sharp";
+import { Jimp } from "jimp";
 import path from "path";
 import fs from "fs";
 
@@ -14,11 +14,10 @@ export interface OptimizedImageResult {
 }
 
 /**
- * High-Performance Image Optimization Pipeline using Sharp
- * - Saves a single clean, high-performance WebP image matching the uploaded image name
- * - Strips redundant duplicate thumbnail creation to save disk space
- * - Auto-orients EXIF metadata
- * - Resizes main display image (max 1920px width/height, 84% quality WebP)
+ * Image Processing & Optimization Pipeline using Jimp (Pure JavaScript)
+ * - Zero native C++ / libvips compilation dependencies (100% portable on Ubuntu/Linux VPS)
+ * - Auto-resizes large display images to max 1920px width/height while preserving aspect ratio
+ * - Writes clean, optimized images to disk with collision-proof naming
  */
 export async function optimizeAndSaveImage(
   buffer: Buffer,
@@ -46,41 +45,54 @@ export async function optimizeAndSaveImage(
     fs.mkdirSync(targetDir, { recursive: true });
   }
 
-  // Generate clean filename matching uploaded image name
-  const rawBaseName = path.parse(originalFilename || "image").name;
-  const cleanName = rawBaseName
+  // Parse filename and extension
+  const parsed = path.parse(originalFilename || "image.jpg");
+  const ext = (parsed.ext || ".jpg").toLowerCase();
+  const cleanName = parsed.name
     .trim()
     .replace(/[^a-zA-Z0-9_\-\s]/g, "")
     .replace(/\s+/g, "_") || "image";
 
-  let filename = `${cleanName}.webp`;
+  let filename = `${cleanName}${ext}`;
 
   // Collision handling: if file exists, append sequential counter (_1, _2, etc.)
   if (fs.existsSync(path.join(targetDir, filename))) {
     let counter = 1;
-    while (fs.existsSync(path.join(targetDir, `${cleanName}_${counter}.webp`))) {
+    while (fs.existsSync(path.join(targetDir, `${cleanName}_${counter}${ext}`))) {
       counter++;
     }
-    filename = `${cleanName}_${counter}.webp`;
+    filename = `${cleanName}_${counter}${ext}`;
   }
 
   const mainFilePath = path.join(targetDir, filename);
 
-  // Process & Optimize Single WebP Image
-  const sharpInstance = sharp(buffer).rotate(); // Auto-rotate EXIF
-  const metadata = await sharpInstance.metadata();
+  let width: number | null = null;
+  let height: number | null = null;
+  let mimeType = "image/jpeg";
+  if (ext === ".png") mimeType = "image/png";
+  else if (ext === ".webp") mimeType = "image/webp";
+  else if (ext === ".gif") mimeType = "image/gif";
+  else if (ext === ".svg") mimeType = "image/svg+xml";
 
-  const mainWebpBuffer = await sharpInstance
-    .resize({
-      width: 1920,
-      height: 1920,
-      fit: sharp.fit.inside,
-      withoutEnlargement: true,
-    })
-    .webp({ quality: 84, effort: 4 })
-    .toBuffer();
+  try {
+    // Read image using Jimp
+    const image = await Jimp.read(buffer);
+    width = image.bitmap.width;
+    height = image.bitmap.height;
 
-  await fs.promises.writeFile(mainFilePath, mainWebpBuffer);
+    // Resize to max 1920x1920 if larger, preserving aspect ratio
+    if (width > 1920 || height > 1920) {
+      image.scaleToFit({ w: 1920, h: 1920 });
+      width = image.bitmap.width;
+      height = image.bitmap.height;
+    }
+
+    // Write optimized image to destination
+    await image.write(mainFilePath as `${string}.${string}`);
+  } catch {
+    // Fallback to direct buffer write if Jimp encounters an unsupported raw format
+    await fs.promises.writeFile(mainFilePath, buffer);
+  }
 
   const mainStats = await fs.promises.stat(mainFilePath);
   const url = `/uploads/${sanitizedSubfolder}/${filename}`;
@@ -91,14 +103,14 @@ export async function optimizeAndSaveImage(
     url,
     thumbUrl: null,
     size: mainStats.size,
-    width: metadata.width || null,
-    height: metadata.height || null,
-    mimeType: "image/webp",
+    width,
+    height,
+    mimeType,
   };
 }
 
 /**
- * Save generic document files (such as PDF) without Sharp processing
+ * Save generic document files (such as PDF) without image processing
  */
 export async function saveGenericFile(
   buffer: Buffer,
