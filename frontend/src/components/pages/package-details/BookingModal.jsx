@@ -15,6 +15,7 @@ export default function BookingModal({ tourPackage, isOpen, onClose }) {
     phone: "",
     date: "",
     people: "2",
+    pickupLocation: "",
     notes: "",
   });
 
@@ -28,25 +29,34 @@ export default function BookingModal({ tourPackage, isOpen, onClose }) {
 
     setLoading(true);
     try {
-      const data = new FormData();
-      data.append("name", formData.name);
-      data.append("email", formData.email || "inquiry@royalsafari.com");
-      data.append("phone", formData.phone);
-      data.append("destination", tourPackage.title);
-      data.append("date", formData.date || "Flexible");
-      data.append("people", formData.people);
-      data.append("message", `Booking Inquiry for ${tourPackage.title}. Notes: ${formData.notes || "None"}`);
+      const unitPrice = tourPackage.discountPrice ? Number(tourPackage.discountPrice) : Number(tourPackage.price) || 0;
+      const guestNum = parseInt(formData.people, 10) || 1;
+      const calculatedTotal = unitPrice * guestNum;
 
-      const res = await fetch("/api/contact", {
+      const payload = {
+        customerName: formData.name.trim(),
+        customerEmail: formData.email ? formData.email.trim() : "",
+        customerPhone: formData.phone.trim(),
+        packageName: tourPackage.title,
+        packageId: tourPackage.id || null,
+        travelDate: formData.date || "Flexible",
+        guestCount: guestNum,
+        pickupLocation: formData.pickupLocation ? formData.pickupLocation.trim() : null,
+        specialNotes: formData.notes ? formData.notes.trim() : null,
+        totalAmount: calculatedTotal > 0 ? calculatedTotal : null,
+      };
+
+      const res = await fetch("/api/booking-enquiry", {
         method: "POST",
-        body: data,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
 
       if (res.ok) {
-        toast.success("Booking inquiry submitted successfully! Our team will contact you shortly.");
+        toast.success("Booking enquiry submitted successfully! A confirmation email has been sent.");
         onClose();
       } else {
-        toast.error("Failed to submit inquiry. Please try WhatsApp chat.");
+        toast.error("Failed to submit booking request. Please try WhatsApp chat.");
       }
     } catch (err) {
       console.error(err);
@@ -132,13 +142,20 @@ export default function BookingModal({ tourPackage, isOpen, onClose }) {
             />
           </div>
 
+          <InputBox
+            label="Pickup Location / Hotel (Optional)"
+            placeholder="e.g. Hotel Westin Dhaka / Shahjalal Int Airport"
+            value={formData.pickupLocation}
+            onChange={(e) => setFormData({ ...formData, pickupLocation: e.target.value })}
+          />
+
           <div className="flex flex-col font-body">
             <label className="font-semibold text-xs text-primary/70 uppercase tracking-wider mb-1.5 font-body">
               Special Requests / Notes
             </label>
             <textarea
               rows="3"
-              placeholder="Dietary preferences, pickup requests..."
+              placeholder="Dietary preferences, rooming preferences..."
               value={formData.notes}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
               className="w-full bg-white border border-gray-200 rounded-xl p-3 text-sm text-primary focus:outline-none focus:border-secondary font-body shadow-xs"

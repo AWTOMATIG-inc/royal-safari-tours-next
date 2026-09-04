@@ -244,7 +244,7 @@ export function generateAdminBookingAlertEmailHTML(contactData: {
 
   const contentHtml = `
     <p style="margin: 0 0 16px 0; font-size: 14px; color: #4B5563;">
-      A new customer inquiry has just been placed on the website. Here are the traveler details:
+      A new customer inquiry has just been placed on the website. Here are the inquiry details:
     </p>
 
     <table role="presentation" class="data-table" width="100%" border="0" cellspacing="0" cellpadding="0" style="border-collapse: collapse; background-color: #F8FAFC; border-radius: 12px; overflow: hidden; border: 1px solid #E5E7EB; margin: 16px 0;">
@@ -338,7 +338,7 @@ export function generateGuestBookingConfirmationEmailHTML(
       Hello <strong>${guestName || "Valued Traveler"}</strong>,
     </p>
     <p style="margin: 0 0 16px 0; font-size: 14px; color: #4B5563;">
-      Thank you for reserving with <strong>Royal Safari Tours</strong>. We have received your expedition booking request and our dedicated travel concierge is now preparing your bespoke itinerary.
+      Thank you for reserving with <strong>Royal Safari Tours</strong>. We have received your expedition booking request and our team is now preparing your bespoke itinerary.
     </p>
 
     ${
@@ -383,7 +383,7 @@ export function generateGuestBookingConfirmationEmailHTML(
   `;
 
   return renderBaseEmailTemplate({
-    categoryBadge: "Reservation Acknowledgment",
+    categoryBadge: "Reservation Acknowledgement",
     categoryBadgeColor: "#2cb775",
     title: "We Received Your Reservation Request",
     subtitle: "Your journey towards extraordinary wilderness experiences begins here.",
@@ -420,7 +420,7 @@ export function generateApplicantConfirmationEmailHTML(
       Our Human Resources & Talent Acquisition team is currently reviewing applicant profiles. If your experience and qualifications align with our team requirements, we will reach out to schedule an interview.
     </div>
     <p style="margin: 0; font-size: 14px; color: #4B5563;">
-      We appreciate your time and enthusiasm for Royal Safari Tours.
+      We appreciate your time and interest in Royal Safari Tours.
     </p>
   `;
 
@@ -500,3 +500,193 @@ export function generateAdminJobApplicationAlertEmailHTML(
       : undefined,
   });
 }
+
+// ----------------------------------------------------------------------------
+// 6. Dedicated Booking Enquiry — Customer Confirmation Receipt
+// ----------------------------------------------------------------------------
+export function generateCustomerBookingReceiptEmailHTML(bookingData: {
+  bookingId: string;
+  customerName: string;
+  packageName: string;
+  travelDate?: string | null;
+  guestCount?: number | null;
+  totalAmount?: number | string | null;
+  pickupLocation?: string | null;
+  specialNotes?: string | null;
+}): string {
+  const amountDisplay = bookingData.totalAmount
+    ? `৳${Number(bookingData.totalAmount).toLocaleString()}`
+    : "To be confirmed";
+
+  const contentHtml = `
+    <p style="margin: 0 0 14px 0; font-size: 14px; color: #4B5563;">
+      Hello <strong>${bookingData.customerName || "Valued Traveler"}</strong>,
+    </p>
+    <p style="margin: 0 0 18px 0; font-size: 14px; color: #4B5563;">
+      Thank you for choosing <strong>Royal Safari Tours</strong>! We have received your booking request.
+    </p>
+
+    <!-- Booking ID Highlight Banner -->
+    <div style="background-color: #F8FAFC; border: 1.5px dashed #2cb775; border-radius: 14px; padding: 18px; text-align: center; margin: 18px 0;">
+      <span style="display: block; font-size: 10px; font-weight: 700; color: #64748B; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px;">
+        Booking ID
+      </span>
+      <span style="font-size: 24px; font-weight: 900; font-family: 'Courier New', Courier, monospace; color: #0D231E; letter-spacing: 2px; display: inline-block;">
+        ${bookingData.bookingId}
+      </span>
+    </div>
+
+    <!-- Booking Breakdown Table -->
+    <table role="presentation" class="data-table" width="100%" border="0" cellspacing="0" cellpadding="0" style="border-collapse: collapse; background-color: #F8FAFC; border-radius: 12px; overflow: hidden; border: 1px solid #E5E7EB; margin: 16px 0;">
+      <tr>
+        <td class="data-table-label" style="padding: 12px 16px; font-size: 13px; font-weight: 600; color: #64748B; width: 38%; border-bottom: 1px solid #E5E7EB; vertical-align: middle;">Tour Package : </td>
+        <td class="data-table-value" style="padding: 12px 16px; font-size: 13px; font-weight: 700; color: #0D231E; border-bottom: 1px solid #E5E7EB; vertical-align: middle;">${bookingData.packageName}</td>
+      </tr>
+      <tr>
+        <td class="data-table-label" style="padding: 12px 16px; font-size: 13px; font-weight: 600; color: #64748B; border-bottom: 1px solid #E5E7EB; vertical-align: middle;">Travel Date : </td>
+        <td class="data-table-value" style="padding: 12px 16px; font-size: 13px; font-weight: 700; color: #0D231E; border-bottom: 1px solid #E5E7EB; vertical-align: middle;">${bookingData.travelDate || "Flexible"}</td>
+      </tr>
+      <tr>
+        <td class="data-table-label" style="padding: 12px 16px; font-size: 13px; font-weight: 600; color: #64748B; border-bottom: 1px solid #E5E7EB; vertical-align: middle;">Travelers : </td>
+        <td class="data-table-value" style="padding: 12px 16px; font-size: 13px; font-weight: 700; color: #0D231E; border-bottom: 1px solid #E5E7EB; vertical-align: middle;">${bookingData.guestCount || 1} Guest(s)</td>
+      </tr>
+      <tr>
+        <td class="data-table-label" style="padding: 12px 16px; font-size: 13px; font-weight: 600; color: #64748B; border-bottom: 1px solid #E5E7EB; vertical-align: middle;">Total Amount : </td>
+        <td class="data-table-value" style="padding: 12px 16px; font-size: 14px; font-weight: 800; color: #059669; border-bottom: 1px solid #E5E7EB; vertical-align: middle;">${amountDisplay}</td>
+      </tr>
+      <tr>
+        <td class="data-table-label" style="padding: 12px 16px; font-size: 13px; font-weight: 600; color: #64748B; border-bottom: 1px solid #E5E7EB; vertical-align: middle;">Pickup Point / Hotel : </td>
+        <td class="data-table-value" style="padding: 12px 16px; font-size: 13px; font-weight: 700; color: #0D231E; border-bottom: 1px solid #E5E7EB; vertical-align: middle;">${bookingData.pickupLocation || "Standard Meeting Point"}</td>
+      </tr>
+      <tr>
+        <td class="data-table-label" style="padding: 12px 16px; font-size: 13px; font-weight: 600; color: #64748B; vertical-align: middle;">Special Requests / Notes : </td>
+        <td class="data-table-value" style="padding: 12px 16px; font-size: 13px; font-weight: 700; color: #0D231E; vertical-align: middle;">${bookingData.specialNotes || "None"}</td>
+      </tr>
+    </table>
+
+    <p style="margin: 18px 0 0 0; font-size: 14px; color: #4B5563;">
+      Our reservation specialists are reviewing your itinerary and will reach out via call or WhatsApp shortly to finalize your booking details.
+    </p>
+  `;
+
+  return renderBaseEmailTemplate({
+    categoryBadge: "Booking Receipt",
+    categoryBadgeColor: "#2cb775",
+    title: "Booking Inquiry Received",
+    contentHtml,
+    primaryAction: {
+      label: "WhatsApp Us",
+      url: "https://wa.me/8801898334722",
+      bgColor: "#25D366",
+    },
+    secondaryAction: {
+      label: "Call Us",
+      url: "tel:+8801898334722",
+      bgColor: "#0D231E",
+    },
+    footerNotice: "📞 <strong>Royal Safari Desk:</strong> Phone +880 1898-334722. Keep your Booking ID handy for quick assistance.",
+  });
+}
+
+// ----------------------------------------------------------------------------
+// 7. Dedicated Booking Enquiry — Admin Notification Alert
+// ----------------------------------------------------------------------------
+export function generateAdminBookingEnquiryAlertHTML(bookingData: {
+  bookingId: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  packageName: string;
+  travelDate?: string | null;
+  guestCount?: number | null;
+  totalAmount?: number | string | null;
+  pickupLocation?: string | null;
+  specialNotes?: string | null;
+}): string {
+  const cleanPhone = (bookingData.customerPhone || "").replace(/[^0-9]/g, "");
+  const amountDisplay = bookingData.totalAmount
+    ? `৳${Number(bookingData.totalAmount).toLocaleString()}`
+    : "Custom / Unpriced";
+
+  const contentHtml = `
+    <p style="margin: 0 0 16px 0; font-size: 14px; color: #4B5563;">
+      A new tour package booking enquiry has been placed on the platform:
+    </p>
+
+    <!-- Booking Reference Badge -->
+    <div style="background-color: #F8FAFC; border: 1px solid #0D231E; border-radius: 12px; padding: 14px; text-align: center; margin-bottom: 16px;">
+      <span style="font-size: 11px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 1px;">Booking Reference</span>
+      <div style="font-size: 22px; font-weight: 900; font-family: monospace; color: #0D231E; margin-top: 2px;">${bookingData.bookingId}</div>
+    </div>
+
+    <table role="presentation" class="data-table" width="100%" border="0" cellspacing="0" cellpadding="0" style="border-collapse: collapse; background-color: #F8FAFC; border-radius: 12px; overflow: hidden; border: 1px solid #E5E7EB; margin: 16px 0;">
+      <tr>
+        <td class="data-table-label" style="padding: 12px 16px; font-size: 13px; font-weight: 600; color: #64748B; width: 38%; border-bottom: 1px solid #E5E7EB; vertical-align: middle;">Customer Name : </td>
+        <td class="data-table-value" style="padding: 12px 16px; font-size: 13px; font-weight: 700; color: #0D231E; border-bottom: 1px solid #E5E7EB; vertical-align: middle;">${bookingData.customerName}</td>
+      </tr>
+      <tr>
+        <td class="data-table-label" style="padding: 12px 16px; font-size: 13px; font-weight: 600; color: #64748B; border-bottom: 1px solid #E5E7EB; vertical-align: middle;">Phone / WhatsApp : </td>
+        <td class="data-table-value" style="padding: 12px 16px; font-size: 13px; font-weight: 700; border-bottom: 1px solid #E5E7EB; vertical-align: middle;">
+          <a href="tel:${bookingData.customerPhone}" style="color: #059669; text-decoration: none; font-weight: 700;">${bookingData.customerPhone}</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="data-table-label" style="padding: 12px 16px; font-size: 13px; font-weight: 600; color: #64748B; border-bottom: 1px solid #E5E7EB; vertical-align: middle;">Email Address : </td>
+        <td class="data-table-value" style="padding: 12px 16px; font-size: 13px; font-weight: 700; color: #0D231E; border-bottom: 1px solid #E5E7EB; vertical-align: middle;">
+          <a href="mailto:${bookingData.customerEmail}" style="color: #0D231E; text-decoration: underline; font-weight: 700;">${bookingData.customerEmail}</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="data-table-label" style="padding: 12px 16px; font-size: 13px; font-weight: 600; color: #64748B; border-bottom: 1px solid #E5E7EB; vertical-align: middle;">Tour Package : </td>
+        <td class="data-table-value" style="padding: 12px 16px; font-size: 13px; font-weight: 700; color: #B45309; border-bottom: 1px solid #E5E7EB; vertical-align: middle;">${bookingData.packageName}</td>
+      </tr>
+      <tr>
+        <td class="data-table-label" style="padding: 12px 16px; font-size: 13px; font-weight: 600; color: #64748B; border-bottom: 1px solid #E5E7EB; vertical-align: middle;">Travel Date : </td>
+        <td class="data-table-value" style="padding: 12px 16px; font-size: 13px; font-weight: 700; color: #0D231E; border-bottom: 1px solid #E5E7EB; vertical-align: middle;">${bookingData.travelDate || "Flexible"}</td>
+      </tr>
+      <tr>
+        <td class="data-table-label" style="padding: 12px 16px; font-size: 13px; font-weight: 600; color: #64748B; border-bottom: 1px solid #E5E7EB; vertical-align: middle;">Travelers : </td>
+        <td class="data-table-value" style="padding: 12px 16px; font-size: 13px; font-weight: 700; color: #0D231E; border-bottom: 1px solid #E5E7EB; vertical-align: middle;">${bookingData.guestCount || 1} Person(s)</td>
+      </tr>
+      <tr>
+        <td class="data-table-label" style="padding: 12px 16px; font-size: 13px; font-weight: 600; color: #64748B; border-bottom: 1px solid #E5E7EB; vertical-align: middle;">Total Amount : </td>
+        <td class="data-table-value" style="padding: 12px 16px; font-size: 13px; font-weight: 700; color: #059669; border-bottom: 1px solid #E5E7EB; vertical-align: middle;">${amountDisplay}</td>
+      </tr>
+      <tr>
+        <td class="data-table-label" style="padding: 12px 16px; font-size: 13px; font-weight: 600; color: #64748B; border-bottom: 1px solid #E5E7EB; vertical-align: middle;">Pickup Point / Hotel : </td>
+        <td class="data-table-value" style="padding: 12px 16px; font-size: 13px; font-weight: 700; color: #0D231E; border-bottom: 1px solid #E5E7EB; vertical-align: middle;">${bookingData.pickupLocation || "Standard Meeting Point"}</td>
+      </tr>
+      <tr>
+        <td class="data-table-label" style="padding: 12px 16px; font-size: 13px; font-weight: 600; color: #64748B; vertical-align: middle;">Special Requests / Notes : </td>
+        <td class="data-table-value" style="padding: 12px 16px; font-size: 13px; font-weight: 700; color: #0D231E; vertical-align: middle;">${bookingData.specialNotes || "None"}</td>
+      </tr>
+    </table>
+
+    <p style="margin: 16px 0 0 0; font-size: 13px; color: #64748B;">
+      Please manage status and review details in the <strong>Admin Dashboard &gt; Booking Enquiry</strong> section.
+    </p>
+  `;
+
+  return renderBaseEmailTemplate({
+    categoryBadge: "New Booking Enquiry",
+    categoryBadgeColor: "#2cb775",
+    title: `New Booking [${bookingData.bookingId}]`,
+    subtitle: `Customer: <strong>${bookingData.customerName}</strong> (${bookingData.customerPhone})`,
+    contentHtml,
+    primaryAction: cleanPhone
+      ? {
+          label: "WhatsApp Customer",
+          url: `https://wa.me/${cleanPhone}`,
+          bgColor: "#25D366",
+        }
+      : undefined,
+    secondaryAction: bookingData.customerEmail
+      ? {
+          label: "Email Customer",
+          url: `mailto:${bookingData.customerEmail}`,
+          bgColor: "#0D231E",
+        }
+      : undefined,
+  });
+}
+

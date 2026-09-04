@@ -48,23 +48,20 @@ export default function CheckoutClientPage({ tourPackage, initialGuests = 1, ini
     setLoading(true);
 
     const bookingPayload = {
-      name: formData.name.trim(),
-      email: formData.email.trim(),
-      phone: formData.phone.trim(),
-      destination: tourPackage ? `${tourPackage.title} (${tourPackage.locationName || "Expedition"})` : "Custom Expedition",
+      customerName: formData.name.trim(),
+      customerEmail: formData.email.trim(),
+      customerPhone: formData.phone.trim(),
+      packageName: tourPackage?.title || "Tour Package",
+      packageId: tourPackage?.id || null,
       travelDate: travelDate || "Flexible / To Be Finalized",
       guestCount: guestCount,
-      notes: formData.notes ? `Pickup: ${formData.pickupLocation || "N/A"} | Notes: ${formData.notes}` : (formData.pickupLocation ? `Pickup: ${formData.pickupLocation}` : ""),
-      message: `Expedition Booking Request for "${tourPackage?.title || "Tour"}".
-Travelers: ${guestCount} Person(s)
-Travel Date: ${travelDate || "Flexible"}
-Estimated Amount: ৳${totalAmount.toLocaleString()}
-Pickup Address: ${formData.pickupLocation || "Standard Meeting Point"}
-Special Requests: ${formData.notes || "None"}`,
+      pickupLocation: formData.pickupLocation ? formData.pickupLocation.trim() : null,
+      specialNotes: formData.notes ? formData.notes.trim() : null,
+      totalAmount: totalAmount > 0 ? totalAmount : null,
     };
 
     try {
-      const res = await fetch("/api/contact", {
+      const res = await fetch("/api/booking-enquiry", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(bookingPayload),
@@ -75,8 +72,11 @@ Special Requests: ${formData.notes || "None"}`,
         throw new Error(errorData.error || errorData.message || "Failed to submit booking request");
       }
 
+      const resData = await res.json();
+
       setConfirmedData({
         ...bookingPayload,
+        bookingId: resData?.bookingId || resData?.data?.bookingId || "RST-BK-CONFIRMED",
         packageTitle: tourPackage?.title || "Tour Package",
         totalAmount,
       });
@@ -114,15 +114,21 @@ Special Requests: ${formData.notes || "None"}`,
               Reservation Confirmed
             </span>
             <h1 className="text-2xl sm:text-3xl font-bold text-[#0D231E]">
-              Thank You, {confirmedData?.name}!
+              Thank You, {confirmedData?.customerName || confirmedData?.name}!
             </h1>
             <p className="text-sm text-gray-600 max-w-md mx-auto leading-relaxed">
-              Your expedition request for <strong>{confirmedData?.packageTitle}</strong> has been received. A formal confirmation has been sent to <strong>{confirmedData?.email}</strong>.
+              Your expedition request for <strong>{confirmedData?.packageTitle}</strong> has been received. A formal confirmation has been sent to <strong>{confirmedData?.customerEmail || confirmedData?.email}</strong>.
             </p>
           </div>
 
           {/* Booking Summary Box */}
           <div className="bg-gray-50 rounded-2xl p-6 text-left border border-gray-200/70 space-y-3 text-xs sm:text-sm">
+            {confirmedData?.bookingId && (
+              <div className="flex justify-between border-b border-gray-200 pb-2">
+                <span className="text-gray-500 font-medium">Booking ID:</span>
+                <span className="font-bold text-[#0D231E] font-mono px-2 py-0.5 bg-gray-200/60 rounded text-xs">{confirmedData.bookingId}</span>
+              </div>
+            )}
             <div className="flex justify-between border-b border-gray-200 pb-2">
               <span className="text-gray-500 font-medium">Expedition:</span>
               <span className="font-bold text-[#0D231E]">{confirmedData?.packageTitle}</span>
@@ -137,7 +143,7 @@ Special Requests: ${formData.notes || "None"}`,
             </div>
             <div className="flex justify-between pt-1 text-base">
               <span className="font-bold text-[#0D231E]">Estimated Total:</span>
-              <span className="font-bold text-[#2cb775] font-mono">৳{confirmedData?.totalAmount.toLocaleString()}</span>
+              <span className="font-bold text-[#2cb775] font-mono">৳{confirmedData?.totalAmount ? confirmedData.totalAmount.toLocaleString() : "To be confirmed"}</span>
             </div>
           </div>
 

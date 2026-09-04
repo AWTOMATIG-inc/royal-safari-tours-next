@@ -76,7 +76,8 @@ const navItems = [
 ];
 
 const bookingSubItems = [
-  { name: "Invoices & Receipts", href: "/dashboard/invoices", icon: "lucide:receipt" },
+  { name: "Booking Enquiry", href: "/dashboard/booking-enquiries", icon: "lucide:calendar-check" },
+  { name: "Invoices", href: "/dashboard/invoices", icon: "lucide:receipt" },
 ];
 const bookingRoles = ["SUPER_ADMIN", "ADMIN", "HR_MANAGER", "EMPLOYEE"];
 
@@ -112,7 +113,9 @@ export default function Sidebar({
   const pathname = usePathname();
   const { user } = useAuth();
 
-  const isBookingActive = pathname.startsWith("/dashboard/invoices");
+  const isBookingActive =
+    pathname.startsWith("/dashboard/booking-enquiries") ||
+    pathname.startsWith("/dashboard/invoices");
   const isAnalyticsActive =
     pathname.startsWith("/dashboard/analytics") ||
     pathname.startsWith("/dashboard/meta-analytics");
