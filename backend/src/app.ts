@@ -25,6 +25,7 @@ import TourLocationRoutes from "./app/modules/tourLocation/tourLocation.route";
 import TourPackageRoutes from "./app/modules/tourPackage/tourPackage.route";
 import TestimonialRoutes from "./app/modules/testimonial/testimonial.route";
 import ContactRoutes from "./app/modules/contact/contact.route";
+import BookingEnquiryRoutes from "./app/modules/bookingEnquiry/bookingEnquiry.route";
 import SubscriberRoutes from "./app/modules/subscriber/subscriber.route";
 import MediaRoutes from "./app/modules/media/media.route";
 import { prisma } from "./app/utils/prisma";
@@ -190,6 +191,7 @@ app.use("/api/v1/tour-locations", TourLocationRoutes);
 app.use("/api/v1/tour-packages", TourPackageRoutes);
 app.use("/api/v1/testimonials", TestimonialRoutes);
 app.use("/api/v1/contacts", ContactRoutes);
+app.use("/api/v1/booking-enquiries", BookingEnquiryRoutes);
 app.use("/api/v1/subscribers", SubscriberRoutes);
 app.use("/api/v1/media", MediaRoutes);
 

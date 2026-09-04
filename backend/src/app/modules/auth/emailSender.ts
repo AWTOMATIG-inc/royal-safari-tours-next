@@ -6,6 +6,8 @@ import {
   generateGuestBookingConfirmationEmailHTML,
   generateApplicantConfirmationEmailHTML,
   generateAdminJobApplicationAlertEmailHTML,
+  generateCustomerBookingReceiptEmailHTML,
+  generateAdminBookingEnquiryAlertHTML,
 } from "./emailTemplate";
 
 // Helper to create Gmail SMTP transporter
@@ -226,3 +228,85 @@ export async function sendGuestInquiryConfirmationEmail(
     return false;
   }
 }
+
+// ----------------------------------------------------------------------------
+// 6. Send Customer Booking Receipt Email (Booking Enquiry)
+// ----------------------------------------------------------------------------
+export async function sendCustomerBookingReceiptEmail(bookingData: {
+  bookingId: string;
+  customerName: string;
+  customerEmail: string;
+  packageName: string;
+  travelDate?: string | null;
+  guestCount?: number | null;
+  totalAmount?: number | string | null;
+  pickupLocation?: string | null;
+  specialNotes?: string | null;
+}): Promise<boolean> {
+  const gmailUser = config.gmailUser;
+  const transporter = getTransporter();
+
+  if (!transporter || !gmailUser || !bookingData.customerEmail) return false;
+
+  const htmlContent = generateCustomerBookingReceiptEmailHTML(bookingData);
+
+  const mailOptions = {
+    from: `"Royal Safari Tours" <${gmailUser}>`,
+    to: bookingData.customerEmail,
+    subject: `Booking Confirmation [${bookingData.bookingId}] - ${bookingData.packageName}`,
+    html: htmlContent,
+    text: `Hello ${bookingData.customerName || "Valued Traveler"},\n\nThank you for booking with Royal Safari Tours!\nBooking Reference ID: ${bookingData.bookingId}\nTour Package: ${bookingData.packageName}\nTravel Date: ${bookingData.travelDate || "Flexible"}\nTravelers: ${bookingData.guestCount || 1}\n\nOur concierge will contact you shortly.\n\nWarm regards,\nRoyal Safari Tours`,
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`[Customer Booking Email] Dispatched to ${bookingData.customerEmail} | ID: ${bookingData.bookingId} | Message ID: ${info.messageId}`);
+    return true;
+  } catch (error: any) {
+    console.error(`[Customer Booking Email Error] Failed to send email to ${bookingData.customerEmail}:`, error.message);
+    return false;
+  }
+}
+
+// ----------------------------------------------------------------------------
+// 7. Send Admin Alert Email for New Booking Enquiry
+// ----------------------------------------------------------------------------
+export async function sendAdminBookingNotificationEmail(bookingData: {
+  bookingId: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  packageName: string;
+  travelDate?: string | null;
+  guestCount?: number | null;
+  totalAmount?: number | string | null;
+  pickupLocation?: string | null;
+  specialNotes?: string | null;
+}): Promise<boolean> {
+  const gmailUser = config.gmailUser;
+  const transporter = getTransporter();
+
+  if (!transporter || !gmailUser) return false;
+
+  const adminEmail = gmailUser;
+  const htmlContent = generateAdminBookingEnquiryAlertHTML(bookingData);
+
+  const mailOptions = {
+    from: `"Royal Safari Booking Desk" <${gmailUser}>`,
+    to: adminEmail,
+    replyTo: bookingData.customerEmail || gmailUser,
+    subject: `[New Booking ${bookingData.bookingId}] ${bookingData.customerName} - ${bookingData.packageName}`,
+    html: htmlContent,
+    text: `New Tour Booking Request [${bookingData.bookingId}]\nCustomer: ${bookingData.customerName}\nPhone: ${bookingData.customerPhone}\nEmail: ${bookingData.customerEmail}\nPackage: ${bookingData.packageName}\nDate: ${bookingData.travelDate || "Flexible"}\nTravelers: ${bookingData.guestCount || 1}`,
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`[Admin Booking Notification] Dispatched to admin (${adminEmail}) | ID: ${bookingData.bookingId} | Message ID: ${info.messageId}`);
+    return true;
+  } catch (error: any) {
+    console.error("[Admin Booking Notification Error] Failed to send email to admin:", error.message);
+    return false;
+  }
+}
+
