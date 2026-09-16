@@ -3,6 +3,7 @@
 import { Icon } from "@iconify/react";
 import Image from "next/image";
 const royal_logo = "/images/branding/royal_logo.png";
+const rst_signature = "/images/branding/rst_signature.png";
 
 export default function InvoicePrintModal({ isOpen, onClose, invoice }) {
   if (!isOpen || !invoice) return null;
@@ -361,7 +362,7 @@ export default function InvoicePrintModal({ isOpen, onClose, invoice }) {
                 {/* Signature Pen Image (Background) */}
                 <div className="absolute inset-0 flex items-center justify-center z-0">
                   <img
-                    src="/images/rst-signature.png"
+                    src={rst_signature}
                     alt="Royal Safari Tours Proprietor Stamp & Signature"
                     className="max-w-full max-h-full object-contain"
                   />
