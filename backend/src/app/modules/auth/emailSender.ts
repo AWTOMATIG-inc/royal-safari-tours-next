@@ -63,6 +63,10 @@ export async function sendOTPEmail(
     return true;
   } catch (error: any) {
     console.error(`[Email OTP Dispatch Error] Failed to send email to ${toEmail}:`, error.message);
+    if (config.nodeEnv === "development" || process.env.NODE_ENV === "development") {
+      console.warn(`[DEV MODE OTP FALLBACK] Verification code for ${toEmail} is: ${plainOtp}`);
+      return true;
+    }
     throw new Error(`EMAIL_SEND_FAILED: ${error.message || "Failed to dispatch verification email"}`);
   }
 }

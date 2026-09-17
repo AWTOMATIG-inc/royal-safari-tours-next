@@ -287,10 +287,6 @@ export default function LoginPage() {
                   <span>Back to Login</span>
                 </button>
 
-                <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 text-[#DE8D3D] flex items-center justify-center mb-3">
-                  <Icon icon="lucide:mail-check" className="w-6 h-6" />
-                </div>
-
                 <h2 className="text-2xl font-bold text-[#0D231E] font-heading">
                   Enter Security Code
                 </h2>

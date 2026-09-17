@@ -78,3 +78,8 @@ export const updateEmployeeSchema = z.object({
   photo: z
     .preprocess(emptyStringToUndefined, z.string().trim().optional()),
 });
+
+export const createOrResetAccountSchema = z.object({
+  password: z
+    .preprocess(emptyStringToUndefined, z.string().min(6, "Password must be at least 6 characters").max(128, "Password must be at most 128 characters").optional()),
+});

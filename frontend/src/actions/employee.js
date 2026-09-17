@@ -249,6 +249,46 @@ export const updateEmployee = async (id, formData) => {
   }
 };
 
+export const createOrResetEmployeeAccount = async (id, password) => {
+  try {
+    const nextCookies = await cookies();
+    const token = nextCookies.get("token")?.value || nextCookies.get("accessToken")?.value;
+
+    const backendUrl = getBackendUrl();
+
+    const res = await fetch(`${backendUrl}/api/v1/employees/${id}/account`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ password }),
+    });
+
+    const result = await res.json();
+
+    if (!res.ok) {
+      throw new Error(result.error || "Failed to process employee account");
+    }
+
+    revalidatePath("/dashboard/employees");
+    revalidatePath(`/dashboard/employees/${id}`);
+    revalidatePath("/dashboard/hrm");
+
+    return {
+      success: true,
+      message: result.message || "Account credentials processed successfully",
+      data: result.data,
+    };
+  } catch (error) {
+    console.error("Employee Account Action Error:", error);
+    return {
+      success: false,
+      message: error.message || "Failed to process employee account",
+    };
+  }
+};
+
 export const deleteEmployee = async (id) => {
   try {
     const nextCookies = await cookies();

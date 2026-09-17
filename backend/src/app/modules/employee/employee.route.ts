@@ -5,7 +5,7 @@ import { authorize } from "../../middlewares/authorize";
 import { validateRequest } from "../../middlewares/validateRequest";
 import { uploadPhoto } from "../../middlewares/hrmUpload";
 import * as employeeController from "./employee.controller";
-import { createEmployeeSchema, updateEmployeeSchema } from "./employee.validation";
+import { createEmployeeSchema, updateEmployeeSchema, createOrResetAccountSchema } from "./employee.validation";
 
 const router = express.Router();
 
@@ -34,6 +34,15 @@ router.post(
   uploadPhoto.single("photo"),
   validateRequest(createEmployeeSchema),
   employeeController.createEmployee
+);
+
+// POST create or reset user login account for employee (Super Admin, Admin, HR Manager)
+router.post(
+  "/:id/account",
+  auth(),
+  authorize(Role.SUPER_ADMIN, Role.ADMIN, Role.HR_MANAGER),
+  validateRequest(createOrResetAccountSchema),
+  employeeController.createOrResetUserAccount
 );
 
 // PATCH update employee (Super Admin, Admin, HR Manager)

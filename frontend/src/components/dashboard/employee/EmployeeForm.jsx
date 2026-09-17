@@ -9,7 +9,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import { createEmployee, updateEmployee } from "@/actions/employee";
+import { createEmployee, updateEmployee, createOrResetEmployeeAccount } from "@/actions/employee";
 import { getImageUrl } from "@/lib/getImageUrl";
 
 export default function EmployeeForm({
@@ -26,6 +26,11 @@ export default function EmployeeForm({
   );
   const [photoFile, setPhotoFile] = useState(null);
   const [createAccount, setCreateAccount] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
+  const [accountActionLoading, setAccountActionLoading] = useState(false);
+  const [editAccountPassword, setEditAccountPassword] = useState("");
+  const [hasUserAccount, setHasUserAccount] = useState(Boolean(employee?.userId || employee?.user));
+
   const fileInputRef = useRef(null);
   const path = usePathname();
   const isEdit = path.includes("edit");
@@ -34,6 +39,7 @@ export default function EmployeeForm({
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm({
     defaultValues: {
@@ -53,6 +59,32 @@ export default function EmployeeForm({
     },
     resolver: yupResolver(employeeSchema(isEdit)),
   });
+
+  const handleCreateOrResetAccount = async (e) => {
+    e.preventDefault();
+    if (!employee?.id) return;
+    if (editAccountPassword && editAccountPassword.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+
+    try {
+      setAccountActionLoading(true);
+      const res = await createOrResetEmployeeAccount(employee.id, editAccountPassword || undefined);
+      if (res.success) {
+        toast.success(res.message || "Account credentials updated successfully!");
+        setHasUserAccount(true);
+        setEditAccountPassword("");
+        router.refresh();
+      } else {
+        toast.error(res.message || "Failed to process user account");
+      }
+    } catch (err) {
+      toast.error(err.message || "An error occurred");
+    } finally {
+      setAccountActionLoading(false);
+    }
+  };
 
   const handlePhotoChange = (e) => {
     const file = e.target.files?.[0];
@@ -267,34 +299,58 @@ export default function EmployeeForm({
                 )}
               </div>
 
-              {!isEdit && (
-                <div className="md:col-span-2">
-                  <div className="flex items-center gap-3 mb-3">
+              {!isEdit ? (
+                <div className="md:col-span-2 mt-2 pt-4 border-t border-gray-100">
+                  <div className="flex items-center gap-3 mb-3 bg-gray-50/80 p-3 rounded-xl border border-gray-200/60">
                     <input
                       type="checkbox"
                       id="createAccount"
                       checked={createAccount}
                       onChange={(e) => setCreateAccount(e.target.checked)}
-                      className="w-4 h-4 text-[#2cb775] border-gray-300 rounded focus:ring-[#2cb775]"
+                      className="w-4 h-4 text-[#2cb775] border-gray-300 rounded focus:ring-[#2cb775] cursor-pointer"
                     />
-                    <label
-                      htmlFor="createAccount"
-                      className="text-sm font-semibold text-gray-700 cursor-pointer"
-                    >
-                      Create user account for this employee
-                    </label>
-                  </div>
-                  {createAccount && (
                     <div>
-                      <label className="mb-1 block text-sm font-semibold text-gray-700">
-                        Password (Min 6 characters)
+                      <label
+                        htmlFor="createAccount"
+                        className="text-sm font-semibold text-gray-800 cursor-pointer block"
+                      >
+                        Create Dashboard Login Account
                       </label>
-                      <input
-                        type="password"
-                        className="border border-gray-300 p-3 rounded-xl w-full focus:outline-none focus:border-[#2cb775] transition-colors text-sm"
-                        placeholder="Enter password (optional, defaults to Employee@123)"
-                        {...register("password")}
-                      />
+                      <p className="text-xs text-gray-500">
+                        Allows this employee to log in to the dashboard with role <span className="font-semibold text-emerald-600">EMPLOYEE</span>.
+                      </p>
+                    </div>
+                  </div>
+
+                  {createAccount && (
+                    <div className="mt-3 bg-white p-4 rounded-xl border border-emerald-100 bg-emerald-50/20 space-y-2">
+                      <label className="block text-sm font-semibold text-gray-700">
+                        Initial Login Password
+                      </label>
+                      <div className="relative">
+                        <input
+                          type={showPassword ? "text" : "password"}
+                          className="border border-gray-300 p-3 pr-10 rounded-xl w-full focus:outline-none focus:border-[#2cb775] transition-colors text-sm bg-white"
+                          placeholder="Enter password (optional, defaults to Employee@123)"
+                          {...register("password")}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+                        >
+                          <Icon
+                            icon={showPassword ? "lucide:eye-off" : "lucide:eye"}
+                            className="w-4 h-4"
+                          />
+                        </button>
+                      </div>
+                      <p className="text-xs text-gray-500">
+                        Leave blank to automatically use the default initial password:{" "}
+                        <span className="font-mono font-semibold text-emerald-700 bg-emerald-100/60 px-1.5 py-0.5 rounded">
+                          Employee@123
+                        </span>
+                      </p>
                       {errors.password && (
                         <p className="text-red-500 text-xs mt-1">
                           {errors.password.message}
@@ -302,6 +358,72 @@ export default function EmployeeForm({
                       )}
                     </div>
                   )}
+                </div>
+              ) : (
+                <div className="md:col-span-2 mt-2 pt-4 border-t border-gray-100">
+                  <div className="p-4 rounded-xl bg-gray-50/60">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+                      <div className="flex items-center gap-2.5">
+                        <div
+                          className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                            hasUserAccount
+                              ? "bg-emerald-100 text-emerald-700"
+                              : "bg-amber-100 text-amber-700"
+                          }`}
+                        >
+                          <Icon
+                            icon={hasUserAccount ? "lucide:shield-check" : "lucide:shield-alert"}
+                            className="w-4 h-4"
+                          />
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-bold text-gray-800">
+                            Dashboard Login Access
+                          </h3>
+                          <p className="text-xs text-gray-500">
+                            {hasUserAccount
+                              ? `Linked user account active (${employee?.email})`
+                              : "This employee does not currently have login access."}
+                          </p>
+                        </div>
+                      </div>
+                      <span
+                        className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${
+                          hasUserAccount
+                            ? "bg-emerald-100 text-emerald-800"
+                            : "bg-amber-100 text-amber-800"
+                        }`}
+                      >
+                        {hasUserAccount ? "Account Active" : "No Login Account"}
+                      </span>
+                    </div>
+
+                    <div className="mt-3 pt-3 border-t border-gray-200/60 flex flex-col sm:flex-row items-center gap-2">
+                      <input
+                        type="password"
+                        value={editAccountPassword}
+                        onChange={(e) => setEditAccountPassword(e.target.value)}
+                        placeholder={
+                          hasUserAccount
+                            ? "New password (min 6 chars)"
+                            : "Password (leave blank for Employee@123)"
+                        }
+                        className="border border-gray-300 p-2.5 rounded-xl w-full sm:w-72 focus:outline-none focus:border-[#2cb775] text-sm bg-white"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleCreateOrResetAccount}
+                        disabled={accountActionLoading}
+                        className="w-full sm:w-auto px-4 py-2.5 bg-secondary hover:bg-accent text-white text-xs font-semibold rounded-xl transition-all shadow-xs disabled:opacity-50 whitespace-nowrap cursor-pointer"
+                      >
+                        {accountActionLoading
+                          ? "Processing..."
+                          : hasUserAccount
+                          ? "Update Password"
+                          : "Create Login Account"}
+                      </button>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
