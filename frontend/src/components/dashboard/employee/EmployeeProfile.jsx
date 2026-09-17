@@ -10,6 +10,7 @@ import {
   deleteEmployee,
   uploadEmployeeDocument,
   deleteEmployeeDocument,
+  createOrResetEmployeeAccount,
 } from "@/actions/employee";
 import { updateEmployeeLeaveBalance } from "@/actions/leave";
 import { getImageUrl } from "@/lib/getImageUrl";
@@ -50,6 +51,31 @@ export default function EmployeeProfile({ employee }) {
   });
   const [totalDaysInput, setTotalDaysInput] = useState(10);
   const [updatingBalance, setUpdatingBalance] = useState(false);
+
+  // Account credentials management state
+  const [accountModal, setAccountModal] = useState(false);
+  const [accountPassword, setAccountPassword] = useState("");
+  const [accountLoading, setAccountLoading] = useState(false);
+  const hasUserAccount = Boolean(employee?.userId || employee?.user);
+
+  const handleAccountSubmit = async (e) => {
+    e.preventDefault();
+    if (accountPassword && accountPassword.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+    setAccountLoading(true);
+    const res = await createOrResetEmployeeAccount(employee.id, accountPassword || undefined);
+    setAccountLoading(false);
+    if (res.success) {
+      toast.success(res.message || "Account credentials processed successfully");
+      setAccountModal(false);
+      setAccountPassword("");
+      router.refresh();
+    } else {
+      toast.error(res.message || "Failed to process account");
+    }
+  };
 
   const docFileInputRef = useRef(null);
 
@@ -176,6 +202,13 @@ export default function EmployeeProfile({ employee }) {
         </div>
         {canManage && (
           <div className="flex items-center gap-3">
+            <button
+              onClick={() => setAccountModal(true)}
+              className="inline-flex items-center gap-2 bg-secondary hover:bg-accent text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors cursor-pointer shadow-xs"
+            >
+              <Icon icon="lucide:key" className="w-4 h-4" />
+              {hasUserAccount ? "Reset Password" : "Create Login Account"}
+            </button>
             <Link
               href={`/dashboard/employees/edit/${employee.id}`}
               className="inline-flex items-center gap-2 bg-[#0D231E] hover:bg-[#1a3a2f] text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors"
@@ -244,6 +277,20 @@ export default function EmployeeProfile({ employee }) {
                 }`}
               >
                 {employee.employmentStatus?.name || "Unknown"}
+              </span>
+              <span className="text-gray-300">|</span>
+              <span
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${
+                  hasUserAccount
+                    ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                    : "bg-amber-50 text-amber-700 border border-amber-200"
+                }`}
+              >
+                <Icon
+                  icon={hasUserAccount ? "lucide:shield-check" : "lucide:shield-alert"}
+                  className="w-3.5 h-3.5"
+                />
+                {hasUserAccount ? "Login Active" : "No Login Access"}
               </span>
             </div>
           </div>
@@ -745,6 +792,88 @@ export default function EmployeeProfile({ employee }) {
         variant="danger"
         loading={loading}
       />
+
+      {/* Account Credentials Management Modal */}
+      {accountModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div
+                  className={`w-9 h-9 rounded-xl flex items-center justify-center ${
+                    hasUserAccount ? "bg-emerald-100 text-emerald-700" : "bg-blue-100 text-blue-700"
+                  }`}
+                >
+                  <Icon icon="lucide:key" className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-gray-800 font-heading">
+                    {hasUserAccount ? "Reset Employee Password" : "Create Login Account"}
+                  </h3>
+                  <p className="text-xs text-gray-500">
+                    Employee: {employee.name} ({employee.email})
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setAccountModal(false)}
+                className="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <Icon icon="lucide:x" className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleAccountSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  {hasUserAccount ? "New Password (Min 6 chars)" : "Initial Password"}
+                </label>
+                <input
+                  type="password"
+                  value={accountPassword}
+                  onChange={(e) => setAccountPassword(e.target.value)}
+                  placeholder={
+                    hasUserAccount
+                      ? "Enter new password (at least 6 characters)"
+                      : "Leave empty to use default (Employee@123)"
+                  }
+                  className="w-full border border-gray-300 p-3 rounded-xl text-sm focus:outline-none focus:border-[#2cb775] transition-colors"
+                />
+                {!hasUserAccount && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    If left blank, default password <span className="font-mono font-semibold text-emerald-600">Employee@123</span> will be configured.
+                  </p>
+                )}
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-gray-100">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAccountModal(false);
+                    setAccountPassword("");
+                  }}
+                  className="px-4 py-2.5 text-xs font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={accountLoading}
+                  className="px-5 py-2.5 rounded-xl text-xs font-semibold text-white bg-secondary hover:bg-accent transition-all shadow-xs disabled:opacity-50 cursor-pointer"
+                >
+                  {accountLoading
+                    ? "Processing..."
+                    : hasUserAccount
+                    ? "Update Password"
+                    : "Create Account"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Delete Document Modal */}
       <ConfirmModal

@@ -4,7 +4,7 @@ import { ZodTypeAny } from "zod";
 export const validateRequest = (schema: ZodTypeAny) => {
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      await schema.parseAsync(req.body);
+      req.body = await schema.parseAsync(req.body);
       next();
     } catch (error: any) {
       res.status(400).json({
@@ -19,7 +19,7 @@ export const validateRequest = (schema: ZodTypeAny) => {
 export const validateQuery = (schema: ZodTypeAny) => {
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      await schema.parseAsync(req.query);
+      req.query = (await schema.parseAsync(req.query)) as any;
       next();
     } catch (error: any) {
       res.status(400).json({

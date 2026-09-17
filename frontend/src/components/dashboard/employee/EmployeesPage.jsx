@@ -285,6 +285,19 @@ export default function EmployeesPage({
                         <div>
                           <p className="font-bold text-[#0D231E]">{emp.name}</p>
                           <p className="text-[11px] text-gray-400">{emp.email}</p>
+                          <div className="mt-0.5">
+                            {emp.userId || emp.user ? (
+                              <span className="inline-flex items-center gap-1 text-[10px] text-emerald-600 font-medium">
+                                <Icon icon="lucide:shield-check" className="w-3 h-3" />
+                                Login Active
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 text-[10px] text-amber-600 font-medium">
+                                <Icon icon="lucide:shield-alert" className="w-3 h-3" />
+                                No Login Account
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </td>
@@ -329,8 +342,19 @@ export default function EmployeesPage({
                           </Link>
                           <Link
                             href={`/dashboard/employees/edit/${emp.id}`}
+                            className={`p-2 rounded-lg transition-colors ${
+                              emp.userId || emp.user
+                                ? "bg-gray-50 text-gray-700 hover:bg-emerald-50 hover:text-emerald-600"
+                                : "bg-amber-50 text-amber-700 hover:bg-amber-100"
+                            }`}
+                            title={emp.userId || emp.user ? "Manage account & reset password" : "Create login account"}
+                          >
+                            <Icon icon="lucide:key" className="w-4 h-4" />
+                          </Link>
+                          <Link
+                            href={`/dashboard/employees/edit/${emp.id}`}
                             className="p-2 rounded-lg bg-gray-50 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
-                            title="Edit employee & status"
+                            title="Edit employee details"
                           >
                             <Icon icon="lucide:pencil" className="w-4 h-4" />
                           </Link>

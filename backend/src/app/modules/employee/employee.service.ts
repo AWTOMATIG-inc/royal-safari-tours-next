@@ -114,7 +114,8 @@ export const createEmployee = async (
   photoUrl?: string
 ) => {
   const name = sanitizeInput(payload.name);
-  const email = sanitizeInput(payload.email);
+  const rawEmail = sanitizeInput(payload.email);
+  const email = rawEmail ? rawEmail.toLowerCase().trim() : null;
   const phone = sanitizeInput(payload.phone);
   const rawDept = sanitizeInput(payload.departmentId);
   const rawDesig = sanitizeInput(payload.designationId);
@@ -162,7 +163,7 @@ export const createEmployee = async (
         OR: [
           { id: rawManagerId },
           { employeeId: rawManagerId },
-          { email: rawManagerId },
+          { email: rawManagerId.toLowerCase() },
         ],
       },
     });
@@ -189,16 +190,32 @@ export const createEmployee = async (
   let createdUserId: string | null = null;
   if (shouldCreateUserAccount) {
     const existingUser = await prisma.user.findUnique({ where: { email } });
+    const rawPass = password || "Employee@123";
+    const hashedPassword = await bcrypt.hash(rawPass, 12);
+
     if (existingUser) {
       createdUserId = existingUser.id;
+      // Synchronize existing user: set status to ACTIVE, promote USER to EMPLOYEE, update password
+      const userUpdates: Record<string, unknown> = {
+        name,
+        status: "ACTIVE",
+        password: hashedPassword,
+      };
+      if (existingUser.role === Role.USER) {
+        userUpdates.role = Role.EMPLOYEE;
+      }
+      await prisma.user.update({
+        where: { id: existingUser.id },
+        data: userUpdates,
+      });
     } else {
-      const hashedPassword = await bcrypt.hash(password || "Employee@123", 12);
       const newUser = await prisma.user.create({
         data: {
           name,
           email,
           password: hashedPassword,
           role: Role.EMPLOYEE,
+          status: "ACTIVE",
         },
       });
       createdUserId = newUser.id;
@@ -313,6 +330,14 @@ export const getAllEmployees = async (query: EmployeeQuery) => {
             photo: true,
           },
         },
+        user: {
+          select: {
+            id: true,
+            email: true,
+            role: true,
+            status: true,
+          },
+        },
       },
     }),
     prisma.employee.count({ where }),
@@ -365,6 +390,7 @@ export const getEmployeeById = async (id: string) => {
           id: true,
           email: true,
           role: true,
+          status: true,
           avatar: true,
         },
       },
@@ -523,8 +549,9 @@ export const updateEmployee = async (
     throw new Error("Employee not found");
   }
 
-  const cleanEmail = sanitizeInput(payload.email);
-  if (cleanEmail && cleanEmail !== existing.email) {
+  const rawEmail = sanitizeInput(payload.email);
+  const cleanEmail = rawEmail ? rawEmail.toLowerCase().trim() : null;
+  if (cleanEmail && cleanEmail !== existing.email.toLowerCase()) {
     const duplicate = await prisma.employee.findUnique({ where: { email: cleanEmail } });
     if (duplicate) {
       throw new Error("Another employee with this email already exists");
@@ -604,6 +631,23 @@ export const updateEmployee = async (
     });
   }
 
+  // If email or name changed, sync linked user record
+  if (payload.name || cleanEmail) {
+    const userUpdates: Record<string, unknown> = {};
+    if (payload.name) userUpdates.name = sanitizeInput(payload.name);
+    if (cleanEmail) userUpdates.email = cleanEmail;
+
+    await prisma.user.updateMany({
+      where: {
+        OR: [
+          ...(existing.userId ? [{ id: existing.userId }] : []),
+          { email: existing.email.toLowerCase() },
+        ],
+      },
+      data: userUpdates,
+    });
+  }
+
   const cleanManagerId = sanitizeInput(managerId);
   if (managerId !== undefined) {
     if (cleanManagerId) {
@@ -612,7 +656,7 @@ export const updateEmployee = async (
           OR: [
             { id: cleanManagerId },
             { employeeId: cleanManagerId },
-            { email: cleanManagerId },
+            { email: cleanManagerId.toLowerCase() },
           ],
         },
       });
@@ -640,6 +684,14 @@ export const updateEmployee = async (
           photo: true,
         },
       },
+      user: {
+        select: {
+          id: true,
+          email: true,
+          role: true,
+          status: true,
+        },
+      },
     },
   });
 
@@ -658,4 +710,92 @@ export const deleteEmployee = async (id: string) => {
   return await prisma.employee.delete({
     where: { id: cleanId },
   });
+};
+
+/**
+ * Create or reset User account credentials for an Employee
+ */
+export const createOrResetEmployeeUserAccount = async (
+  employeeIdOrUuid: string,
+  plainPassword?: string
+) => {
+  const cleanId = sanitizeInput(employeeIdOrUuid);
+  if (!cleanId) throw new Error("Employee ID is required");
+
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cleanId);
+  const employee = await prisma.employee.findFirst({
+    where: {
+      OR: [
+        ...(isUuid ? [{ id: cleanId }] : []),
+        { employeeId: cleanId },
+        { email: cleanId.toLowerCase() },
+      ],
+    },
+    include: {
+      user: true,
+      employmentStatus: true,
+    },
+  });
+
+  if (!employee) throw new Error("Employee not found");
+
+  const normalizedEmail = employee.email.toLowerCase().trim();
+  const passwordToSet = plainPassword || "Employee@123";
+  const hashedPassword = await bcrypt.hash(passwordToSet, 12);
+
+  let userId = employee.userId;
+
+  if (userId) {
+    // Existing linked user - update password and status
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        password: hashedPassword,
+        status: "ACTIVE",
+        role: employee.user?.role === Role.USER ? Role.EMPLOYEE : undefined,
+      },
+    });
+  } else {
+    // Check if user exists with matching email
+    const existingUser = await prisma.user.findUnique({
+      where: { email: normalizedEmail },
+    });
+
+    if (existingUser) {
+      userId = existingUser.id;
+      await prisma.user.update({
+        where: { id: existingUser.id },
+        data: {
+          password: hashedPassword,
+          status: "ACTIVE",
+          role: existingUser.role === Role.USER ? Role.EMPLOYEE : undefined,
+        },
+      });
+    } else {
+      const newUser = await prisma.user.create({
+        data: {
+          name: employee.name,
+          email: normalizedEmail,
+          password: hashedPassword,
+          role: Role.EMPLOYEE,
+          status: "ACTIVE",
+        },
+      });
+      userId = newUser.id;
+    }
+
+    // Link User to Employee
+    await prisma.employee.update({
+      where: { id: employee.id },
+      data: { userId },
+    });
+  }
+
+  return {
+    success: true,
+    message: "Employee login account processed successfully",
+    employeeId: employee.employeeId,
+    email: normalizedEmail,
+    defaultPasswordUsed: !plainPassword,
+  };
 };

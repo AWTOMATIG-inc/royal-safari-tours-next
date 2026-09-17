@@ -146,3 +146,22 @@ export const deleteEmployee = async (req: Request, res: Response): Promise<void>
     });
   }
 };
+
+export const createOrResetUserAccount = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const id = req.params.id as string;
+    const { password } = req.body || {};
+    const result = await employeeService.createOrResetEmployeeUserAccount(id, password);
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: result.message,
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(error.message.includes("not found") ? StatusCodes.NOT_FOUND : StatusCodes.BAD_REQUEST).json({
+      success: false,
+      error: error.message || "Failed to process employee user account",
+    });
+  }
+};
