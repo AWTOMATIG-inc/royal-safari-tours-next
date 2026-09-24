@@ -4,7 +4,7 @@
  */
 
 interface BaseEmailOptions {
-  categoryBadge: string;
+  categoryBadge?: string;
   categoryBadgeColor?: string;
   title: string;
   subtitle?: string;
@@ -93,6 +93,19 @@ export function renderBaseEmailTemplate({
             <tr>
               <td class="content-body" style="padding: 34px 30px; background-color: #FFFFFF;">
 
+                <!-- Category Badge Pill (Optional) -->
+                ${
+                  categoryBadge
+                    ? `
+                <div style="margin-bottom: 16px;">
+                  <span style="display: inline-block; background-color: #F8FAFC; border: 1px solid ${categoryBadgeColor}; color: ${categoryBadgeColor}; font-size: 10px; font-weight: 800; padding: 4px 12px; border-radius: 9999px; letter-spacing: 1.5px; text-transform: uppercase;">
+                    ${categoryBadge}
+                  </span>
+                </div>
+                `
+                    : ""
+                }
+
                 <!-- Email Title -->
                 <h1 style="margin: 0 0 8px 0; font-size: 22px; font-weight: 800; color: #0D231E; line-height: 1.3;">
                   ${title}
@@ -102,7 +115,7 @@ export function renderBaseEmailTemplate({
                 ${
                   subtitle
                     ? `<p style="margin: 0 0 20px 0; font-size: 14px; line-height: 1.6; color: #4B5563;">${subtitle}</p>`
-                    : `<div style="height: 8px;"></div>`
+                    : `<div style="height: 14px;"></div>`
                 }
 
                 <!-- Slot for Dynamic Body Details -->
@@ -206,10 +219,7 @@ export function generateOTPEmailHTML(
   `;
 
   return renderBaseEmailTemplate({
-    categoryBadge: "Security Verification",
-    categoryBadgeColor: "#DE8D3D",
     title: "Account Verification Code",
-    subtitle: "Two-factor authentication code for account sign-in.",
     contentHtml,
     footerNotice: `⏱️ <strong>Security Notice:</strong> This passcode will expire in <strong>${expiryMinutes} minutes</strong>. For your protection, never share this code with anyone. Royal Safari Tours will never ask for your code.`,
   });
