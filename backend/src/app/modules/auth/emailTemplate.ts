@@ -92,13 +92,6 @@ export function renderBaseEmailTemplate({
             <!-- 2. Dynamic Content Body -->
             <tr>
               <td class="content-body" style="padding: 34px 30px; background-color: #FFFFFF;">
-                
-                <!-- Category Badge Pill -->
-                <div style="margin-bottom: 16px;">
-                  <span style="display: inline-block; background-color: #F8FAFC; border: 1px solid ${categoryBadgeColor}; color: ${categoryBadgeColor}; font-size: 10px; font-weight: 800; padding: 4px 12px; border-radius: 9999px; letter-spacing: 1.5px; text-transform: uppercase;">
-                    ${categoryBadge}
-                  </span>
-                </div>
 
                 <!-- Email Title -->
                 <h1 style="margin: 0 0 8px 0; font-size: 22px; font-weight: 800; color: #0D231E; line-height: 1.3;">

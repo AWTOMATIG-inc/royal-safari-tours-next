@@ -27,6 +27,7 @@ export default function InvoicesPage() {
   const [printingInvoice, setPrintingInvoice] = useState(null);
 
   const isAdmin = ["ADMIN", "SUPER_ADMIN", "HR_MANAGER"].includes(user?.role);
+  const isSuperAdmin = user?.role === "SUPER_ADMIN";
 
   const fetchInvoices = useCallback(async () => {
     setLoading(true);
@@ -106,16 +107,18 @@ export default function InvoicesPage() {
         <div>
           <div className="flex items-center gap-2">
             <span className="px-3 py-1 rounded-full bg-secondary/10 text-secondary text-[10px] font-bold uppercase tracking-wider">
-              {isAdmin ? "Company Finance & Billing" : "My Created Invoices"}
+              Company Finance & Billing
             </span>
           </div>
           <h1 className="text-2xl font-bold font-heading text-[#0D231E] mt-1">
             Invoices & Money Receipts
           </h1>
           <p className="text-xs text-gray-500 mt-0.5">
-            {isAdmin
+            {isSuperAdmin
+              ? "Manage all customer invoices, money receipts, line items, print A4 receipts, and perform administrator deletions."
+              : isAdmin
               ? "Manage all customer invoices, money receipts, line items, and print A4 PDF receipts."
-              : "Create customer money receipts, record advance payments, and print A4 receipts."}
+              : "View all company invoices, print A4 PDF receipts, create money receipts, and manage your own invoices."}
           </p>
         </div>
 
@@ -327,15 +330,22 @@ export default function InvoicesPage() {
 
                       {/* Prepared By */}
                       <td className="py-4 px-6">
-                        <span className="font-semibold text-gray-800">
-                          {inv.creatorName || inv.createdBy?.name || "Staff"}
-                        </span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-semibold text-gray-800">
+                            {inv.creatorName || inv.createdBy?.name || "Staff"}
+                          </span>
+                          {inv.createdById === user?.id && (
+                            <span className="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                              You
+                            </span>
+                          )}
+                        </div>
                       </td>
 
                       {/* Actions */}
                       <td className="py-4 px-6">
                         <div className="flex items-center justify-center gap-1.5">
-                          {/* Print / View PDF */}
+                          {/* Print / View PDF (All staff can print any invoice) */}
                           <button
                             onClick={() => handleOpenPrintModal(inv)}
                             className="p-1.5 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors cursor-pointer"
@@ -344,17 +354,19 @@ export default function InvoicesPage() {
                             <Icon icon="lucide:printer" className="w-4 h-4" />
                           </button>
 
-                          {/* Edit */}
-                          <button
-                            onClick={() => handleOpenEditModal(inv)}
-                            className="p-1.5 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors cursor-pointer"
-                            title="Edit Invoice"
-                          >
-                            <Icon icon="lucide:edit-3" className="w-4 h-4" />
-                          </button>
+                          {/* Edit (Admins can edit any invoice; Employees can ONLY edit their own) */}
+                          {(isAdmin || inv.createdById === user?.id) && (
+                            <button
+                              onClick={() => handleOpenEditModal(inv)}
+                              className="p-1.5 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors cursor-pointer"
+                              title="Edit Invoice"
+                            >
+                              <Icon icon="lucide:edit-3" className="w-4 h-4" />
+                            </button>
+                          )}
 
-                          {/* Delete (Admin Only) */}
-                          {isAdmin && (
+                          {/* Delete (Strictly SUPER_ADMIN Only) */}
+                          {isSuperAdmin && (
                             <button
                               onClick={() => handleOpenDeleteModal(inv.id, inv.invoiceNumber)}
                               className="p-1.5 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors cursor-pointer"

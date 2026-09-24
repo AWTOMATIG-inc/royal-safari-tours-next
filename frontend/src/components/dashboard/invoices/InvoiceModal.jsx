@@ -420,9 +420,10 @@ export default function InvoiceModal({ isOpen, onClose, invoice = null, onSucces
                         type="number"
                         min="0"
                         value={item.rate}
-                        onChange={(e) =>
-                          handleItemChange(index, "rate", Math.max(0, parseFloat(e.target.value) || 0))
-                        }
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          handleItemChange(index, "rate", val === "" ? "" : Math.max(0, parseFloat(val) || 0));
+                        }}
                         placeholder="119000"
                         className="w-full border border-gray-300 p-2.5 rounded-xl text-xs focus:outline-none focus:border-secondary font-mono"
                       />
