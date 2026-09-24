@@ -128,7 +128,8 @@ export const deleteInvoice = async (req: Request, res: Response): Promise<void> 
       message: result.message,
     });
   } catch (error: any) {
-    res.status(StatusCodes.BAD_REQUEST).json({
+    const isForbidden = error.message?.includes("Forbidden") || error.message?.includes("SUPER_ADMIN");
+    res.status(isForbidden ? StatusCodes.FORBIDDEN : StatusCodes.BAD_REQUEST).json({
       success: false,
       error: error.message || "Failed to delete invoice",
     });

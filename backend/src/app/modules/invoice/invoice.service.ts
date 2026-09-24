@@ -132,9 +132,9 @@ const getAllInvoices = async (
 ) => {
   const where: any = {};
 
-  // RBAC Filtering: Employee sees only their own created invoices
-  const isAdmin = ["ADMIN", "SUPER_ADMIN", "HR_MANAGER"].includes(userRole);
-  if (!isAdmin) {
+  // Dashboard staff (SUPER_ADMIN, ADMIN, HR_MANAGER, EMPLOYEE) can view all company invoices
+  const canViewAll = ["ADMIN", "SUPER_ADMIN", "HR_MANAGER", "EMPLOYEE"].includes(userRole);
+  if (!canViewAll) {
     where.createdById = userId;
   }
 
@@ -208,8 +208,8 @@ const getInvoiceById = async (userId: string, userRole: string, id: string) => {
     throw new Error("Invoice not found");
   }
 
-  const isAdmin = ["ADMIN", "SUPER_ADMIN", "HR_MANAGER"].includes(userRole);
-  if (!isAdmin && invoice.createdById !== userId) {
+  const canViewAll = ["ADMIN", "SUPER_ADMIN", "HR_MANAGER", "EMPLOYEE"].includes(userRole);
+  if (!canViewAll && invoice.createdById !== userId) {
     throw new Error("You do not have permission to view this invoice");
   }
 
@@ -226,8 +226,9 @@ const updateInvoice = async (userId: string, userRole: string, id: string, paylo
     throw new Error("Invoice not found");
   }
 
-  const isAdmin = ["ADMIN", "SUPER_ADMIN", "HR_MANAGER"].includes(userRole);
-  if (!isAdmin && existingInvoice.createdById !== userId) {
+  // Admins can update any invoice; Employees can ONLY update invoices they created themselves
+  const canUpdateAny = ["ADMIN", "SUPER_ADMIN", "HR_MANAGER"].includes(userRole);
+  if (!canUpdateAny && existingInvoice.createdById !== userId) {
     throw new Error("You do not have permission to update this invoice");
   }
 
@@ -309,9 +310,9 @@ const updateInvoice = async (userId: string, userRole: string, id: string, paylo
 };
 
 const deleteInvoice = async (userRole: string, id: string) => {
-  const isAdmin = ["ADMIN", "SUPER_ADMIN", "HR_MANAGER"].includes(userRole);
-  if (!isAdmin) {
-    throw new Error("Only administrators can delete invoices");
+  // Only SUPER_ADMIN can delete invoices
+  if (userRole !== "SUPER_ADMIN") {
+    throw new Error("Forbidden: Only SUPER_ADMIN can delete invoices");
   }
 
   const existing = await prisma.invoice.findUnique({ where: { id } });
