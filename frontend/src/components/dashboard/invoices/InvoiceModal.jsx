@@ -288,12 +288,15 @@ export default function InvoiceModal({ isOpen, onClose, invoice = null, onSucces
 
               <div>
                 <label className="block text-xs font-semibold text-gray-700 mb-1">
-                  Invoice Date (Fixed)
+                  Invoice Date
                 </label>
-                <div className="w-full bg-gray-100 border border-gray-200 p-2.5 rounded-xl text-xs font-mono text-gray-600 font-semibold flex items-center gap-2">
-                  <Icon icon="lucide:lock" className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                  <span>{form.invoiceDate || new Date().toISOString().split("T")[0]}</span>
-                </div>
+                <input
+                  type="date"
+                  required
+                  value={form.invoiceDate}
+                  onChange={(e) => setForm({ ...form, invoiceDate: e.target.value })}
+                  className="w-full border border-gray-300 p-2.5 rounded-xl text-xs focus:outline-none focus:border-secondary bg-white"
+                />
               </div>
 
               <div>
