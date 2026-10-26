@@ -78,8 +78,7 @@ const createInvoice = async (userId: string, payload: any) => {
   const totalAmount = Math.max(0, subTotal - discount);
   const balanceDue = Math.max(0, totalAmount - amountPaid);
 
-  // Invoice date is permanently fixed to exact creation timestamp
-  const invoiceDate = new Date();
+  const invoiceDate = payload.invoiceDate ? new Date(payload.invoiceDate) : new Date();
   const dueDate = payload.dueDate ? new Date(payload.dueDate) : null;
 
   const result = await prisma.invoice.create({
@@ -270,10 +269,12 @@ const updateInvoice = async (userId: string, userRole: string, id: string, paylo
     const balanceDue = Math.max(0, totalAmount - amountPaid);
 
     const dueDate = payload.dueDate ? new Date(payload.dueDate) : existingInvoice.dueDate;
+    const invoiceDate = payload.invoiceDate ? new Date(payload.invoiceDate) : existingInvoice.invoiceDate;
 
     return await tx.invoice.update({
       where: { id },
       data: {
+        invoiceDate,
         clientName: payload.clientName ?? existingInvoice.clientName,
         clientPhone: payload.clientPhone ?? existingInvoice.clientPhone,
         clientEmail: payload.clientEmail ?? existingInvoice.clientEmail,
